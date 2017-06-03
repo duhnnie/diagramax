@@ -6,18 +6,21 @@
         <script src="js/designer.js"></script>
         <script type="text/javascript">
             var ev = new Event({
+                id: 'ev',
                 text: "Start",
                 position: {
                     x: 50,
                     y: 50
                 }
             }), act = new Activity({
+                id: 'act',
                 text: "Activity",
                 position: {
                     x: 200,
                     y: 100
                 }
             }), act2 = new Activity({
+                id: 'act2',
                 text: "Activity",
                 position: {
                     x: 300,
@@ -35,12 +38,10 @@
                 canvas.addElement(ev);
                 canvas.addElement(act);
                 canvas.addElement(act2);
+                
+                canvas.connect('ev', 'act2');
+                canvas.connect('act2', 'act');
                 document.body.appendChild(canvas.getHTML());
-
-                c = new Connection({origShape: ev, destShape: act});
-                c2 = new Connection({origShape: act, destShape: act2});
-                canvas.getHTML().appendChild(c.getHTML());
-                canvas.getHTML().appendChild(c2.getHTML());
             });
         </script>
         <style>

@@ -22,6 +22,10 @@ Element.prototype.setID = function (id) {
     return this;
 };
 
+Element.prototype.getID = function () {
+    return this._id;
+}
+
 Element.prototype._createHTML = function () {};
 
 Element.prototype.getHTML = function() {
@@ -444,25 +448,11 @@ Connection.prototype._connect = function () {
                 }
             ];
         }
-        // points.push({
-        //     x: origPos.x + (origPos.x === destPos.x ? 0 : this._origShape.getWidth() / 2),
-        //     y: origPos.y
-        // });
-        // points.push({
-        //     x: destPos.x,
-        //     y: origPos.y
-        // });
-        // points.push({
-        //     x: destPos.x,
-        //     y: destPos.y - (this._destShape.getHeight() / 2)
-        // });
     }
-
-    
 
     paths = this._dom.paths || [];
 
-    for (let i = 0; i < points.length - 1; i += 1) {
+    for (var i = 0; i < points.length - 1; i += 1) {
         path = paths[i] || document.createElementNS('http://www.w3.org/2000/svg', 'line');
         path.setAttribute("x1", points[i].x);
         path.setAttribute("y1", points[i].y);
@@ -475,21 +465,47 @@ Connection.prototype._connect = function () {
     }
 
     this._dom.paths = paths;
+    this._dom.arrow.setAttribute("transform", `translate(${points[i].x}, ${points[i].y})`);
+    if (points[i-1].x === points[i].x) {
+        this._dom.arrowRotateContainer.setAttribute("transform", `scale(0.5, 0.5) rotate(${points[i].y > points[i-1].y ? 270 : 90})`);
+    } else {
+        this._dom.arrowRotateContainer.setAttribute("transform", `scale(0.5, 0.5) rotate(${points[i].x > points[i-1].x ? 180 : 0})`);
+    }
+    this._html.appendChild(this._dom.arrow);
 
     return this;
 };
 
 Connection.prototype._createHTML = function () {
-    var wrapper;
+    var wrapper,
+        arrowWrapper,
+        arrowWrapper2,
+        arrow;
 
     if (this._origShape === this.destShape) {
         return this;
     }
 
     wrapper = document.createElementNS("http://www.w3.org/2000/svg", 'g');
-
     //wrapper.setAttribute("transform", `translate(${this._position.x}, ${this._position.y})`);
     wrapper.setAttribute("class", "connection");
+
+    arrowWrapper = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+    arrowWrapper2 = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+    arrowWrapper2.setAttribute("transform", "scale(0.5,0.5) rotate(-180)");
+    arrow = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+    arrow.setAttribute("end", "target");
+    arrow.setAttribute("d", "M 26 -13 L 0 0 L 26 13 z");
+
+    arrowWrapper2.appendChild(arrow);
+    arrowWrapper.appendChild(arrowWrapper2);
+    this._dom.arrow = arrowWrapper;
+    this._dom.arrowRotateContainer = arrowWrapper2;
+    // <g class="marker-arrowheads" id="v-399">
+    //     <g class="marker-arrowhead-group marker-arrowhead-group-target" id="v-403" transform="translate(240,170.5) scale(0.5,0.5) rotate(-180)">
+    //         <path class="marker-arrowhead" end="target" d="M 26 0 L 0 13 L 26 26 z"></path>
+    //     </g>
+    // </g>
 
     this._html = wrapper;
     return this._connect();
@@ -545,6 +561,29 @@ Canvas.prototype.setElements = function (elements) {
     this.clearElements();
 
     elements.forEach((i) => this.addElement(i));
+
+    return this;
+};
+
+Canvas.prototype.getElementById = function (id) {
+    return this._elements.find((i) => i.getID() === id);
+};
+
+Canvas.prototype.connect = function (origin, destination) {
+    var connection;
+    origin = this.getElementById(origin);
+    destination = this.getElementById(destination);
+
+    if (origin && destination && origin !== destination) {
+        connection = new Connection({
+            origShape: origin,
+            destShape: destination
+        });
+
+        if (this._html) {
+            this._dom.container.appendChild(connection.getHTML());
+        }
+    }
 
     return this;
 };
