@@ -311,6 +311,10 @@ Connection.prototype._connect = function () {
         gapX,
         gapY,
         points = [],
+        destPort = {},
+        origPort = {},
+        dx,
+        dy,
         path;
 
     origPos = this._origShape.getPosition();
@@ -320,7 +324,16 @@ Connection.prototype._connect = function () {
     gapY = Math.abs(destPos.y - origPos.y);
 
     if (gapX === 0) {
-        gapY /= 3;
+        if (destPos.y > origPos.y) {
+            origPos.y += this._origShape.getHeight() / 2;
+            destPos.y -= this._destShape.getHeight() / 2;
+        } else {
+            origPos.y -= this._origShape.getHeight() / 2;
+            destPos.y += this._destShape.getHeight() / 2;
+        }
+
+        gapY = Math.abs(destPos.y - origPos.y) / 3;
+
         points = [
             {
                 x: origPos.x,
@@ -328,30 +341,40 @@ Connection.prototype._connect = function () {
             },
             {
                 x: origPos.x,
-                y: origPos.y + gapY
+                y: origPos.y + (gapY * (destPos.y > origPos.y ? 1 : -1))
             },
             {
                 x: origPos.x,
-                y: origPos.y + (gapY * 2)
+                y: origPos.y + (gapY * (destPos.y > origPos.y ? 2 : -2))
             },
             {
                 x: destPos.x,
                 y: destPos.y  
             }
         ];
+
     } else if (gapY === 0) {
-        gapX /= 3;
+        if (destPos.x > origPos.x) {
+            origPos.x += this._origShape.getWidth() / 2;
+            destPos.x -= this._destShape.getWidth() / 2;
+        } else {
+            origPos.x -= this._origShape.getWidth() / 2;
+            destPos.x += this._destShape.getWidth() / 2;
+        }
+
+        gapX = Math.abs(destPos.x - origPos.x) / 3;
+
         points = [
             {
                 x: origPos.x,
                 y: origPos.y
             },
             {
-                x: origPos.x + gapX,
+                x: origPos.x + (gapX * (destPos.x > origPos.x ? 1 : -1)),
                 y: origPos.y
             },
             {
-                x: origPos.x + (gapX * 2),
+                x: origPos.x + (gapX * (destPos.x > origPos.x ? 2 : -2)),
                 y: origPos.y
             },
             {
@@ -360,26 +383,17 @@ Connection.prototype._connect = function () {
             }
         ];
     } else {
-        if (destPos.x > origPos.x) {
-            destPos.x -= this._destShape.getWidth() / 2;
-            origPos.x += this._origShape.getWidth() / 2; 
-        } else {
-            origPos.x -= this._origShape.getWidth() / 2;
-            destPos.x += this._destShape.getWidth() / 2; 
-        }
-
-        if (destPos.y > origPos.y) {
-            destPos.y -= this._destShape.getHeight() / 2;
-            origPos.x += this._origShape.getHeight() / 2;
-        } else {
-            origPos.y -= this._origShape.getHeight() / 2;
-            destPos.x += this._destShape.getHeight() / 2;
-        }
-
-        gapX = Math.abs(destPos.x - origPos.x);
-        gapY = Math.abs(destPos.y - origPos.y);
-
         if (gapY > gapX) {
+            if (destPos.y > origPos.y) {
+                origPos.y += this._origShape.getHeight() / 2;
+                destPos.y -= this._destShape.getHeight() / 2;
+            } else {
+                origPos.y -= this._origShape.getHeight() / 2;
+                destPos.y += this._destShape.getHeight() / 2;
+            }
+
+            gapY = Math.abs(destPos.y - origPos.y);
+
             gapY /= 2;
             points = [
                 {
@@ -388,11 +402,11 @@ Connection.prototype._connect = function () {
                 },
                 {
                     x: origPos.x,
-                    y: origPos.y + gapY
+                    y: origPos.y + (gapY * (destPos.y > origPos.y ? 1 : -1))
                 },
                 {
                     x: destPos.x,
-                    y: origPos.y + gapY
+                    y: origPos.y + (gapY * (destPos.y > origPos.y ? 1 : -1))
                 },
                 {
                     x: destPos.x,
@@ -400,6 +414,16 @@ Connection.prototype._connect = function () {
                 }
             ];
         } else {
+            if (destPos.x > origPos.x) {
+                origPos.x += this._origShape.getWidth() / 2;
+                destPos.x -= this._destShape.getWidth() / 2;
+            } else {
+                origPos.x -= this._origShape.getWidth() / 2;
+                destPos.x += this._destShape.getWidth() / 2;
+            }
+
+            gapX = Math.abs(destPos.x - origPos.x);
+
             gapX /= 2;
             points = [
                 {
@@ -407,11 +431,11 @@ Connection.prototype._connect = function () {
                     y: origPos.y
                 },
                 {
-                    x: origPos.x + gapY,
+                    x: origPos.x + (gapX * (destPos.x > origPos.x ? 1 : -1)),
                     y: origPos.y
                 },
                 {
-                    x: origPos.x + gapY,
+                    x: origPos.x + (gapX * (destPos.x > origPos.x ? 1 : -1)),
                     y: destPos.y
                 },
                 {

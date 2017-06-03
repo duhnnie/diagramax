@@ -17,8 +17,16 @@
                     x: 200,
                     y: 100
                 }
+            }), act2 = new Activity({
+                text: "Activity",
+                position: {
+                    x: 300,
+                    y: 300
+                }
             }),
-            canvas = new Canvas();
+            canvas = new Canvas({
+                height: '900'
+            });
 
             document.addEventListener('DOMContentLoaded', function () {
                 //document.querySelector('#svg-canvas').appendChild(ev.getHTML());
@@ -26,10 +34,13 @@
                 console.log("xxx");
                 canvas.addElement(ev);
                 canvas.addElement(act);
+                canvas.addElement(act2);
                 document.body.appendChild(canvas.getHTML());
 
                 c = new Connection({origShape: ev, destShape: act});
+                c2 = new Connection({origShape: act, destShape: act2});
                 canvas.getHTML().appendChild(c.getHTML());
+                canvas.getHTML().appendChild(c2.getHTML());
             });
         </script>
         <style>
