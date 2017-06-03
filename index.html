@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+    <head>
+        <script src="js/jquery-3.2.1.min.js"></script>
+        <script src="js/utils.js"></script>
+        <script src="js/designer.js"></script>
+        <script type="text/javascript">
+            var ev = new Event({
+                text: "Start",
+                position: {
+                    x: 50,
+                    y: 50
+                }
+            }), act = new Activity({
+                text: "Activity",
+                position: {
+                    x: 200,
+                    y: 100
+                }
+            }),
+            canvas = new Canvas();
+
+            document.addEventListener('DOMContentLoaded', function () {
+                //document.querySelector('#svg-canvas').appendChild(ev.getHTML());
+                //document.querySelector('#svg-canvas').appendChild(act.getHTML());        
+                console.log("xxx");
+                canvas.addElement(ev);
+                canvas.addElement(act);
+                document.body.appendChild(canvas.getHTML());
+
+                c = new Connection({origShape: ev, destShape: act});
+                canvas.getHTML().appendChild(c.getHTML());
+            });
+        </script>
+        <style>
+            
+        </style>
+    </head>
+    <body>
+        
+    </body>
+</html>
