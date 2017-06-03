@@ -184,24 +184,24 @@ Shape.prototype._createHTML = function() {
         ._postHTMLCreation();
 };
 
-var Event = function (settings) {
+var StartEvent = function (settings) {
     Shape.call(this, settings);
 };
 
-Event.prototype = new Shape();
-Event.prototype.constructor = Event;
+StartEvent.prototype = new Shape();
+StartEvent.prototype.constructor = StartEvent;
 
-Event.prototype.setWidth = function () {
+StartEvent.prototype.setWidth = function () {
     this._width = 50;
     return this;
 };
 
-Event.prototype.setHeight = function () {
+StartEvent.prototype.setHeight = function () {
     this._height = 50;
     return this;
 };
 
-Event.prototype._createHTML = function () {
+StartEvent.prototype._createHTML = function () {
     var circle;
 
     if (this._html) {
@@ -230,10 +230,23 @@ Event.prototype._createHTML = function () {
     return this._postHTMLCreation();
 };
 
-// <title>Start Event</title>
-//       <text y="1em" transform="translate(0, 30)" text-anchor="middle">
-//         <tspan>Holafdfgsdfg</tspan>
-//       </text>
+var EndEvent = function (settings) {
+    StartEvent.call(this, settings);
+};
+
+EndEvent.prototype = new StartEvent();
+EndEvent.prototype.constructor = EndEvent;
+
+EndEvent.prototype._createHTML = function () {
+    if (this._html) {
+        return this;
+    }
+    StartEvent.prototype._createHTML.call(this);
+    this._dom.shapeElement.setAttribute("fill", "#EEC0C0");
+    this._dom.shapeElement.setAttribute("stroke", "#C62D2D");
+
+    return this;
+};
 
 var Activity = function (settings) {
     Shape.call(this, settings);

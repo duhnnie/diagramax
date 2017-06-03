@@ -5,7 +5,7 @@
         <script src="js/utils.js"></script>
         <script src="js/designer.js"></script>
         <script type="text/javascript">
-            var ev = new Event({
+            var ev = new StartEvent({
                 id: 'ev',
                 text: "Start",
                 position: {
@@ -27,6 +27,14 @@
                     y: 300
                 }
             }),
+            eev = new EndEvent({
+                id: 'eev',
+                text: "End Event",
+                position: {
+                    x: 80,
+                    y: 80
+                }
+            }),
             canvas = new Canvas({
                 height: '900'
             });
@@ -38,9 +46,11 @@
                 canvas.addElement(ev);
                 canvas.addElement(act);
                 canvas.addElement(act2);
+                canvas.addElement(eev);
                 
                 canvas.connect('ev', 'act2');
                 canvas.connect('act2', 'act');
+                canvas.connect('act', 'eev');
                 document.body.appendChild(canvas.getHTML());
             });
         </script>
