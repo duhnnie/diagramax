@@ -541,12 +541,14 @@ Canvas.prototype.constructor = Canvas;
 Canvas.prototype._init = function (settings) {
     settings = $.extend({
         width: '100%',
-        height: '300px' 
+        height: '300px',
+        data: settings.data
     }, settings);
 
     this._width = settings.width;
     this._height = settings.height;
     this._dragAndDropManager = new DragAndDropManager(this);
+    this._parseData(settings.data);
 };
 
 Canvas.prototype.addElement = function (element) {
@@ -570,9 +572,12 @@ Canvas.prototype.clearElements = function () {
     return this;
 };
 
+Canvas.prototype._createElement = function (def) {
+    return BPMNElementFactoy.create(def);
+};
+
 Canvas.prototype.setElements = function (elements) {
     this.clearElements();
-
     elements.forEach((i) => this.addElement(i));
 
     return this;
@@ -580,6 +585,47 @@ Canvas.prototype.setElements = function (elements) {
 
 Canvas.prototype.getElementById = function (id) {
     return this._elements.find((i) => i.getID() === id);
+};
+
+Canvas.prototype._parseData = function (data) {
+    var bpmn_moddle = new BpmnModdle(),
+        that = this;
+
+    bpmn_moddle.fromXML(data, function (err, definitions) {
+        if (err) {
+            throw new Error(err.message);
+        }
+        var visitor = {
+
+            root: function(element) {
+            //console.log(element);
+            //return importer.add(element);
+            },
+
+            element: (element, parentShape) => {
+                if (element.$type === 'bpmn:SequenceFlow') {
+                    that.connect(element.sourceRef.id, element.targetRef.id);
+                } else {
+                    that.addElement(BPMNElementFactoy.create(element)); 
+                }
+                //BPMNElementFactoy.create(element);
+            // return importer.add(element, parentShape);
+            },
+
+            error: function(message, context) {
+            //console.log(message);
+            // warnings.push({ message: message, context: context });
+            }
+        };
+
+        var walker = new BpmnTreeWalker(visitor);
+
+        // traverse BPMN 2.0 document model,
+        // starting at definitions
+        walker.handleDefinitions(definitions);
+        console.log(definitions);
+    });
+    return this;
 };
 
 Canvas.prototype.connect = function (origin, destination) {
@@ -717,7 +763,6 @@ DragAndDropManager.prototype.registerShape = function (shape) {
 
 var BPMNProject = function (settings) {
     Element.call(this, settings);
-    this._diagram = null;
     this._canvas = null;
     BPMNProject.prototype._init.call(this, settings);
 };
@@ -727,12 +772,13 @@ BPMNProject.prototype.constructor = BPMNProject;
 
 BPMNProject.prototype._init = function (settings) {
     settings = $.extend({
-        diagram: {}
+        data: settings.data
     }, settings);
 
     this._diagram = settings.diagram;
     this._canvas = new Canvas({
         id: settings.id,
+        data: settings.data,
         width: 14000,
         height: 14000
     });
@@ -749,3 +795,43 @@ BPMNProject.prototype._createHTML = function () {
     this._html = html;
     return this;
 };
+
+var BPMNElementFactoy = (function () {
+    var typesMap = {
+        "bpmn:StartEvent": StartEvent,
+        "bpmn:Task": Activity,
+        "bpmn:EndEvent": EndEvent,
+        "bpmn:SequenceFlow": Connection    
+    };
+
+    function getShapeConfig (def) {
+        var attrs = def.di;
+        return def.$type === 'bpmn:SequenceFlow' ? {
+            id: def.id,
+            origShape: def.sourceRef.id, 
+            destShape: def.targetRef.id
+        } : {
+            id: def.id,
+            text: def.name || "",
+            width: attrs.bounds.width,
+            height: attrs.bounds.height,
+            position: {
+                x: attrs.bounds.x,
+                y: attrs.bounds.y
+            }
+        };
+    };
+
+    return {
+        create: function (def) {
+            var Type = typesMap[def.$type],
+                cfg = getShapeConfig(def);
+
+            if (!Type) {
+                throw new Error(`type "${def.$type}" is not supported`);
+            }
+
+            return new Type(cfg);
+        }
+    };
+}());
