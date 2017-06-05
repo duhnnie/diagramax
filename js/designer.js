@@ -393,6 +393,14 @@ Connection.prototype._init = function (settings) {
     this._createBusinessObject();
 };
 
+Connection.prototype.getOrigShape = function () {
+    return this._origShape;
+};
+
+Connection.prototype.getDestShape = function () {
+    return this._destShape;
+};
+
 Connection.prototype._updateBPMNConnections = function () {
     var inverseSet = this._businessObject.$instanceOf('bpmn:SequenceFlow'),
         businessObject = this._businessObject,
@@ -422,6 +430,13 @@ Connection.prototype._updateBPMNConnections = function () {
     return this;
 };
 
+Connection.prototype._updateBPMNWaypoint = function () {
+    this._businessObject.di.set('waypoint', _.map(this._points, i => BPMNFactory.create('dc:Point', {
+        x: i.x,
+        y: i.y
+    })));
+};
+
 Connection.prototype._createBusinessObject = function () {
     var obj;
 
@@ -439,14 +454,15 @@ Connection.prototype._createBusinessObject = function () {
             id: obj.id + "_di"
         });
 
-    obj.di.set('waypoint', _.map(this._points, i => BPMNFactory.create('dc:Point', {
-        x: i.x,
-        y: i.y
-    })));
-
     this._businessObject = obj;
 
+    this._updateBPMNWaypoint();
+
     return this._updateBPMNConnections();
+};
+
+Connection.prototype.getBusinessObject = function () {
+    return this._businessObject;
 };
 
 Connection.prototype._connect = function () {
@@ -613,6 +629,7 @@ Connection.prototype._connect = function () {
     }
     this._html.appendChild(this._dom.arrow);
     this._points = points;
+    this._updateBPMNWaypoint();
 
     return this;
 };
@@ -708,9 +725,74 @@ Canvas.prototype._createBusinessObject = function () {
     return this;
 };
 
+Canvas.prototype.getBusinessObject = function () {
+    return this._businessObject;
+};
+
+Canvas.prototype._addToBusinessObject = function (element) {
+    var eBusinessObject = element.getBusinessObject(),
+        businessObject = this._businessObject,
+        eDi,
+        di,
+        children;
+
+    if (element instanceof Shape) {
+        if (eBusinessObject.elem.$parent !== businessObject.elem) {
+            if (!businessObject.elem) {
+                eBusinessObject.$parent = null;
+            } else {
+                children = businessObject.elem.get('flowElements');
+                children.push(eBusinessObject.elem);
+                eBusinessObject.elem.$parent = businessObject.elem;
+            }
+        }
+
+        eDi = eBusinessObject.di;
+        di = businessObject.di;
+
+        if (eDi.$parent !== di) {
+            children = (di || eDi.$parent).get('planeElement');
+
+            if(di) {
+                children.push(eDi);
+                eDi.$parent = di;
+            } else {
+                CollectionRemove(children, eDi);
+                eDi.$parent = null;
+            }
+        }    
+    } else {
+        if (eBusinessObject.$parent !== businessObject.elem) {
+            if (!businessObject.elem) {
+                eBusinessObject.$parent = null;
+            } else {
+                children = businessObject.elem.get('flowElements');
+                children.push(eBusinessObject);
+                eBusinessObject.$parent = businessObject.elem;
+            }
+        }
+
+        eDi = eBusinessObject.di;
+        di = businessObject.di;
+
+        if (eDi.$parent !== di) {
+            children = (di || eDi.$parent).get('planeElement');
+
+            if (di) {
+                children.push(eDi);
+                eDi.$parent = di;
+            }
+        }
+    }
+
+    return this;
+};
+
 Canvas.prototype.addElement = function (element) {
     this._elements.push(element);
     this._dragAndDropManager.registerShape(element);
+
+    this._addToBusinessObject(element);
 
     if (this._html) {
         this._dom.container.appendChild(element.getHTML());
@@ -796,6 +878,7 @@ Canvas.prototype.connect = function (origin, destination, connection_id) {
             destShape: destination
         });
         this._connections.push(connection);
+        this._addToBusinessObject(connection);
         if (this._html) {
             this._dom.container.appendChild(connection.getHTML());
         }
@@ -941,10 +1024,19 @@ BPMNProject.prototype._init = function (settings) {
         height: 14000
     });
 
-    this._createBusinessObject();
+    this._createBusinessObject(() => this._addToBusinessObject(this._canvas));
 };
 
-BPMNProject.prototype._createBusinessObject = function () {
+BPMNProject.prototype._addToBusinessObject = function (element) {
+    var eBusinessObject = element.getBusinessObject();
+
+    this._businessObject.get("diagrams").push(eBusinessObject.diagram);
+    this._businessObject.get("rootElements").push(eBusinessObject.elem);
+
+    return this;
+};
+
+BPMNProject.prototype._createBusinessObject = function (cb) {
     var emptyXMLDef = '<?xml version="1.0" encoding="UTF-8"?>' +
                     '<bpmn2:definitions xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="BPMNProcessmaker" targetNamespace="http://bpmn.io/schema/bpmn">' +
                     '</bpmn2:definitions>';
@@ -954,6 +1046,7 @@ BPMNProject.prototype._createBusinessObject = function () {
             throw new Error(err.message);
         }
         this._businessObject = definition;
+        cb();
     });
     return this;
 };
