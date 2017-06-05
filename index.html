@@ -165,6 +165,9 @@
                     data: data,
                     onSelectShape: function (shape) {
                         alert("Selected " + shape.getText());
+                    },
+                    onReady: function () {
+                        console.log('ready');
                     }
                 });
                 document.body.appendChild(bpmnProject.getHTML());

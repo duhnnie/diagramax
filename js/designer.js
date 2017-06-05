@@ -693,6 +693,7 @@ Canvas.prototype._init = function (settings) {
         height: '300px',
         data: settings.data,
         onSelectShape: null,
+        onReady: null
     }, settings);
 
     this._width = settings.width;
@@ -700,7 +701,11 @@ Canvas.prototype._init = function (settings) {
     this._dragAndDropManager = new DragAndDropManager(this);
     this._onSelectShapeHandler = settings.onSelectShape;
     this._createBusinessObject();
-    this._parseData(settings.data);
+    this._parseData(settings.data, (i) => {
+        if (typeof settings.onReady === 'function') {
+            settings.onReady(this);
+        }
+    });
 };
 
 Canvas.prototype._createBusinessObject = function () {
@@ -829,7 +834,7 @@ Canvas.prototype.getElementById = function (id) {
     return this._elements.find((i) => i.getID() === id);
 };
 
-Canvas.prototype._parseData = function (data) {
+Canvas.prototype._parseData = function (data, cb) {
     var that = this;
 
     BPMNFactory.fromXML(data, function (err, definitions) {
@@ -864,6 +869,9 @@ Canvas.prototype._parseData = function (data) {
         // traverse BPMN 2.0 document model,
         // starting at definitions
         walker.handleDefinitions(definitions);
+        if (typeof cb === 'function') {
+            cb();
+        }
         console.log(definitions);
     });
     return this;
@@ -1029,7 +1037,8 @@ BPMNProject.prototype.constructor = BPMNProject;
 BPMNProject.prototype._init = function (settings) {
     settings = $.extend({
         data: settings.data,
-        onSelectShape: null
+        onSelectShape: null,
+        onReady: null
     }, settings);
 
     this._diagram = settings.diagram;
@@ -1038,7 +1047,8 @@ BPMNProject.prototype._init = function (settings) {
         data: settings.data,
         width: 14000,
         height: 14000,
-        onSelectShape: settings.onSelectShape
+        onSelectShape: settings.onSelectShape,
+        onReady: settings.onReady
     });
 
     this._createBusinessObject(() => this._addToBusinessObject(this._canvas));
