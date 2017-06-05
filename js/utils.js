@@ -84,3 +84,24 @@ var generateUniqueId = function () {
 
     return sUID;
 };
+
+/**
+ * Failsafe remove an element from a collection
+ *
+ * @param  {Array<Object>} [collection]
+ * @param  {Object} [element]
+ *
+ * @return {Object} the element that got removed or undefined
+ */
+var CollectionRemove = function (collection, element) {
+    var idx;
+    if (!collection || !element) {
+        return;
+    }
+    idx = collection.indexOf(element);
+    if (idx === -1) {
+        return;
+    }
+    collection.splice(idx, 1);
+    return element;
+};

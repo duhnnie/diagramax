@@ -108,6 +108,10 @@ Shape.prototype._createBusinessObject = function () {
     return this;
 };
 
+Shape.prototype.getBusinessObject = function () {
+    return this._businessObject;
+};
+
 Shape.prototype.setText = function (text) {
     this._text = text.toString();
     if (this._html) {
@@ -373,6 +377,7 @@ Connection.prototype._init = function (settings) {
 
     this._origShape = settings.origShape;
     this._destShape = settings.destShape;
+
     if (this._origShape) {
         this._origShape._connections.push(this);
     }
@@ -380,6 +385,35 @@ Connection.prototype._init = function (settings) {
         this._destShape._connections.push(this);
     }
     this._createBusinessObject();
+};
+
+Connection.prototype._updateBPMNConnections = function () {
+    var inverseSet = this._businessObject.$instanceOf('bpmn:SequenceFlow'),
+        businessObject = this._businessObject,
+        sourceBusinessObject = this._origShape.getBusinessObject(),
+        targetBusinessObject = this._destShape.getBusinessObject();
+
+    if (businessObject.sourceRef !== sourceBusinessObject.elem) {
+        if (inverseSet) {
+            CollectionRemove(businessObject.sourceRef && businessObject.sourceRef.get('outgoing'), businessObject);
+            if (sourceBusinessObject.elem) {
+                sourceBusinessObject.elem.get('outgoing').push(businessObject);
+            }
+        }
+        businessObject.sourceRef = sourceBusinessObject.elem;
+    }
+
+    if (businessObject.targetRef !== targetBusinessObject.elem) {
+        if (inverseSet) {
+            CollectionRemove(businessObject.targetRef && businessObject.targetRef.get('incoming'), businessObject);
+            if (targetBusinessObject.elem) {
+                targetBusinessObject.elem.get('incoming').push(businessObject);
+            }
+        }
+        businessObject.targetRef = targetBusinessObject.elem;
+    }
+
+    return this;
 };
 
 Connection.prototype._createBusinessObject = function () {
@@ -406,7 +440,7 @@ Connection.prototype._createBusinessObject = function () {
 
     this._businessObject = obj;
 
-    return this;
+    return this._updateBPMNConnections();
 };
 
 Connection.prototype._connect = function () {
@@ -619,6 +653,7 @@ var Canvas = function (settings) {
     this._height = null;
     this._elements = [];
     this._dom = {};
+    this._businessObject = {};
     this._connections = [];
     this.__bulkAction = false;
     this._dragAndDropManager = null;
@@ -638,7 +673,33 @@ Canvas.prototype._init = function (settings) {
     this._width = settings.width;
     this._height = settings.height;
     this._dragAndDropManager = new DragAndDropManager(this);
+    this._createBusinessObject();
     this._parseData(settings.data);
+};
+
+Canvas.prototype._createBusinessObject = function () {
+    var bpmnDia = BPMNFactory.create('bpmndi:BPMNDiagram', {
+            id: 'dia_' + this._id
+        }),
+        bpmnPlane = BPMNFactory.create('bpmndi:BPMNPlane', {
+            bpmnElement: undefined,
+            id: 'plane_' + generateUniqueId()
+        });
+
+    bpmnDia.plane = bpmnPlane;
+    this._businessObject.diagram = bpmnDia;
+    this._businessObject.di = bpmnPlane;
+    this._elem = {};
+
+    this._businessObject.elem = BPMNFactory.create('bpmn:Process', {
+        id: "pmui-" + generateUniqueId()
+    });
+
+    if (this._businessObject.di && (!this._businessObject.di.bpmnElement)) {
+        this._businessObject.di.bpmnElement = this._businessObject.elem;
+    }
+
+    return this;
 };
 
 Canvas.prototype.addElement = function (element) {
