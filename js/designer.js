@@ -60,6 +60,7 @@ var Shape = function (settings) {
     this._dom = {};
     this._businessObject = {};
     this._connections = [];
+    this._processConfiguration = {};
     Shape.prototype._init.call(this, settings);
 };
 
@@ -81,6 +82,34 @@ Shape.prototype._init = function(settings) {
         .setWidth(settings.width)
         .setHeight(settings.height)
         ._createBusinessObject();
+};
+
+Shape.prototype.getConnectedShapes = function () {
+    var prev = [],
+        next = [];
+
+    this._connections.forEach(i => {
+        let destShape = i.getDestShape();
+        if (destShape !== this) {
+            next.push(destShape);
+        } else {
+            prev.push(i.getOrigShape());
+        }
+    });
+
+    return {
+        prev: prev,
+        next: next
+    };
+};
+
+Shape.prototype.setProcessConfig = function (key, value) {
+    this._processConfiguration[key] = value;
+    return this;
+};
+
+Shape.prototype.getProcessConfig = function () {
+    return this._processConfiguration;
 };
 
 Shape.prototype._createBusinessObject = function () {
@@ -872,7 +901,6 @@ Canvas.prototype._parseData = function (data, cb) {
         if (typeof cb === 'function') {
             cb();
         }
-        console.log(definitions);
     });
     return this;
 };
@@ -1076,6 +1104,71 @@ BPMNProject.prototype._createBusinessObject = function (cb) {
         cb();
     });
     return this;
+};
+
+BPMNProject.prototype.toXMLDefinition = function (cb) {
+    var that = this,
+        typesMap = {
+            "text": "string"
+        };
+    BPMNFactory.toXML(this._businessObject, function (err, data) {
+        var parser, xmlDoc, shapes, processNode;
+
+        parser = new DOMParser();
+        xmlDoc = parser.parseFromString(data,"text/xml");
+        processNode = xmlDoc.querySelector('process');
+        shapes = that._canvas._elements;
+        shapes.forEach((shape) => {
+            let shapeNode = Array.from(processNode.children).find((k) => k.id === 'el_' + shape.getID()),
+                cfg = shape.getProcessConfig(),//{"form":[{"name":"nombre","display_name":"Nombre","type":"text","default":""},{"name":"apellido","display_name":"Apellido","type":"text","default":""}]},
+                extElements = xmlDoc.createElement('bpmn2:extensionElements'),
+                formData = xmlDoc.createElement('camunda:formData'),
+                inputOutput = xmlDoc.createElement('camunda:inputOutput'),
+                previousShapes, output = [], aux;
+
+            cfg.form && cfg.form.forEach((j) => {
+                let formField = xmlDoc.createElement('camunda:formField');
+                formField.setAttribute("id", j.name);
+                formField.setAttribute("label", j.display_name);
+                formField.setAttribute("type", typesMap[j.type]);
+
+                formData.appendChild(formField);
+
+                output.push(j.name);
+            });
+
+            previousShapes = shape.getConnectedShapes().prev;
+            aux = {};
+            previousShapes.forEach((prevShape) => {
+                prevShape.getProcessConfig();
+                prevShape.form && prevShape.form.forEach(field => {
+                    aux[field.name] = field;
+                });
+            });
+
+            for (let field in aux) {
+                let inputParemeter = xmlDoc.createElement('camunda:inputParemeter');
+                inputParemeter.setAttribute("name", aux[field].name);
+                inputOutput.appendChild(inputParemeter);              
+            }
+
+            output.forEach(param => {
+                let outputParameter = xmlDoc.createElement('camunda:outputParameter');
+
+                outputParameter.setAttribute("name", param);
+                inputOutput.appendChild(outputParameter);
+            });
+
+            extElements.appendChild(formData);
+            extElements.appendChild(inputOutput);
+            shapeNode.appendChild(extElements);
+        });
+
+        xmlDoc.documentElement.setAttribute("xmlns:camunda", "http://camunda.org/schema/1.0/bpmn");
+        console.log(xmlDoc, that);
+
+        return cb && cb(err, data);   
+    });
 };
 
 BPMNProject.prototype._createHTML = function () {
