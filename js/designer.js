@@ -1055,6 +1055,7 @@ DragAndDropManager.prototype.registerShape = function (shape) {
 var BPMNProject = function (settings) {
     Element.call(this, settings);
     this._canvas = null;
+    this._name = null;
     this._businessObject = {};
     BPMNProject.prototype._init.call(this, settings);
 };
@@ -1066,9 +1067,11 @@ BPMNProject.prototype._init = function (settings) {
     settings = $.extend({
         data: settings.data,
         onSelectShape: null,
-        onReady: null
+        onReady: null,
+        name: ''
     }, settings);
 
+    this._name = settings.name;
     this._diagram = settings.diagram;
     this._canvas = new Canvas({
         id: settings.id,
@@ -1117,6 +1120,7 @@ BPMNProject.prototype.toXMLDefinition = function (cb) {
         parser = new DOMParser();
         xmlDoc = parser.parseFromString(data,"text/xml");
         processNode = xmlDoc.querySelector('process');
+        processNode.setAttribute("name", that._name);
         shapes = that._canvas._elements;
         shapes.forEach((shape) => {
             let shapeNode = Array.from(processNode.children).find((k) => k.id === 'el_' + shape.getID()),
@@ -1125,6 +1129,23 @@ BPMNProject.prototype.toXMLDefinition = function (cb) {
                 formData = xmlDoc.createElement('camunda:formData'),
                 inputOutput = xmlDoc.createElement('camunda:inputOutput'),
                 previousShapes, output = [], aux;
+
+            if (shape instanceof Activity) {
+                aux = shapeNode;
+                shapeNode = xmlDoc.createElement('bpmn2:userTask');
+
+                for (let attr in aux.attributes) {
+                    if (aux.attributes.hasOwnProperty(attr)) {
+                        shapeNode.setAttribute(aux.attributes[attr].name, aux.attributes[attr].value);
+                    }
+                }
+
+                while (aux.children.length) {
+                    shapeNode.appendChild(aux.children[0]);
+                }
+
+                aux.replaceWith(shapeNode);
+            }
 
             cfg.form && cfg.form.forEach((j) => {
                 let formField = xmlDoc.createElement('camunda:formField');
@@ -1140,14 +1161,14 @@ BPMNProject.prototype.toXMLDefinition = function (cb) {
             previousShapes = shape.getConnectedShapes().prev;
             aux = {};
             previousShapes.forEach((prevShape) => {
-                prevShape.getProcessConfig();
-                prevShape.form && prevShape.form.forEach(field => {
+                let cfg = prevShape.getProcessConfig();
+                cfg.form && cfg.form.forEach(field => {
                     aux[field.name] = field;
                 });
             });
 
             for (let field in aux) {
-                let inputParemeter = xmlDoc.createElement('camunda:inputParemeter');
+                let inputParemeter = xmlDoc.createElement('camunda:inputParameter');
                 inputParemeter.setAttribute("name", aux[field].name);
                 inputOutput.appendChild(inputParemeter);              
             }
