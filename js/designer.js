@@ -1,3 +1,13 @@
+var BPMNFactory = (function () {
+    var bpmn_moddle = new BpmnModdle();
+
+    return {
+        create: function (descriptor, attrs) {
+            return bpmn_moddle.create(descriptor, attrs);
+        }
+    };
+}());
+
 var Element = function (settings) {
     this._id = null;
     this._html = null;
@@ -42,6 +52,7 @@ var Shape = function (settings) {
     this._position = {};
     this._text = null;
     this._dom = {};
+    this._businessObject = {};
     this._connections = [];
     Shape.prototype._init.call(this, settings);
 };
@@ -62,7 +73,39 @@ Shape.prototype._init = function(settings) {
     this.setPosition(settings.position)
         .setText(settings.text)
         .setWidth(settings.width)
-        .setHeight(settings.height);
+        .setHeight(settings.height)
+        ._createBusinessObject();
+};
+
+Shape.prototype._createBusinessObject = function () {
+    var elem,
+        bounds;
+
+    if (!this.constructor.bpmnType) {
+        return this;
+    }
+
+    elem = BPMNFactory.create(this.constructor.bpmnType, {
+            id: 'el_' + this._id,
+            name: this.getText()
+        });
+
+    bounds = BPMNFactory.create("dc:Bounds", {});
+
+    this._businessObject.elem = elem;
+
+    this._businessObject.di = BPMNFactory.create("bpmndi:BPMNShape", {
+        bpmnElement: elem,
+        bounds: bounds,
+        id: 'di_' + elem.id
+    });
+
+    this._businessObject.di.bounds.x = this.getX();
+    this._businessObject.di.bounds.y = this.getY();
+    this._businessObject.di.bounds.width = this.getWidth();
+    this._businessObject.di.bounds.height = this.getHeight();
+
+    return this;
 };
 
 Shape.prototype.setText = function (text) {
@@ -72,6 +115,10 @@ Shape.prototype.setText = function (text) {
         this._dom.title.textContent = text;
     }
     return this;
+};
+
+Shape.prototype.getText = function () {
+    return this._text;
 };
 
 Shape.prototype.setX = function (x) {
@@ -190,6 +237,13 @@ var StartEvent = function (settings) {
 
 StartEvent.prototype = new Shape();
 StartEvent.prototype.constructor = StartEvent;
+StartEvent.bpmnType = "bpmn:StartEvent";
+
+StartEvent.prototype._createBusinessObject = function () {
+    Shape.prototype._createBusinessObject.call(this);
+    this._businessObject.eventDefinitions = [];
+    return this;
+};
 
 StartEvent.prototype.setWidth = function () {
     this._width = 50;
@@ -236,6 +290,7 @@ var EndEvent = function (settings) {
 
 EndEvent.prototype = new StartEvent();
 EndEvent.prototype.constructor = EndEvent;
+EndEvent.bpmnType = "bpmn:EndEvent";
 
 EndEvent.prototype._createHTML = function () {
     if (this._html) {
@@ -255,6 +310,7 @@ var Activity = function (settings) {
 
 Activity.prototype = new Shape();
 Activity.prototype.constructor = Activity;
+Activity.bpmnType = "bpmn:Task";
 
 Activity.prototype._init = function (settings) {
     settings = $.extend({
@@ -300,11 +356,14 @@ var Connection = function (settings) {
     this._origShape = null;
     this._destShape = null;
     this._dom = {};
+    this._businessObject = {};
+    this._points = [];
     Connection.prototype._init.call(this, settings);
 };
 
 Connection.prototype = new Element();
 Connection.prototype.constructor = Connection;
+Connection.bpmnType = "bpmn:SequenceFlow";
 
 Connection.prototype._init = function (settings) {
     settings = $.extend({
@@ -320,6 +379,34 @@ Connection.prototype._init = function (settings) {
     if (this._destShape) {
         this._destShape._connections.push(this);
     }
+    this._createBusinessObject();
+};
+
+Connection.prototype._createBusinessObject = function () {
+    var obj;
+
+    if (!this.constructor.bpmnType) {
+        return this;
+    }
+
+    obj = BPMNFactory.create(this.constructor.bpmnType, {
+            id: 'flo_' + this._id,
+            name: " "
+        });
+
+    obj.di = BPMNFactory.create("bpmndi:BPMNEdge", {
+            bpmnElement: obj,
+            id: obj.id + "_di"
+        });
+
+    obj.di.set('waypoint', _.map(this._points, i => BPMNFactory.create('dc:Point', {
+        x: i.x,
+        y: i.y
+    })));
+
+    this._businessObject = obj;
+
+    return this;
 };
 
 Connection.prototype._connect = function () {
@@ -485,6 +572,7 @@ Connection.prototype._connect = function () {
         this._dom.arrowRotateContainer.setAttribute("transform", `scale(0.5, 0.5) rotate(${points[i].x > points[i-1].x ? 180 : 0})`);
     }
     this._html.appendChild(this._dom.arrow);
+    this._points = points;
 
     return this;
 };
@@ -500,6 +588,7 @@ Connection.prototype._createHTML = function () {
     }
 
     wrapper = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+    wrapper.setAttribute("id", this._id);
     //wrapper.setAttribute("transform", `translate(${this._position.x}, ${this._position.y})`);
     wrapper.setAttribute("class", "connection");
 
@@ -530,6 +619,7 @@ var Canvas = function (settings) {
     this._height = null;
     this._elements = [];
     this._dom = {};
+    this._connections = [];
     this.__bulkAction = false;
     this._dragAndDropManager = null;
     Canvas.prototype._init.call(this, settings);
@@ -604,7 +694,7 @@ Canvas.prototype._parseData = function (data) {
 
             element: (element, parentShape) => {
                 if (element.$type === 'bpmn:SequenceFlow') {
-                    that.connect(element.sourceRef.id, element.targetRef.id);
+                    that.connect(element.sourceRef.id, element.targetRef.id, element.id);
                 } else {
                     that.addElement(BPMNElementFactoy.create(element)); 
                 }
@@ -628,17 +718,18 @@ Canvas.prototype._parseData = function (data) {
     return this;
 };
 
-Canvas.prototype.connect = function (origin, destination) {
+Canvas.prototype.connect = function (origin, destination, connection_id) {
     var connection;
     origin = this.getElementById(origin);
     destination = this.getElementById(destination);
 
     if (origin && destination && origin !== destination) {
         connection = new Connection({
+            id: connection_id,
             origShape: origin,
             destShape: destination
         });
-
+        this._connections.push(connection);
         if (this._html) {
             this._dom.container.appendChild(connection.getHTML());
         }

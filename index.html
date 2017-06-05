@@ -42,6 +42,7 @@
                     y: 80
                 }
             }),
+            bpmnProject,
             // canvas = new Canvas({
             //     height: '900'
             // }),
@@ -160,7 +161,7 @@
                 // canvas.connect('act', 'eev');
                 // document.body.appendChild(canvas.getHTML());
 
-                var bpmnProject = new BPMNProject({
+                bpmnProject = new BPMNProject({
                     data: data
                 });
                 document.body.appendChild(bpmnProject.getHTML());
