@@ -4,6 +4,12 @@ var BPMNFactory = (function () {
     return {
         create: function (descriptor, attrs) {
             return bpmn_moddle.create(descriptor, attrs);
+        },
+        fromXML: function (data, callback) {
+            return bpmn_moddle.fromXML(data, callback);
+        },
+        toXML: function (data, callback) {
+            return bpmn_moddle.toXML(data, callback);
         }
     };
 }());
@@ -739,10 +745,9 @@ Canvas.prototype.getElementById = function (id) {
 };
 
 Canvas.prototype._parseData = function (data) {
-    var bpmn_moddle = new BpmnModdle(),
-        that = this;
+    var that = this;
 
-    bpmn_moddle.fromXML(data, function (err, definitions) {
+    BPMNFactory.fromXML(data, function (err, definitions) {
         if (err) {
             throw new Error(err.message);
         }
@@ -916,6 +921,7 @@ DragAndDropManager.prototype.registerShape = function (shape) {
 var BPMNProject = function (settings) {
     Element.call(this, settings);
     this._canvas = null;
+    this._businessObject = {};
     BPMNProject.prototype._init.call(this, settings);
 };
 
@@ -934,6 +940,22 @@ BPMNProject.prototype._init = function (settings) {
         width: 14000,
         height: 14000
     });
+
+    this._createBusinessObject();
+};
+
+BPMNProject.prototype._createBusinessObject = function () {
+    var emptyXMLDef = '<?xml version="1.0" encoding="UTF-8"?>' +
+                    '<bpmn2:definitions xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" id="BPMNProcessmaker" targetNamespace="http://bpmn.io/schema/bpmn">' +
+                    '</bpmn2:definitions>';
+
+    BPMNFactory.fromXML(emptyXMLDef, (err, definition) => {
+        if (err) {
+            throw new Error(err.message);
+        }
+        this._businessObject = definition;
+    });
+    return this;
 };
 
 BPMNProject.prototype._createHTML = function () {
