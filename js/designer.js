@@ -678,6 +678,7 @@ var Canvas = function (settings) {
     this._dom = {};
     this._businessObject = {};
     this._connections = [];
+    this._onSelectShapeHandler = null;
     this.__bulkAction = false;
     this._dragAndDropManager = null;
     Canvas.prototype._init.call(this, settings);
@@ -690,12 +691,14 @@ Canvas.prototype._init = function (settings) {
     settings = $.extend({
         width: '100%',
         height: '300px',
-        data: settings.data
+        data: settings.data,
+        onSelectShape: null,
     }, settings);
 
     this._width = settings.width;
     this._height = settings.height;
     this._dragAndDropManager = new DragAndDropManager(this);
+    this._onSelectShapeHandler = settings.onSelectShape;
     this._createBusinessObject();
     this._parseData(settings.data);
 };
@@ -887,6 +890,14 @@ Canvas.prototype.connect = function (origin, destination, connection_id) {
     return this;
 };
 
+Canvas.prototype._onSelectShape = function (shape) {
+    if (typeof this._onSelectShapeHandler === 'function') {
+        this._onSelectShapeHandler(shape);
+    }
+
+    return this;
+};
+
 Canvas.prototype._createHTML = function () {
     var svg, 
         g;
@@ -988,6 +999,10 @@ DragAndDropManager.prototype._init = function () {
     }).on('click', () => {
         //this._fromTarget = null;
         this._dom.line.setAttribute("stroke", "");
+    }).on('dblclick', '.shape', e => {
+        var shape = this._getShape(e.currentTarget);
+
+        this._canvas._onSelectShape(shape);
     });
 
     this._dom.line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -1013,7 +1028,8 @@ BPMNProject.prototype.constructor = BPMNProject;
 
 BPMNProject.prototype._init = function (settings) {
     settings = $.extend({
-        data: settings.data
+        data: settings.data,
+        onSelectShape: null
     }, settings);
 
     this._diagram = settings.diagram;
@@ -1021,7 +1037,8 @@ BPMNProject.prototype._init = function (settings) {
         id: settings.id,
         data: settings.data,
         width: 14000,
-        height: 14000
+        height: 14000,
+        onSelectShape: settings.onSelectShape
     });
 
     this._createBusinessObject(() => this._addToBusinessObject(this._canvas));

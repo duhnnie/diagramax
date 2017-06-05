@@ -162,7 +162,10 @@
                 // document.body.appendChild(canvas.getHTML());
 
                 bpmnProject = new BPMNProject({
-                    data: data
+                    data: data,
+                    onSelectShape: function (shape) {
+                        alert("Selected " + shape.getText());
+                    }
                 });
                 document.body.appendChild(bpmnProject.getHTML());
             });
