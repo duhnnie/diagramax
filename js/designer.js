@@ -1073,7 +1073,7 @@ BPMNProject.prototype._init = function (settings) {
         name: ''
     }, settings);
 
-    this._name = settings.name;
+    this.setName(settings.name);
     this._diagram = settings.diagram;
     this._canvas = new Canvas({
         id: settings.id,
@@ -1085,6 +1085,11 @@ BPMNProject.prototype._init = function (settings) {
     });
 
     this._createBusinessObject(() => this._addToBusinessObject(this._canvas));
+};
+
+BPMNProject.prototype.setName = function(name) {
+    this._name = name;
+    return this;
 };
 
 BPMNProject.prototype._addToBusinessObject = function (element) {
@@ -1191,9 +1196,8 @@ BPMNProject.prototype.toXMLDefinition = function (cb) {
         });
 
         xmlDoc.documentElement.setAttribute("xmlns:camunda", "http://camunda.org/schema/1.0/bpmn");
-        console.log(xmlDoc, that);
 
-        return cb && cb(err, data);   
+        return cb && cb(err, new XMLSerializer().serializeToString(xmlDoc));   
     });
 };
 
