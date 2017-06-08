@@ -981,63 +981,63 @@ DragAndDropManager.prototype._init = function () {
     var diff,
         dragged = false;
     $(this._canvas.getHTML())
-    // .on('mousemove', (e) => {
-    //     if (this._target) {
-    //         this._target.setPosition(e.offsetX - diff.x, e.offsetY - diff.y);
-    //         this._target._connections.forEach(i => i._connect());
-    //         this._fromTarget = null;
-    //         dragged = true;
-    //     } else if (this._fromTarget) {
-    //         this._dom.line.setAttribute("x1", this._fromTarget.getX());
-    //         this._dom.line.setAttribute("y1", this._fromTarget.getY());
-    //         this._dom.line.setAttribute("x2", e.offsetX - 1);
-    //         this._dom.line.setAttribute("y2", e.offsetY - 1);
-    //     }
-    // }).on('mouseleave',  () => {
-    //     var html;
+    .on('mousemove', (e) => {
+        if (this._target) {
+            this._target.setPosition(e.offsetX - diff.x, e.offsetY - diff.y);
+            this._target._connections.forEach(i => i._connect());
+            this._fromTarget = null;
+            dragged = true;
+        } else if (this._fromTarget) {
+            this._dom.line.setAttribute("x1", this._fromTarget.getX());
+            this._dom.line.setAttribute("y1", this._fromTarget.getY());
+            this._dom.line.setAttribute("x2", e.offsetX - 1);
+            this._dom.line.setAttribute("y2", e.offsetY - 1);
+        }
+    }).on('mouseleave',  () => {
+        var html;
 
-    //     if (!this._target) return;
+        if (!this._target) return;
 
-    //     html = this._target.getHTML();
-    //     this._target.setPosition(html.getCTM().e, html.getCTM().f);
-    //     this._target = null;
-    // })
-    // .on('mousedown', '.shape', (e) => {
-    //     this._target = this._getShape(e.currentTarget);
-    //     diff = {
-    //         x: e.offsetX - this._target.getX(),
-    //         y: e.offsetY - this._target.getY()
-    //     };
-    //     dragged = false;
-    // }).on('mouseup', '.shape', (e) => {
+        html = this._target.getHTML();
+        this._target.setPosition(html.getCTM().e, html.getCTM().f);
+        this._target = null;
+    })
+    .on('mousedown', '.shape', (e) => {
+        this._target = this._getShape(e.currentTarget);
+        diff = {
+            x: e.offsetX - this._target.getX(),
+            y: e.offsetY - this._target.getY()
+        };
+        dragged = false;
+    }).on('mouseup', '.shape', (e) => {
         
-    //             console.log("up");
-    // }).on('click', '.shape', (e) => {
-    //     if (!dragged){
-    //         if (this._fromTarget) {
-    //             this._canvas.connect(this._fromTarget.getID(), this._getShape(e.currentTarget).getID());
-    //             this._dom.line.setAttribute("stroke", "");
-    //         } else {
-    //             this._dom.line.setAttribute("x1", 0);
-    //             this._dom.line.setAttribute("y1", 0);
-    //             this._dom.line.setAttribute("x2", 0);
-    //             this._dom.line.setAttribute("y2", 0);
-    //             this._dom.line.setAttribute("stroke", "black");
-    //             this._canvas._dom.container.appendChild(this._dom.line);
-    //         }
-    //         this._fromTarget = this._fromTarget ? null : this._getShape(e.currentTarget);      
-    //     }
+                console.log("up");
+    }).on('click', '.shape', (e) => {
+        if (!dragged){
+            if (this._fromTarget) {
+                this._canvas.connect(this._fromTarget.getID(), this._getShape(e.currentTarget).getID());
+                this._dom.line.setAttribute("stroke", "");
+            } else {
+                this._dom.line.setAttribute("x1", 0);
+                this._dom.line.setAttribute("y1", 0);
+                this._dom.line.setAttribute("x2", 0);
+                this._dom.line.setAttribute("y2", 0);
+                this._dom.line.setAttribute("stroke", "black");
+                this._canvas._dom.container.appendChild(this._dom.line);
+            }
+            this._fromTarget = this._fromTarget ? null : this._getShape(e.currentTarget);      
+        }
 
-    //     if (this._target){
-    //         this._target = null;    
-    //     }
-    //     dragged = false;
-    //     e.stopPropagation();
-    // }).on('click', () => {
-    //     //this._fromTarget = null;
-    //     this._dom.line.setAttribute("stroke", "");
-    // })
-    .on('click', '.shape', e => {
+        if (this._target){
+            this._target = null;    
+        }
+        dragged = false;
+        e.stopPropagation();
+    }).on('click', () => {
+        //this._fromTarget = null;
+        this._dom.line.setAttribute("stroke", "");
+    })
+    .on('dblclick', '.shape', e => {
         var shape = this._getShape(e.currentTarget);
 
         this._canvas._onSelectShape(shape);
