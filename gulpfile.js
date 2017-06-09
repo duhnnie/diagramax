@@ -1,18 +1,56 @@
 const gulp = require('gulp'),
     gutil = require('gulp-util'),
-    concat = require('gulp-concat');
+    concat = require('gulp-concat'),
+    http = require('http'),
+    fs = require('fs'),
+    path = require('path');
+
+gulp.task('example', ['default'], function () {
+    http.createServer(function (request, response) {
+        var filePath = request.url;
+        if (filePath == '/')
+            filePath = '/index.html';
+
+        var extname = path.extname(filePath);
+        var contentType = 'text/html';
+        switch (extname) {
+            case '.html':
+                filePath = '/example' + filePath;
+                break;
+            case '.js':
+                contentType = 'text/javascript';
+                break;
+            case '.css':
+                contentType = 'text/css';
+                break;
+            case '.json':
+                contentType = 'application/json';
+                break;
+        }
+        filePath = '.' + filePath;
+        fs.readFile(filePath, function(error, content) {
+            if (error) {
+                if(error.code == 'ENOENT'){
+                    response.writeHead(404, { 'Content-Type': contentType });
+                    response.end("NOT FOUND", 'utf-8');
+                } else {
+                    response.writeHead(500);
+                    response.end('Sorry, check with the site admin for error: '+error.code+' ..\n');
+                    response.end(); 
+                }
+            } else {
+                response.writeHead(200, { 'Content-Type': contentType });
+                response.end(content, 'utf-8');
+            }
+        });
+
+    }).listen(8125);
+    console.log('Server running at http://127.0.0.1:8125/');
+});
 
 gulp.task('default', function (cb) {
     gulp.src([
-            "js/jquery-3.2.1.min.js",
-            "js/lodash.js",
-            "js/utils.js",
-            "js/tiny-stack.js",
-            "js/sax.js",
-            "js/refs.js",
-            "js/BpmnTreeWalker.js",
-            "js/bpmn-moddle.js",
-            "js/designer.js"
+            "src/designer.js"
         ])
         .pipe(concat('designer.js'))
         .pipe(gulp.dest('./dist/'))
