@@ -3,3 +3,11 @@
     height: 500px;
     overflow: scroll;
 }
+
+.bpmn-canvas {
+    cursor: default;
+}
+
+.shape {
+    cursor: pointer;
+}

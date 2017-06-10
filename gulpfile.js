@@ -50,7 +50,18 @@ gulp.task('example', ['default'], function () {
 
 gulp.task('default', function (cb) {
     gulp.src([
-            "src/designer.js"
+            'src/svg_factory.js',
+            'src/bpmn_factory.js',
+            'src/element.js',
+            'src/bpmn_element.js',
+            'src/bpmn_project.js',
+            'src/canvas.js',
+            'src/connection.js',
+            'src/shape.js',
+            'src/start_event.js',
+            'src/end_event.js',
+            'src/activity.js',
+            'src/drag_drop_manager.js'
         ])
         .pipe(concat('designer.js'))
         .pipe(gulp.dest('./dist/'))
