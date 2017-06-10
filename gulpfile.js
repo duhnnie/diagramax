@@ -6,6 +6,7 @@ const gulp = require('gulp'),
     path = require('path');
 
 gulp.task('example', ['default'], function () {
+    let port = 3000;
     http.createServer(function (request, response) {
         var filePath = request.url;
         if (filePath == '/')
@@ -36,7 +37,7 @@ gulp.task('example', ['default'], function () {
                 } else {
                     response.writeHead(500);
                     response.end('Sorry, check with the site admin for error: '+error.code+' ..\n');
-                    response.end(); 
+                    response.end();
                 }
             } else {
                 response.writeHead(200, { 'Content-Type': contentType });
@@ -44,8 +45,8 @@ gulp.task('example', ['default'], function () {
             }
         });
 
-    }).listen(8125);
-    console.log('Server running at http://127.0.0.1:8125/');
+    }).listen(port);
+    console.log(`Server running at http://127.0.0.1:${port}/`);
 });
 
 gulp.task('default', function (cb) {

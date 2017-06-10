@@ -1,6 +1,6 @@
 class Canvas extends Element {
     constructor(settings) {
-        super(settings);    
+        super(settings);
         this._width = null;
         this._height = null;
         this._elements = new Set();
@@ -30,7 +30,7 @@ class Canvas extends Element {
         this._width = width;
 
         if (this._html) {
-            this._html.style.width = this._width;   
+            this._html.style.width = this._width;
         }
 
         return this;
@@ -88,16 +88,16 @@ class Canvas extends Element {
         elements.forEach((i) => this.addElement(i));
 
         return this;
-    };
+    }
 
     getElementById(id) {
         return [...this._elements].find((i) => i.getID() === id);
-    };
+    }
 
     connect(origin, destination, connection_id) {
         let connection;
-        origin = this.getElementById(origin);
-        destination = this.getElementById(destination);
+        origin = origin instanceof BPMNShape ? origin : this.getElementById(origin);
+        destination = destination instanceof BPMNShape ? destination : this.getElementById(destination);
 
         if (origin && destination && origin !== destination) {
             connection = new Connection({
@@ -123,7 +123,7 @@ class Canvas extends Element {
     }
 
     _createHTML() {
-        let svg, 
+        let svg,
             g;
 
         if (this._html) {

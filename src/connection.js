@@ -10,23 +10,124 @@ class Connection extends BPMNElement {
             destShape: null
         }, settings);
 
-        this._origShape = settings.origShape;
-        this._destShape = settings.destShape;
+        this.setOrigShape(settings.origShape)
+            .setDestShape(settings.destShape);
+    }
 
-        if (this._origShape) {
-            this._origShape._connections.add(this);
+    setOrigShape(shape) {
+        if (!(shape instanceof BPMNShape)) {
+            throw new Error('setOrigShape(): invalid parameter.');
         }
-        if (this._destShape) {
-            this._destShape._connections.add(this);
+
+        if (shape !== this._origShape) {
+            if (this._origShape) {
+                this.replaceOrigShape(shape);
+            } else {
+                this._origShape = shape;
+                shape.addOutgoingConnection(this);
+
+                if (this._html) {
+                    this._connect();
+                }
+            }
         }
+
+        return this;
     }
 
     getOrigShape() {
         return this._origShape;
     }
 
+    replaceOrigShape(shape) {
+        let origShape;
+
+        if (!(shape instanceof BPMNShape)) {
+            throw new Error('replaceOrigShape(): invalid parameter');
+        }
+
+        if (this._origShape !== shape) {
+            origShape = this._origShape;
+            this._origShape = null;
+
+            if (origShape) {
+                origShape.removeConnection(this);
+            }
+
+            this.setOrigShape(shape);
+        }
+
+        return this;
+    }
+
+    setDestShape(shape) {
+        if (!(shape instanceof BPMNShape)) {
+            throw new Error('setOrigShape(): invalid parameter.');
+        }
+
+        if (shape !== this._destShape) {
+            if (this._destShape) {
+                this.replaceDestShape(shape);
+            } else {
+                this._destShape = shape;
+                shape.addIncomingConnection(this);
+
+                if (this._html) {
+                    this._connect();
+                }
+            }
+        }
+
+        return this;
+    }
+
     getDestShape() {
         return this._destShape;
+    }
+
+    replaceDestShape(shape) {
+        let destShape;
+
+        if (!(shape instanceof BPMNShape)) {
+            throw new Error('replaceOrigShape(): invalid parameter.');
+        }
+
+        if (this._destShape !== shape) {
+            destShape = this._destShape;
+            this._destShape = null;
+
+            if (destShape) {
+                destShape.removeConnection(this);
+            }
+
+            this.setDestShape(shape);
+        }
+
+        return this;
+    }
+
+    disconnect() {
+        let origShape = this._origShape,
+            destShape = this._destShape;
+
+        this._origShape = null;
+        this._destShape = null;
+
+        if (origShape.getOutgoingConnections().has(this)) {
+            origShape.removeConnection(this);
+        }
+
+        if (destShape.getIncomingConnections().has(this)) {
+            destShape.removeConnection(this);
+        }
+
+        $(this._html).remove();
+
+        return this;
+    }
+
+    isConnectedWith(shape) {
+        return this._origShape === shape || this._destShape === shape;
     }
 
     _connect() {
@@ -74,7 +175,7 @@ class Connection extends BPMNElement {
                 },
                 {
                     x: destPos.x,
-                    y: destPos.y  
+                    y: destPos.y
                 }
             ];
 
@@ -104,7 +205,7 @@ class Connection extends BPMNElement {
                 },
                 {
                     x: destPos.x,
-                    y: destPos.y  
+                    y: destPos.y
                 }
             ];
         } else {
@@ -135,7 +236,7 @@ class Connection extends BPMNElement {
                     },
                     {
                         x: destPos.x,
-                        y: destPos.y  
+                        y: destPos.y
                     }
                 ];
             } else {
@@ -165,7 +266,7 @@ class Connection extends BPMNElement {
                     },
                     {
                         x: destPos.x,
-                        y: destPos.y  
+                        y: destPos.y
                     }
                 ];
             }

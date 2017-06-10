@@ -100,28 +100,59 @@ class BPMNShape extends BPMNElement {
         };
     }
 
+    addOutgoingConnection(connection) {
+        if (!(connection instanceof Connection)) {
+            throw new Error('setOutgoingConnection(): invalid parameter.');
+        }
+
+        this._connections.add(connection);
+
+        if (connection.getOrigShape() !== this) {
+            connection.setOrigShape(this);
+        }
+
+        return this;
+    }
+
+    getOutgoingConnections() {
+        return new Set([...this._connections].filter(i => i.getOrigShape() === this));
+    }
+
+    addIncomingConnection(connection) {
+        if (!(connection instanceof Connection)) {
+            throw new Error('setIncomingConnection(): invalid parameter');
+        }
+
+        this._connections.add(connection);
+
+        if (connection.getDestShape() !== this) {
+            connection.setOrigShape(this);
+        }
+
+        return this;
+    }
+
+    getIncomingConnections() {
+        return new Set([...this._connections].filter(i => i.getDestShape() === this));
+    }
+
     getConnectedShapes() {
         let prev = [],
             next = [];
 
-        this._connections.forEach(i => {
-            let shape = i.getDestShape();
-
-            if (shape !== this) {
-                next.push(shape);
-            }
-
-            shape = i.getOrigShape();
-
-            if (shape !== this) {
-                prev.push(shape)
-            }
-        });
-
         return {
-            prev: prev,
-            next: next
+            prev: [...this.getIncomingConnections()].map(i => i.getOrigShape()),
+            next: [...this.getOutgoingConnections()].map(i => i.getDestShape())
         };
+    }
+
+    removeConnection(connection) {
+        if (this._connections.delete(connection)) {
+            if (connection.isConnectedWith(this)) {
+                connection.disconnect();
+            }
+        }
+        return this;
     }
 
     _createHTML() {

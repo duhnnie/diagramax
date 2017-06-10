@@ -19,20 +19,20 @@
                     x: 50,
                     y: 50
                 }
-            }), 
+            }),
             act = new Activity({
-                id: 'act',
-                text: "Activity",
+                id: 'act1',
+                text: "Activity #1",
                 position: {
-                    x: 200,
-                    y: 100
+                    x: 180,
+                    y: 180
                 }
-            }), 
+            }),
             act2 = new Activity({
                 id: 'act2',
-                text: "Activity",
+                text: "Activity #2",
                 position: {
-                    x: 300,
+                    x: 350,
                     y: 300
                 }
             }),
@@ -40,26 +40,47 @@
                 id: 'eev',
                 text: "End Event",
                 position: {
-                    x: 80,
+                    x: 700,
                     y: 80
                 }
             }),
             canvas = new Canvas();
 
-            document.addEventListener('DOMContentLoaded', function () { 
+            document.addEventListener('DOMContentLoaded', function () {
+                let act3,
+                    connection;
+
                 canvas.addElement(ev);
                 canvas.addElement(act);
                 canvas.addElement(act2);
                 canvas.addElement(eev);
-                
-                canvas.connect('ev', 'act2');
-                canvas.connect('act2', 'act');
-                canvas.connect('act', 'eev');
+
+                canvas.connect('ev', 'act1');
+                canvas.connect('act1', 'act2');
+                canvas.connect('act2', 'eev');
                 document.body.appendChild(canvas.getHTML());
+
+                act3 = new Activity({
+                    text: "Another Activity",
+                    position: {
+                        x: 550,
+                        y: 400
+                    }
+                });
+
+                canvas.addElement(act3);
+                connection = eev.getIncomingConnections();
+                connection = connection.values();
+                connection = connection.next();
+                connection = connection.value;
+
+                connection.replaceDestShape(act3);
+
+                canvas.connect(act3, eev);
             });
         </script>
     </head>
     <body>
-        
+
     </body>
 </html>
