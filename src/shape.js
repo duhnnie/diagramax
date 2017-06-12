@@ -6,6 +6,7 @@ class BPMNShape extends BPMNElement {
         this._x = null;
         this._y = null;
         this._connections = new Set();
+        this.__bulkAction = false;
 
         settings = jQuery.extend({
             position: {
@@ -27,6 +28,10 @@ class BPMNShape extends BPMNElement {
 
         if (this._html) {
             this._html.setAttribute('transform', `translate(${x}, ${this._y})`);
+
+            if (!this.__bulkAction) {
+                this._drawConnections();
+            }
         }
 
         return this;
@@ -44,6 +49,10 @@ class BPMNShape extends BPMNElement {
 
         if (this._html) {
             this._html.setAttribute('transform', `translate(${this._x}, ${y})`);
+
+            if (!this.__bulkAction) {
+                this._drawConnections();
+            }
         }
 
         return this;
@@ -54,8 +63,14 @@ class BPMNShape extends BPMNElement {
     }
 
     setPosition(x, y) {
-        return this.setX(x)
+        this.__bulkAction = true;
+
+        this.setX(x)
             .setY(y);
+
+        this.__bulkAction = false;
+
+        return this._drawConnections();
     }
 
     getPosition() {
@@ -151,6 +166,13 @@ class BPMNShape extends BPMNElement {
             if (connection.isConnectedWith(this)) {
                 connection.disconnect();
             }
+        }
+        return this;
+    }
+
+    _drawConnections() {
+        for (let connection of this._connections) {
+            connection.connect();
         }
         return this;
     }

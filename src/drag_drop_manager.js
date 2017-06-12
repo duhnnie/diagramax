@@ -15,7 +15,7 @@ class DragAndDropManager {
     }
 
     registerShape(shape) {
-        this._registry[shape._id] = shape;   
+        this._registry[shape._id] = shape;
         return this;
     }
 
@@ -27,7 +27,6 @@ class DragAndDropManager {
             .on('mousemove', (e) => {
                 if (this._target) {
                     this._target.setPosition(e.offsetX - diff.x, e.offsetY - diff.y);
-                    this._target._connections.forEach(i => i._connect());
                     this._fromTarget = null;
                     dragged = true;
                 } else if (this._fromTarget) {
@@ -66,11 +65,11 @@ class DragAndDropManager {
                         this._dom.line.setAttribute("stroke", "black");
                         this._canvas._dom.container.appendChild(this._dom.line);
                     }
-                    this._fromTarget = this._fromTarget ? null : this._getShape(e.currentTarget);      
+                    this._fromTarget = this._fromTarget ? null : this._getShape(e.currentTarget);
                 }
 
                 if (this._target){
-                    this._target = null;    
+                    this._target = null;
                 }
                 dragged = false;
                 e.stopPropagation();
