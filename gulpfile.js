@@ -58,6 +58,7 @@ gulp.task('default', function (cb) {
             'src/bpmn_project.js',
             'src/canvas.js',
             'src/connection.js',
+            'src/port.js',
             'src/shape.js',
             'src/start_event.js',
             'src/end_event.js',

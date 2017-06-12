@@ -130,171 +130,167 @@ class Connection extends BPMNElement {
         return this._origShape === shape || this._destShape === shape;
     }
 
+    _getWaypoints(origPort, destPort) {
+        let origPoint = origPort.getConnectionPoint(),
+            destPoint = destPort.getConnectionPoint(),
+            initDirection = origPort.direction % 2, // 0: vertical 1: horizontal
+            finalDirection = destPort.direction % 2,
+            constantOffset = 20,
+            points = [],
+            lastPoints = [],
+            gap;
+
+        points.push(origPoint);
+        lastPoints.push(destPoint);
+
+        let relativeX = origPoint.x <= destPoint.x ? 1 : -1,
+            relativeY = origPoint.y <= destPoint.y ? 1 : -1;
+
+        if (origPort.direction === Port.DIRECTION.NORTH && relativeY >= 0) {
+            points.push({
+                x: origPoint.x,
+                y: origPoint.y -  constantOffset
+            });
+        } else if (origPort.direction === Port.DIRECTION.EAST && relativeX < 0) {
+            points.push({
+                x: origPoint.x +  constantOffset,
+                y: origPoint.y
+            });
+        } else if (origPort.direction === Port.DIRECTION.SOUTH && relativeY < 0) {
+            points.push({
+                x: origPoint.x,
+                y: origPoint.y +  constantOffset
+            });
+        } else if (origPort.direction === Port.DIRECTION.WEST && relativeX >= 0) {
+            points.push({
+                x: origPoint.x -  constantOffset,
+                y: origPoint.y
+            });
+        }
+
+        if (points.length > 1) {
+            initDirection = (origPort.direction + 1) % 2;
+        }
+
+        if (destPort.direction === Port.DIRECTION.NORTH && relativeY < 0) {
+            lastPoints.unshift({
+                x: destPoint.x,
+                y: destPoint.y -  constantOffset
+            });
+        } else if (destPort.direction === Port.DIRECTION.EAST && relativeX >= 0) {
+            lastPoints.unshift({
+                x: destPoint.x +  constantOffset,
+                y: destPoint.y
+            });
+        } else if (destPort.direction === Port.DIRECTION.SOUTH && relativeY >= 0) {
+            lastPoints.unshift({
+                x: destPoint.x,
+                y: destPoint.y +  constantOffset
+            });
+        } else if (destPort.direction === Port.DIRECTION.WEST && relativeX < 0) {
+            lastPoints.unshift({
+                x: destPoint.x - constantOffset,
+                y: destPoint.y
+            });
+        }
+
+        origPoint = points[points.length - 1];
+        destPoint = lastPoints[0] || destPoint;
+
+        if (lastPoints.length > 1) {
+            finalDirection = (destPort.direction + 1) % 2;
+        }
+
+        if (initDirection === finalDirection) {
+            gap = (initDirection ? Math.abs(origPoint.x - destPoint.x) : Math.abs(origPoint.y - destPoint.y)) / 2;
+
+            if (gap < constantOffset) {
+                points.push({
+                    x: origPoint.x + (initDirection * constantOffset * relativeX),
+                    y: origPoint.y + (initDirection ? 0 : constantOffset * relativeY)
+                });
+
+                lastPoints.unshift({
+                    x: destPoint.x - (finalDirection * constantOffset * relativeX),
+                    y: destPoint.y - (finalDirection ? 0 : constantOffset * relativeY)
+                });
+
+                origPoint = points[points.length - 1];
+                destPoint = lastPoints[0];
+
+                initDirection = finalDirection = (initDirection + 1) % 2;
+                gap = (initDirection ? Math.abs(origPoint.x - destPoint.x) : Math.abs(origPoint.y - destPoint.y)) / 2;
+            }
+
+            points.push(
+                {
+                    x: origPoint.x + (gap * initDirection * relativeX),
+                    y: origPoint.y + (initDirection ? 0 : gap * relativeY)
+                },
+                {
+                    x: destPoint.x - (finalDirection ? gap * relativeX : 0),
+                    y: destPoint.y - (finalDirection ? 0 : gap * relativeY)
+                }
+            );
+        } else {
+            points.push({
+                x: initDirection ? destPoint.x : origPoint.x,
+                y: initDirection ? origPoint.y : destPoint.y
+            });
+        }
+
+        return points.concat(lastPoints);
+    }
+
     connect() {
-        let origPos,
-            destPos,
+        let origPoint,
+            destPoint,
             gapX,
             gapY,
-            points = [],
-            destPort = {},
-            origPort = {},
-            dx,
-            dy,
+            origPort,
+            destPort,
+            point,
+            paths,
             path,
-            paths;
+            previousPoint;
 
         if (this._html) {
-            origPos = this._origShape.getPosition();
-            destPos = this._destShape.getPosition();
+            let waypoints,
+                i;
 
-            gapX = Math.abs(destPos.x - origPos.x);
-            gapY = Math.abs(destPos.y - origPos.y);
+            origPort = this._origShape.getPort(this)
+            destPort = this._destShape.getPort(this);
 
-            if (gapX === 0) {
-                if (destPos.y > origPos.y) {
-                    origPos.y += this._origShape.getHeight() / 2;
-                    destPos.y -= this._destShape.getHeight() / 2;
-                } else {
-                    origPos.y -= this._origShape.getHeight() / 2;
-                    destPos.y += this._destShape.getHeight() / 2;
-                }
+            waypoints = this._getWaypoints(origPort, destPort);
 
-                gapY = Math.abs(destPos.y - origPos.y) / 3;
-
-                points = [
-                    {
-                        x: origPos.x,
-                        y: origPos.y
-                    },
-                    {
-                        x: origPos.x,
-                        y: origPos.y + (gapY * (destPos.y > origPos.y ? 1 : -1))
-                    },
-                    {
-                        x: origPos.x,
-                        y: origPos.y + (gapY * (destPos.y > origPos.y ? 2 : -2))
-                    },
-                    {
-                        x: destPos.x,
-                        y: destPos.y
-                    }
-                ];
-            } else if (gapY === 0) {
-                if (destPos.x > origPos.x) {
-                    origPos.x += this._origShape.getWidth() / 2;
-                    destPos.x -= this._destShape.getWidth() / 2;
-                } else {
-                    origPos.x -= this._origShape.getWidth() / 2;
-                    destPos.x += this._destShape.getWidth() / 2;
-                }
-
-                gapX = Math.abs(destPos.x - origPos.x) / 3;
-
-                points = [
-                    {
-                        x: origPos.x,
-                        y: origPos.y
-                    },
-                    {
-                        x: origPos.x + (gapX * (destPos.x > origPos.x ? 1 : -1)),
-                        y: origPos.y
-                    },
-                    {
-                        x: origPos.x + (gapX * (destPos.x > origPos.x ? 2 : -2)),
-                        y: origPos.y
-                    },
-                    {
-                        x: destPos.x,
-                        y: destPos.y
-                    }
-                ];
-            } else {
-                if (gapY > gapX) {
-                    if (destPos.y > origPos.y) {
-                        origPos.y += this._origShape.getHeight() / 2;
-                        destPos.y -= this._destShape.getHeight() / 2;
-                    } else {
-                        origPos.y -= this._origShape.getHeight() / 2;
-                        destPos.y += this._destShape.getHeight() / 2;
-                    }
-
-                    gapY = Math.abs(destPos.y - origPos.y);
-
-                    gapY /= 2;
-                    points = [
-                        {
-                            x: origPos.x,
-                            y: origPos.y
-                        },
-                        {
-                            x: origPos.x,
-                            y: origPos.y + (gapY * (destPos.y > origPos.y ? 1 : -1))
-                        },
-                        {
-                            x: destPos.x,
-                            y: origPos.y + (gapY * (destPos.y > origPos.y ? 1 : -1))
-                        },
-                        {
-                            x: destPos.x,
-                            y: destPos.y
-                        }
-                    ];
-                } else {
-                    if (destPos.x > origPos.x) {
-                        origPos.x += this._origShape.getWidth() / 2;
-                        destPos.x -= this._destShape.getWidth() / 2;
-                    } else {
-                        origPos.x -= this._origShape.getWidth() / 2;
-                        destPos.x += this._destShape.getWidth() / 2;
-                    }
-
-                    gapX = Math.abs(destPos.x - origPos.x);
-
-                    gapX /= 2;
-                    points = [
-                        {
-                            x: origPos.x,
-                            y: origPos.y
-                        },
-                        {
-                            x: origPos.x + (gapX * (destPos.x > origPos.x ? 1 : -1)),
-                            y: origPos.y
-                        },
-                        {
-                            x: origPos.x + (gapX * (destPos.x > origPos.x ? 1 : -1)),
-                            y: destPos.y
-                        },
-                        {
-                            x: destPos.x,
-                            y: destPos.y
-                        }
-                    ];
-                }
-            }
+            console.log(this._origShape.getText() + ' -> ' + this._destShape.getText(), waypoints);
 
             paths = this._dom.paths || [];
 
-            for (var i = 0; i < points.length - 1; i += 1) {
+            for (i = 1; i < waypoints.length; i += 1) {
+                previousPoint = waypoints[i - 1];
+
                 path = paths[i] || SVGFactory.create('line');
-                path.setAttribute("x1", points[i].x);
-                path.setAttribute("y1", points[i].y);
-                path.setAttribute("x2", points[i + 1].x);
-                path.setAttribute("y2", points[i + 1].y);
+                path.style.display = '';
+
+                path.setAttribute("x1", previousPoint.x);
+                path.setAttribute("y1", previousPoint.y);
+                path.setAttribute("x2", waypoints[i].x);
+                path.setAttribute("y2", waypoints[i].y);
                 path.setAttribute("stroke", "black");
 
                 this._html.appendChild(path);
                 paths[i] = paths[i] || path;
             }
 
-            this._dom.paths = paths;
-            this._dom.arrow.setAttribute("transform", `translate(${points[i].x}, ${points[i].y})`);
-            if (points[i-1].x === points[i].x) {
-                this._dom.arrowRotateContainer.setAttribute("transform", `scale(0.5, 0.5) rotate(${points[i].y > points[i-1].y ? 270 : 90})`);
-            } else {
-                this._dom.arrowRotateContainer.setAttribute("transform", `scale(0.5, 0.5) rotate(${points[i].x > points[i-1].x ? 180 : 0})`);
+            while (i < paths.length) {
+                paths[i++].style.display = 'none';
             }
+
+            this._dom.paths = paths;
+            this._dom.arrow.setAttribute("transform", `translate(${waypoints[waypoints.length - 1].x}, ${waypoints[waypoints.length - 1].y})`);
+            this._dom.arrowRotateContainer.setAttribute("transform", `scale(0.5, 0.5) rotate(${90 * destPort.direction})`);
             this._html.appendChild(this._dom.arrow);
-            this._points = points;
         }
 
         return this;
@@ -319,7 +315,7 @@ class Connection extends BPMNElement {
         arrowWrapper2.setAttribute("transform", "scale(0.5,0.5) rotate(-180)");
         arrow = SVGFactory.create('path');
         arrow.setAttribute("end", "target");
-        arrow.setAttribute("d", "M 26 -13 L 0 0 L 26 13 z");
+        arrow.setAttribute("d", "M 0 0 L -13 -26 L 13 -26 z");
 
         arrowWrapper2.appendChild(arrow);
         arrowWrapper.appendChild(arrowWrapper2);
