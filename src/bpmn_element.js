@@ -21,4 +21,8 @@ class BPMNElement extends Element {
 
         return this;
     }
+
+    getText(text) {
+        return this._text;
+    }
 }
