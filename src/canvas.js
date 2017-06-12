@@ -5,7 +5,6 @@ class Canvas extends Element {
         this._height = null;
         this._elements = new Set();
         this._dom = {};
-        this._connections = new Set();
         this._onSelectShapeHandler = null;
         this._dragAndDropManager = null;
 
@@ -105,7 +104,6 @@ class Canvas extends Element {
                 origShape: origin,
                 destShape: destination
             });
-            this._connections.add(connection);
             if (this._html) {
                 this._dom.container.appendChild(connection.getHTML());
             }
