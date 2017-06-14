@@ -29,7 +29,7 @@ class Canvas extends Element {
         this._width = width;
 
         if (this._html) {
-            this._html.style.width = this._width;
+            this._html.setAttribute("width", this._width);
         }
 
         return this;
@@ -46,7 +46,7 @@ class Canvas extends Element {
         this._height = height;
 
         if (this._html) {
-            this._html.style.height = this._height;
+            this._html.setAttribute("height", this._height);
         }
 
         return this;
