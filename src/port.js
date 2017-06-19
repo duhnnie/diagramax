@@ -52,6 +52,10 @@ class Port {
         return this._mode;
     }
 
+    get orientation() {
+        return this._orientation;
+    }
+
     get direction() {
         return this._direction;
     }
