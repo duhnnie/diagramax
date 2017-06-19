@@ -206,6 +206,16 @@ class BPMNShape extends BPMNElement {
         return this;
     }
 
+    getPortDirection(port) {
+        let direction = this._ports.indexOf(port);
+
+        if (direction < 0) {
+            throw new Error('getPortDirection(): supplied port doesn\'t belong to this shape.');
+        }
+
+        return direction;
+    }
+
     getPort(connection) {
         let mode = connection.getDestShape() === this ? Port.MODE.IN : Port.MODE.OUT,
             shape = mode === Port.MODE.IN ? connection.getOrigShape() : connection.getDestShape(),
