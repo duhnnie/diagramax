@@ -1,10 +1,15 @@
 class Port {
+    static get ORIENTATION() {
+      return {
+          VERTICAL: 0,
+          HORIZONTAL: 1
+      };
+    }
+
     static get DIRECTION() {
         return {
-            NORTH: 0,
-            EAST: 1,
-            SOUTH: 2,
-            WEST: 3
+            BACKWARD: -1,
+            FORWARD: 1
         };
     }
 
@@ -17,6 +22,7 @@ class Port {
 
     constructor(settings) {
         this._mode = null;
+        this._orientation = null;
         this._direction = null;
         this._connections = new Set();
         this._shape = null;
@@ -28,6 +34,7 @@ class Port {
         }, settings);
 
         this.setShape(settings.shape)
+            .setOrientation(settings.orientation)
             .setDirection(settings.direction)
             .setConnections(settings.connections).mode = settings.mode;
     }
@@ -45,6 +52,10 @@ class Port {
         return this._mode;
     }
 
+    get orientation() {
+        return this._orientation;
+    }
+
     get direction() {
         return this._direction;
     }
@@ -59,6 +70,15 @@ class Port {
         }
 
         this._shape = shape;
+        return this;
+    }
+
+    setOrientation(orientation) {
+        if (!Object.keys(Port.ORIENTATION).find(i => Port.ORIENTATION[i] === orientation)) {
+            throw new Error('setOrientation(): invalid parameter.');
+        }
+
+        this._orientation = orientation;
         return this;
     }
 
@@ -106,13 +126,14 @@ class Port {
 
     getConnectionPoint() {
         var shapePosition = this._shape.getPosition(),
+            orientation = this._orientation,
             direction = this._direction,
-            xOffset = direction % 2 !== 0 ? this._shape.getWidth() / 2 : 0,
-            yOffset = direction % 2 === 0 ? this._shape.getHeight() / 2 : 0;
+            xOffset = orientation ? this._shape.getWidth() / 2 : 0,
+            yOffset = !orientation ? this._shape.getHeight() / 2 : 0;
 
         return {
-            x: shapePosition.x + (xOffset * (direction === Port.DIRECTION.WEST ? -1 : 1)),
-            y: shapePosition.y + (yOffset * (direction === Port.DIRECTION.NORTH ? -1 : 1))
+            x: shapePosition.x + (xOffset * direction),
+            y: shapePosition.y + (yOffset * direction)
         };
     }
 }

@@ -1,4 +1,9 @@
 class Connection extends BPMNElement {
+
+    static get ARROW_SEGMENT_LENGTH() {
+        return 20;
+    }
+
     constructor(settings) {
         super(settings);
         this._origShape = null;
@@ -130,147 +135,165 @@ class Connection extends BPMNElement {
         return this._origShape === shape || this._destShape === shape;
     }
 
-    _getWaypoints(origPort, destPort) {
-        let origPoint = origPort.getConnectionPoint(),
-            destPoint = destPort.getConnectionPoint(),
-            initDirection = origPort.direction % 2, // 0: vertical 1: horizontal
-            finalDirection = destPort.direction % 2,
-            constantOffset = 20,
-            points = [],
-            lastPoints = [],
-            gap;
-
-        points.push(origPoint);
-        lastPoints.push(destPoint);
-
-        let relativeX = origPoint.x <= destPoint.x ? 1 : -1,
-            relativeY = origPoint.y <= destPoint.y ? 1 : -1;
-
-        if (origPort.direction === Port.DIRECTION.NORTH && relativeY >= 0) {
-            points.push({
-                x: origPoint.x,
-                y: origPoint.y -  constantOffset
-            });
-        } else if (origPort.direction === Port.DIRECTION.EAST && relativeX < 0) {
-            points.push({
-                x: origPoint.x +  constantOffset,
-                y: origPoint.y
-            });
-        } else if (origPort.direction === Port.DIRECTION.SOUTH && relativeY < 0) {
-            points.push({
-                x: origPoint.x,
-                y: origPoint.y +  constantOffset
-            });
-        } else if (origPort.direction === Port.DIRECTION.WEST && relativeX >= 0) {
-            points.push({
-                x: origPoint.x -  constantOffset,
-                y: origPoint.y
-            });
+    _getPortDescriptor (port) {
+        if (port instanceof Port) {
+            return {
+                point: port.getConnectionPoint(),
+                orientation: port.orientation,
+                direction: port.direction
+            };
         }
 
-        if (points.length > 1) {
-            initDirection = (origPort.direction + 1) % 2;
-        }
+        return null;
+    }
 
-        if (destPort.direction === Port.DIRECTION.NORTH && relativeY < 0) {
-            lastPoints.unshift({
-                x: destPoint.x,
-                y: destPoint.y -  constantOffset
-            });
-        } else if (destPort.direction === Port.DIRECTION.EAST && relativeX >= 0) {
-            lastPoints.unshift({
-                x: destPoint.x +  constantOffset,
-                y: destPoint.y
-            });
-        } else if (destPort.direction === Port.DIRECTION.SOUTH && relativeY >= 0) {
-            lastPoints.unshift({
-                x: destPoint.x,
-                y: destPoint.y +  constantOffset
-            });
-        } else if (destPort.direction === Port.DIRECTION.WEST && relativeX < 0) {
-            lastPoints.unshift({
-                x: destPoint.x - constantOffset,
-                y: destPoint.y
-            });
-        }
+    _getWaypoints(orig, dest) {
+        let relativeX = dest.point.x - orig.point.x,
+            relativeY = dest.point.y - orig.point.y,
+            firstPoints = [],
+            lastPoints = [];
 
-        origPoint = points[points.length - 1];
-        destPoint = lastPoints[0] || destPoint;
+        relativeX = relativeX !== 0 ? relativeX / Math.abs(relativeX) : 0;
+        relativeY = relativeY !== 0 ? relativeY / Math.abs(relativeY) : 0;
 
-        if (lastPoints.length > 1) {
-            finalDirection = (destPort.direction + 1) % 2;
-        }
-
-        if (initDirection === finalDirection) {
-            gap = (initDirection ? Math.abs(origPoint.x - destPoint.x) : Math.abs(origPoint.y - destPoint.y)) / 2;
-
-            if (gap < constantOffset) {
-                points.push({
-                    x: origPoint.x + (initDirection * constantOffset * relativeX),
-                    y: origPoint.y + (initDirection ? 0 : constantOffset * relativeY)
-                });
-
-                lastPoints.unshift({
-                    x: destPoint.x - (finalDirection * constantOffset * relativeX),
-                    y: destPoint.y - (finalDirection ? 0 : constantOffset * relativeY)
-                });
-
-                origPoint = points[points.length - 1];
-                destPoint = lastPoints[0];
-
-                initDirection = finalDirection = (initDirection + 1) % 2;
-                gap = (initDirection ? Math.abs(origPoint.x - destPoint.x) : Math.abs(origPoint.y - destPoint.y)) / 2;
-            }
-
-            points.push(
-                {
-                    x: origPoint.x + (gap * initDirection * relativeX),
-                    y: origPoint.y + (initDirection ? 0 : gap * relativeY)
+        if ((orig.orientation && orig.direction !== relativeX) || (!orig.orientation && orig.direction !== relativeY)) {
+            orig = {
+                point: {
+                    x: orig.point.x + (orig.orientation ? Connection.ARROW_SEGMENT_LENGTH * orig.direction : 0),
+                    y: orig.point.y + (!orig.orientation ? Connection.ARROW_SEGMENT_LENGTH * orig.direction : 0)
                 },
-                {
-                    x: destPoint.x - (finalDirection ? gap * relativeX : 0),
-                    y: destPoint.y - (finalDirection ? 0 : gap * relativeY)
-                }
-            );
-        } else {
-            points.push({
-                x: initDirection ? destPoint.x : origPoint.x,
-                y: initDirection ? origPoint.y : destPoint.y
-            });
+                orientation: orig.orientation ? 0 : 1,
+                direction: (orig.orientation ? relativeY : relativeX) || 1
+            };
+
+            firstPoints.push(orig.point);
         }
 
-        return points.concat(lastPoints);
+        if ((dest.orientation && dest.direction === relativeX) || (!dest.orientation && dest.direction === relativeY)) {
+            dest = {
+                point: {
+                    x: dest.point.x + (dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
+                    y: dest.point.y + (!dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0)
+                },
+                orientation: dest.orientation ? 0 : 1,
+                direction: ((dest.orientation ? relativeY : relativeX) * -1) || -1
+            };
+
+            lastPoints.unshift(dest.point);
+        }
+
+        if (firstPoints.length || lastPoints.length) {
+            return firstPoints.concat(this._getWaypoints(orig, dest), lastPoints);
+        }
+
+        if (orig.orientation === dest.orientation) {
+            let orientation = orig.orientation;
+
+            if ((orientation && orig.point.y === dest.point.y)
+                || (!orientation && orig.point.x === dest.point.x)) {
+                // points are face 2 face
+                return []; // There's no intermediate points.
+            } else {
+                let primaryGap = orientation ? Math.abs(dest.point.x - orig.point.x) : Math.abs(dest.point.y - orig.point.y),
+                    secondaryGap = orientation ? Math.abs(dest.point.y - orig.point.y) : Math.abs(dest.point.x - orig.point.x);
+
+                if (primaryGap / 2 < Connection.ARROW_SEGMENT_LENGTH && secondaryGap / 2 >= Connection.ARROW_SEGMENT_LENGTH) {
+                    orig = {
+                        point: {
+                            x: orig.point.x + (orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeX : 0),
+                            y: orig.point.y + (!orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeY : 0)
+                        },
+                        orientation: orig.orientation ? 0 : 1,
+                        direction: orientation ? relativeY : relativeX
+                    };
+
+                    dest = {
+                        point: {
+                            x: dest.point.x + (orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeX * -1 : 0),
+                            y: dest.point.y + (!orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeY * -1 : 0)
+                        },
+                        orientation: dest.orientation ? 0 : 1,
+                        direction: (orientation ? relativeY : relativeX) * -1
+                    };
+
+                    return [orig.point].concat(this._getWaypoints(orig, dest), dest.point);
+                }
+
+                primaryGap = primaryGap / 2;
+
+                return [{
+                        x: orig.point.x + (orientation ? primaryGap * relativeX : 0),
+                        y: orig.point.y + (!orientation? primaryGap * relativeY : 0)
+                    }, {
+                        x: dest.point.x + (orientation ? primaryGap * relativeX * -1 : 0),
+                        y: dest.point.y + (!orientation ? primaryGap * relativeY * -1 : 0)
+                    }];
+            }
+        } else {
+            let gapX = Math.abs(dest.point.x - orig.point.x),
+                gapY = Math.abs(dest.point.y - orig.point.y);
+
+            if (gapX < Connection.ARROW_SEGMENT_LENGTH === gapY < Connection.ARROW_SEGMENT_LENGTH
+                || ((dest.orientation && gapX >= Connection.ARROW_SEGMENT_LENGTH)
+                    || (!dest.orientation && gapY >= Connection.ARROW_SEGMENT_LENGTH))) {
+                return [{
+                    x: orig.orientation ? dest.point.x : orig.point.x,
+                    y: orig.orientation ? orig.point.y : dest.point.y
+                }];
+            } else {
+                dest = {
+                    point: {
+                        x: dest.point.x + (dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
+                        y: dest.point.y + (!dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0)
+                    },
+                    orientation: dest.orientation ? 0 : 1,
+                    direction: (dest.orientation ? relativeY : relativeX) * -1
+                };
+
+                return this._getWaypoints(orig, dest).concat(dest.point);
+            }
+        }
     }
 
     connect() {
         let origPoint,
             destPoint,
-            gapX,
-            gapY,
             origPort,
             destPort,
-            point,
-            paths,
-            path,
-            previousPoint;
+            previousPoint,
+            paths;
 
         if (this._html) {
             let waypoints,
                 i;
 
-            origPort = this._origShape.getPort(this)
+            origPort = this._origShape.getPort(this);
             destPort = this._destShape.getPort(this);
 
-            waypoints = this._getWaypoints(origPort, destPort);
+            waypoints = this._getWaypoints(this._getPortDescriptor(origPort), this._getPortDescriptor(destPort));
+
+            origPoint = origPort.getConnectionPoint();
+            destPoint = destPort.getConnectionPoint();
+
+            waypoints.unshift({
+                x: origPoint.x,
+                y: origPoint.y
+            });
+
+            waypoints.push({
+                x: destPoint.x,
+                y: destPoint.y
+            });
 
             console.log(this._origShape.getText() + ' -> ' + this._destShape.getText(), waypoints);
 
             paths = this._dom.paths || [];
 
             for (i = 1; i < waypoints.length; i += 1) {
+                let path = paths[i] || SVGFactory.create('line');
+
                 previousPoint = waypoints[i - 1];
 
-                path = paths[i] || SVGFactory.create('line');
                 path.style.display = '';
 
                 path.setAttribute("x1", previousPoint.x);
@@ -289,7 +312,7 @@ class Connection extends BPMNElement {
 
             this._dom.paths = paths;
             this._dom.arrow.setAttribute("transform", `translate(${waypoints[waypoints.length - 1].x}, ${waypoints[waypoints.length - 1].y})`);
-            this._dom.arrowRotateContainer.setAttribute("transform", `scale(0.5, 0.5) rotate(${90 * destPort.direction})`);
+            this._dom.arrowRotateContainer.setAttribute("transform", `scale(0.5, 0.5) rotate(${90 * this._destShape.getPortDirection(destPort)})`);
             this._html.appendChild(this._dom.arrow);
         }
 

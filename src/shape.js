@@ -1,4 +1,14 @@
 class BPMNShape extends BPMNElement {
+
+    static get PORT_DIRECTION() {
+        return {
+            NORTH: 0,
+            EAST: 1,
+            SOUTH: 2,
+            WEST: 3
+        };
+    }
+
     constructor(settings) {
         super(settings);
         this._width = null;
@@ -23,14 +33,15 @@ class BPMNShape extends BPMNElement {
 
     _initPorts() {
         let index;
-        if (!this._ports.length) {
-            for (let direction in Port.DIRECTION) {
-                index = Port.DIRECTION[direction];
-                this._ports[index] = new Port({
-                    shape: this,
-                    direction: index
-                });
-            }
+
+        for (let port_position in BPMNShape.PORT_DIRECTION) {
+            let index = BPMNShape.PORT_DIRECTION[port_position];
+
+            this._ports[index] = new Port({
+                shape: this,
+                orientation: index % 2,
+                direction: index < 2 ? (index % 2 || -1) : (index % 2 ? -1 : 1)
+            });
         }
 
         return this;
@@ -195,6 +206,16 @@ class BPMNShape extends BPMNElement {
         return this;
     }
 
+    getPortDirection(port) {
+        let direction = this._ports.indexOf(port);
+
+        if (direction < 0) {
+            throw new Error('getPortDirection(): supplied port doesn\'t belong to this shape.');
+        }
+
+        return direction;
+    }
+
     getPort(connection) {
         let mode = connection.getDestShape() === this ? Port.MODE.IN : Port.MODE.OUT,
             shape = mode === Port.MODE.IN ? connection.getOrigShape() : connection.getDestShape(),
@@ -203,8 +224,8 @@ class BPMNShape extends BPMNElement {
             gapY = shapePos.y - this._y,
             relativeX = gapX > 0 ? -1 : (gapX < 0 ? 1 : 0),
             relativeY = gapY > 0 ? -1 : (gapY < 0 ? 1: 0),
-            priorityPortsX = relativeX > 0 ? [Port.DIRECTION.WEST, Port.DIRECTION.EAST] : [Port.DIRECTION.EAST, Port.DIRECTION.WEST],
-            priorityPortsY = relativeY > 0 ? [Port.DIRECTION.NORTH, Port.DIRECTION.SOUTH] : [Port.DIRECTION.SOUTH, Port.DIRECTION.NORTH],
+            priorityPortsX = relativeX > 0 ? [BPMNShape.PORT_DIRECTION.WEST, BPMNShape.PORT_DIRECTION.EAST] : [BPMNShape.PORT_DIRECTION.EAST, BPMNShape.PORT_DIRECTION.WEST],
+            priorityPortsY = relativeY > 0 ? [BPMNShape.PORT_DIRECTION.NORTH, BPMNShape.PORT_DIRECTION.SOUTH] : [BPMNShape.PORT_DIRECTION.SOUTH, BPMNShape.PORT_DIRECTION.NORTH],
             priorityPorts,
             selectedPort;
 
