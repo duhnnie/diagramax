@@ -156,49 +156,27 @@ class Connection extends BPMNElement {
         relativeX = relativeX !== 0 ? relativeX / Math.abs(relativeX) : 0;
         relativeY = relativeY !== 0 ? relativeY / Math.abs(relativeY) : 0;
 
-        if (orig.orientation && orig.direction !== relativeX) {
+        if ((orig.orientation && orig.direction !== relativeX) || (!orig.orientation && orig.direction !== relativeY)) {
             orig = {
                 point: {
-                    x: orig.point.x + (Connection.ARROW_SEGMENT_LENGTH * orig.direction),
-                    y: orig.point.y
+                    x: orig.point.x + (orig.orientation ? Connection.ARROW_SEGMENT_LENGTH * orig.direction : 0),
+                    y: orig.point.y + (!orig.orientation ? Connection.ARROW_SEGMENT_LENGTH * orig.direction : 0)
                 },
                 orientation: orig.orientation ? 0 : 1,
-                direction: relativeY || 1
-            };
-
-            firstPoints.push(orig.point);
-        } else if (!orig.orientation && orig.direction !== relativeY) {
-            orig = {
-                point: {
-                    x: orig.point.x,
-                    y: orig.point.y + (Connection.ARROW_SEGMENT_LENGTH * orig.direction)
-                },
-                orientation: orig.orientation ? 0 : 1,
-                direction: relativeX || 1
+                direction: (orig.orientation ? relativeY : relativeX) || 1
             };
 
             firstPoints.push(orig.point);
         }
 
-        if (dest.orientation && dest.direction === relativeX) {
+        if ((dest.orientation && dest.direction === relativeX) || (!dest.orientation && dest.direction === relativeY)) {
             dest = {
                 point: {
-                    x: dest.point.x + (Connection.ARROW_SEGMENT_LENGTH * dest.direction),
-                    y: dest.point.y
+                    x: dest.point.x + (dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
+                    y: dest.point.y + (!dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0)
                 },
                 orientation: dest.orientation ? 0 : 1,
-                direction: (relativeY * -1) || -1
-            };
-
-            lastPoints.unshift(dest.point);
-        } else if (!dest.orientation && dest.direction === relativeY) {
-            dest = {
-                point: {
-                    x: dest.point.x,
-                    y: dest.point.y + (Connection.ARROW_SEGMENT_LENGTH * dest.direction)
-                },
-                orientation: dest.orientation ? 0 : 1,
-                direction: (relativeX * -1) || -1
+                direction: ((dest.orientation ? relativeY : relativeX) * -1) || -1
             };
 
             lastPoints.unshift(dest.point);
@@ -210,96 +188,46 @@ class Connection extends BPMNElement {
 
         if (orig.orientation === dest.orientation) {
             let orientation = orig.orientation;
-            // points are facing at the same area
 
             if ((orientation && orig.point.y === dest.point.y)
                 || (!orientation && orig.point.x === dest.point.x)) {
                 // points are face 2 face
                 return []; // There's no intermediate points.
             } else {
-                if (orientation) {
-                    let gap = Math.abs(dest.point.x - orig.point.x),
-                        pointA,
-                        pointB;
+                let primaryGap = orientation ? Math.abs(dest.point.x - orig.point.x) : Math.abs(dest.point.y - orig.point.y),
+                    secondaryGap = orientation ? Math.abs(dest.point.y - orig.point.y) : Math.abs(dest.point.x - orig.point.x);
 
-                    if (gap / 2 < Connection.ARROW_SEGMENT_LENGTH && Math.abs(dest.point.y - orig.point.y) / 2 >= Connection.ARROW_SEGMENT_LENGTH) {
-                        pointA = {
-                            point: {
-                                x: orig.point.x + (Connection.ARROW_SEGMENT_LENGTH * relativeX),
-                                y: orig.point.y
-                            },
-                            orientation: 0,
-                            direction: relativeY
-                        };
-                        pointB = {
-                            point: {
-                                x: dest.point.x + (Connection.ARROW_SEGMENT_LENGTH * relativeX * -1),
-                                y: dest.point.y
-                            },
-                            orientation: 0,
-                            direction: relativeY * -1
-                        };
-                        firstPoints.push(pointA.point);
-                        lastPoints.unshift(pointB.point);
-
-                        return firstPoints.concat(this._getWaypoints(pointA, pointB), lastPoints);
-                    }
-                    gap = gap / 2;
-
-                    pointA = {
-                        x: orig.point.x + (gap * relativeX),
-                        y: orig.point.y
+                if (primaryGap / 2 < Connection.ARROW_SEGMENT_LENGTH && secondaryGap / 2 >= Connection.ARROW_SEGMENT_LENGTH) {
+                    orig = {
+                        point: {
+                            x: orig.point.x + (orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeX : 0),
+                            y: orig.point.y + (!orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeY : 0)
+                        },
+                        orientation: orig.orientation ? 0 : 1,
+                        direction: orientation ? relativeY : relativeX
                     };
 
-                    pointB = {
-                        x: dest.point.x + (gap * relativeX * -1),
-                        y: dest.point.y
-                    }
-
-                    return [pointA, pointB];
-
-                } else {
-                    let gap = Math.abs(dest.point.y - orig.point.y),
-                        pointA,
-                        pointB;
-
-                    if (gap / 2 < Connection.ARROW_SEGMENT_LENGTH && Math.abs(dest.point.x - orig.point.x) / 2 >= Connection.ARROW_SEGMENT_LENGTH) {
-                        pointA = {
-                            point: {
-                                x: orig.point.x,
-                                y: orig.point.y + (Connection.ARROW_SEGMENT_LENGTH * relativeY)
-                            },
-                            orientation: 1,
-                            direction: relativeX
-                        };
-                        pointB = {
-                            point: {
-                                x: dest.point.x,
-                                y: dest.point.y + (Connection.ARROW_SEGMENT_LENGTH * relativeY * -1)
-                            },
-                            orientation: 1,
-                            direction: relativeX * -1
-                        };
-                        firstPoints.push(pointA.point);
-                        lastPoints.unshift(pointB.point);
-
-                        return firstPoints.concat(this._getWaypoints(pointA, pointB), lastPoints);
-                    }
-
-                    gap = gap / 2;
-
-                    pointA = {
-                        x: orig.point.x,
-                        y: orig.point.y + (gap * relativeY)
+                    dest = {
+                        point: {
+                            x: dest.point.x + (orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeX * -1 : 0),
+                            y: dest.point.y + (!orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeY * -1 : 0)
+                        },
+                        orientation: dest.orientation ? 0 : 1,
+                        direction: (orientation ? relativeY : relativeX) * -1
                     };
 
-                    pointB = {
-                        x: dest.point.x,
-                        y: dest.point.y + (gap * relativeY * -1)
-                    }
-
-                    return [pointA, pointB];
+                    return [orig.point].concat(this._getWaypoints(orig, dest), dest.point);
                 }
+
+                primaryGap = primaryGap / 2;
+
+                return [{
+                        x: orig.point.x + (orientation ? primaryGap * relativeX : 0),
+                        y: orig.point.y + (!orientation? primaryGap * relativeY : 0)
+                    }, {
+                        x: dest.point.x + (orientation ? primaryGap * relativeX * -1 : 0),
+                        y: dest.point.y + (!orientation ? primaryGap * relativeY * -1 : 0)
+                    }];
             }
         } else {
             let gapX = Math.abs(dest.point.x - orig.point.x),
