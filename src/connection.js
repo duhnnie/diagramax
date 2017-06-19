@@ -315,8 +315,8 @@ class Connection extends BPMNElement {
             } else {
                 dest = {
                     point: {
-                        x: dest.point.x + (dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeX * -1 : 0),
-                        y: dest.point.y + (!dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeY * -1 : 0)
+                        x: dest.point.x + (dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
+                        y: dest.point.y + (!dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0)
                     },
                     orientation: dest.orientation ? 0 : 1,
                     direction: (dest.orientation ? relativeY : relativeX) * -1
