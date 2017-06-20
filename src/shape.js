@@ -287,6 +287,7 @@ class BPMNShape extends BPMNElement {
         title = document.createElement('title');
         text = SVGFactory.create('text');
         tspan = SVGFactory.create('tspan');
+        tspan.style.pointerEvents = 'none';
 
         text.setAttribute('text-anchor', 'middle');
         text.setAttribute('y', '0.5em');
