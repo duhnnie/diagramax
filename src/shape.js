@@ -255,6 +255,18 @@ class BPMNShape extends BPMNElement {
         return selectedPort;
     }
 
+    getBounds() {
+        var half_width = this._width / 2,
+            half_height = this._height / 2;
+
+        return {
+            top: this._y - half_height,
+            right: this._x + half_width,
+            bottom: this._y + half_height,
+            left: this._x - half_width
+        };
+    }
+
     _resetPorts() {
         for (let port of this._ports) {
             port.reset();
