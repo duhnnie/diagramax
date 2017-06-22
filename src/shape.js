@@ -146,7 +146,7 @@ class BPMNShape extends BPMNElement {
     getPorts () {
         return this._ports.map((port, index) => {
             let descriptor = port.getDescriptor();
-            descriptor.position = index;
+            descriptor.portIndex = index;
 
             return descriptor;
         });
@@ -215,58 +215,10 @@ class BPMNShape extends BPMNElement {
         return this;
     }
 
-    getPortDirection(port) {
-        let direction = this._ports.indexOf(port);
-
-        if (direction < 0) {
-            throw new Error('getPortDirection(): supplied port doesn\'t belong to this shape.');
-        }
-
-        return direction;
-    }
-
     assignConnectionToPort(connection, portIndex) {
         this._ports[portIndex].addConnection(connection);
 
         return this;
-    }
-
-    getPort(connection) {
-        let mode = connection.getDestShape() === this ? Port.MODE.IN : Port.MODE.OUT,
-            shape = mode === Port.MODE.IN ? connection.getOrigShape() : connection.getDestShape(),
-            shapePos = shape.getPosition(),
-            gapX = shapePos.x - this._x,
-            gapY = shapePos.y - this._y,
-            relativeX = gapX > 0 ? -1 : (gapX < 0 ? 1 : 0),
-            relativeY = gapY > 0 ? -1 : (gapY < 0 ? 1: 0),
-            priorityPortsX = relativeX > 0 ? [BPMNShape.PORT_INDEX.WEST, BPMNShape.PORT_INDEX.EAST] : [BPMNShape.PORT_INDEX.EAST, BPMNShape.PORT_INDEX.WEST],
-            priorityPortsY = relativeY > 0 ? [BPMNShape.PORT_INDEX.NORTH, BPMNShape.PORT_INDEX.SOUTH] : [BPMNShape.PORT_INDEX.SOUTH, BPMNShape.PORT_INDEX.NORTH],
-            priorityPorts,
-            selectedPort;
-
-        gapX = Math.abs(gapX);
-        gapY = Math.abs(gapY);
-
-        if (gapX === 0 || gapY > gapX) {
-            priorityPortsY.splice(1, 0, priorityPortsX[0], priorityPortsX[1]);
-            priorityPorts = priorityPortsY;
-        } else {
-            priorityPortsX.splice(1, 0, priorityPortsY[0], priorityPortsY[1]);
-            priorityPorts = priorityPortsX;
-        }
-
-        priorityPorts.forEach(i => {
-            let port = this._ports[i];
-
-            port.removeConnection(connection);
-
-            if (!selectedPort && (port.mode === mode || port.mode === null)) {
-                selectedPort = port;
-                this.assignConnectionToPort(connection, i);
-            }
-        });
-
-        return selectedPort;
     }
 
     getBounds() {

@@ -67,7 +67,7 @@ class Connection extends BPMNElement {
                 this._destShape = null;
                 oldDestShape.removeConnection(this);
             }
-             
+
             this._destShape = shape;
             shape.addIncomingConnection(this);
 
@@ -105,18 +105,6 @@ class Connection extends BPMNElement {
 
     isConnectedWith(shape) {
         return this._origShape === shape || this._destShape === shape;
-    }
-
-    _getPortDescriptor (port) {
-        if (port instanceof Port) {
-            return {
-                point: port.getConnectionPoint(),
-                orientation: port.orientation,
-                direction: port.direction
-            };
-        }
-
-        return null;
     }
 
     _getWaypoints(orig, dest) {
@@ -228,54 +216,56 @@ class Connection extends BPMNElement {
     }
 
     connect() {
-        let origPoint,
-            destPoint,
-            origPort,
-            destPort,
+        let ports,
             previousPoint,
             paths;
 
         if (this._html) {
             let waypoints,
-                i;
-
-            origPort = this._origShape.getPort(this);
-            destPort = this._destShape.getPort(this);
-
-            waypoints = this._getWaypoints(this._getPortDescriptor(origPort), this._getPortDescriptor(destPort));
-
-            origPoint = origPort.getConnectionPoint();
-            destPoint = destPort.getConnectionPoint();
-
-            waypoints.unshift({
-                x: origPoint.x,
-                y: origPoint.y
-            });
-
-            waypoints.push({
-                x: destPoint.x,
-                y: destPoint.y
-            });
-
-            console.log(this._origShape.getText() + ' -> ' + this._destShape.getText(), waypoints);
+                i = 0;
 
             paths = this._dom.paths || [];
+            ports = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
 
-            for (i = 1; i < waypoints.length; i += 1) {
-                let path = paths[i] || SVGFactory.create('line');
+            if (ports.orig) {
+                this._origShape.assignConnectionToPort(this, ports.orig.portIndex);
+                this._destShape.assignConnectionToPort(this, ports.dest.portIndex);
 
-                previousPoint = waypoints[i - 1];
+                waypoints = this._getWaypoints(ports.orig, ports.dest);
 
-                path.style.display = '';
+                waypoints.unshift({
+                    x: ports.orig.point.x,
+                    y: ports.orig.point.y
+                });
 
-                path.setAttribute("x1", previousPoint.x);
-                path.setAttribute("y1", previousPoint.y);
-                path.setAttribute("x2", waypoints[i].x);
-                path.setAttribute("y2", waypoints[i].y);
-                path.setAttribute("stroke", "black");
+                waypoints.push({
+                    x: ports.dest.point.x,
+                    y: ports.dest.point.y
+                });
 
-                this._html.appendChild(path);
-                paths[i] = paths[i] || path;
+                for (i = 1; i < waypoints.length; i += 1) {
+                    let path = paths[i - 1] || SVGFactory.create('line');
+
+                    previousPoint = waypoints[i - 1];
+
+                    path.style.display = '';
+
+                    path.setAttribute("x1", previousPoint.x);
+                    path.setAttribute("y1", previousPoint.y);
+                    path.setAttribute("x2", waypoints[i].x);
+                    path.setAttribute("y2", waypoints[i].y);
+                    path.setAttribute("stroke", "black");
+
+                    this._html.appendChild(path);
+                    paths[i - 1] = paths[i - 1] || path;
+                }
+
+                this._dom.arrow.setAttribute("transform", `translate(${waypoints[waypoints.length - 1].x}, ${waypoints[waypoints.length - 1].y})`);
+                this._dom.arrowRotateContainer.setAttribute("transform", `scale(0.5, 0.5) rotate(${90 * ports.dest.portIndex})`);
+                this._dom.arrow.style.display = '';
+                this._html.appendChild(this._dom.arrow);
+            } else {
+                this._dom.arrow.style.display = 'none';
             }
 
             while (i < paths.length) {
@@ -283,9 +273,6 @@ class Connection extends BPMNElement {
             }
 
             this._dom.paths = paths;
-            this._dom.arrow.setAttribute("transform", `translate(${waypoints[waypoints.length - 1].x}, ${waypoints[waypoints.length - 1].y})`);
-            this._dom.arrowRotateContainer.setAttribute("transform", `scale(0.5, 0.5) rotate(${90 * this._destShape.getPortDirection(destPort)})`);
-            this._html.appendChild(this._dom.arrow);
         }
 
         return this;
