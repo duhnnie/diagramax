@@ -19,21 +19,30 @@ class Connection extends BPMNElement {
             .setDestShape(settings.destShape);
     }
 
+    _isValid(origShape, destShape) {
+        return origShape !== destShape;
+    }
+
     setOrigShape(shape) {
         if (!(shape instanceof BPMNShape)) {
             throw new Error('setOrigShape(): invalid parameter.');
+        } else if (!this._isValid(shape, this._destShape)) {
+            throw new Error('setOrigShape(): The origin and destiny are the same.');
         }
 
         if (shape !== this._origShape) {
             if (this._origShape) {
-                this.replaceOrigShape(shape);
-            } else {
-                this._origShape = shape;
-                shape.addOutgoingConnection(this);
+                let oldOrigShape = this._origShape;
 
-                if (this._html) {
-                    this.connect();
-                }
+                this._origShape = null;
+                oldOrigShape.removeConnection(this);
+            }
+
+            this._origShape = shape;
+            shape.addOutgoingConnection(this);
+
+            if (this._html) {
+                this.connect();
             }
         }
 
@@ -44,42 +53,26 @@ class Connection extends BPMNElement {
         return this._origShape;
     }
 
-    replaceOrigShape(shape) {
-        let origShape;
-
-        if (!(shape instanceof BPMNShape)) {
-            throw new Error('replaceOrigShape(): invalid parameter');
-        }
-
-        if (this._origShape !== shape) {
-            origShape = this._origShape;
-            this._origShape = null;
-
-            if (origShape) {
-                origShape.removeConnection(this);
-            }
-
-            this.setOrigShape(shape);
-        }
-
-        return this;
-    }
-
     setDestShape(shape) {
         if (!(shape instanceof BPMNShape)) {
             throw new Error('setOrigShape(): invalid parameter.');
+        } else if (!this._isValid(this._origShape, shape)) {
+            throw new Error('setDestShape(): The origin and destiny are the same.');
         }
 
         if (shape !== this._destShape) {
             if (this._destShape) {
-                this.replaceDestShape(shape);
-            } else {
-                this._destShape = shape;
-                shape.addIncomingConnection(this);
+                let oldDestShape = this._destShape;
 
-                if (this._html) {
-                    this.connect();
-                }
+                this._destShape = null;
+                oldDestShape.removeConnection(this);
+            }
+             
+            this._destShape = shape;
+            shape.addIncomingConnection(this);
+
+            if (this._html) {
+                this.connect();
             }
         }
 
@@ -88,27 +81,6 @@ class Connection extends BPMNElement {
 
     getDestShape() {
         return this._destShape;
-    }
-
-    replaceDestShape(shape) {
-        let destShape;
-
-        if (!(shape instanceof BPMNShape)) {
-            throw new Error('replaceOrigShape(): invalid parameter.');
-        }
-
-        if (this._destShape !== shape) {
-            destShape = this._destShape;
-            this._destShape = null;
-
-            if (destShape) {
-                destShape.removeConnection(this);
-            }
-
-            this.setDestShape(shape);
-        }
-
-        return this;
     }
 
     disconnect() {
