@@ -124,6 +124,15 @@ class Port {
         return this.clearConnections();
     }
 
+    getDescriptor() {
+        return {
+            orientation: this._orientation,
+            direction: this._direction,
+            mode: this._mode,
+            point: this.getConnectionPoint()
+        };
+    }
+
     getConnectionPoint() {
         var shapePosition = this._shape.getPosition(),
             orientation = this._orientation,

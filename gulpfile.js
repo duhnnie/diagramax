@@ -63,6 +63,7 @@ gulp.task('default', function (cb) {
             'src/start_event.js',
             'src/end_event.js',
             'src/activity.js',
+            'src/connection_manager.js',
             'src/drag_drop_manager.js'
         ])
         .pipe(concat('designer.js'))

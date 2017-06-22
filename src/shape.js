@@ -1,6 +1,6 @@
 class BPMNShape extends BPMNElement {
 
-    static get PORT_DIRECTION() {
+    static get PORT_INDEX() {
         return {
             NORTH: 0,
             EAST: 1,
@@ -34,8 +34,8 @@ class BPMNShape extends BPMNElement {
     _initPorts() {
         let index;
 
-        for (let port_position in BPMNShape.PORT_DIRECTION) {
-            let index = BPMNShape.PORT_DIRECTION[port_position];
+        for (let port_position in BPMNShape.PORT_INDEX) {
+            let index = BPMNShape.PORT_INDEX[port_position];
 
             this._ports[index] = new Port({
                 shape: this,
@@ -143,6 +143,15 @@ class BPMNShape extends BPMNElement {
         };
     }
 
+    getPorts () {
+        return this._ports.map((port, index) => {
+            let descriptor = port.getDescriptor();
+            descriptor.position = index;
+
+            return descriptor;
+        });
+    }
+
     addOutgoingConnection(connection) {
         if (!(connection instanceof Connection)) {
             throw new Error('setOutgoingConnection(): invalid parameter.');
@@ -224,8 +233,8 @@ class BPMNShape extends BPMNElement {
             gapY = shapePos.y - this._y,
             relativeX = gapX > 0 ? -1 : (gapX < 0 ? 1 : 0),
             relativeY = gapY > 0 ? -1 : (gapY < 0 ? 1: 0),
-            priorityPortsX = relativeX > 0 ? [BPMNShape.PORT_DIRECTION.WEST, BPMNShape.PORT_DIRECTION.EAST] : [BPMNShape.PORT_DIRECTION.EAST, BPMNShape.PORT_DIRECTION.WEST],
-            priorityPortsY = relativeY > 0 ? [BPMNShape.PORT_DIRECTION.NORTH, BPMNShape.PORT_DIRECTION.SOUTH] : [BPMNShape.PORT_DIRECTION.SOUTH, BPMNShape.PORT_DIRECTION.NORTH],
+            priorityPortsX = relativeX > 0 ? [BPMNShape.PORT_INDEX.WEST, BPMNShape.PORT_INDEX.EAST] : [BPMNShape.PORT_INDEX.EAST, BPMNShape.PORT_INDEX.WEST],
+            priorityPortsY = relativeY > 0 ? [BPMNShape.PORT_INDEX.NORTH, BPMNShape.PORT_INDEX.SOUTH] : [BPMNShape.PORT_INDEX.SOUTH, BPMNShape.PORT_INDEX.NORTH],
             priorityPorts,
             selectedPort;
 
