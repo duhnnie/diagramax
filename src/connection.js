@@ -217,14 +217,14 @@ class Connection extends BPMNElement {
 
     connect() {
         let ports,
-            previousPoint,
-            paths;
+            nextPoint,
+            segments;
 
         if (this._html) {
             let waypoints,
                 i = 0;
 
-            paths = this._dom.paths || [];
+            segments = this._dom.segments || [];
             ports = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
 
             if (ports.orig) {
@@ -243,21 +243,21 @@ class Connection extends BPMNElement {
                     y: ports.dest.point.y
                 });
 
-                for (i = 1; i < waypoints.length; i += 1) {
-                    let path = paths[i - 1] || SVGFactory.create('line');
+                for (i; i < waypoints.length - 1; i += 1) {
+                    let segment = segments[i] || SVGFactory.create('line');
 
-                    previousPoint = waypoints[i - 1];
+                    nextPoint = waypoints[i + 1];
 
-                    path.style.display = '';
+                    segment.style.display = '';
 
-                    path.setAttribute("x1", previousPoint.x);
-                    path.setAttribute("y1", previousPoint.y);
-                    path.setAttribute("x2", waypoints[i].x);
-                    path.setAttribute("y2", waypoints[i].y);
-                    path.setAttribute("stroke", "black");
+                    segment.setAttribute("x1", waypoints[i].x);
+                    segment.setAttribute("y1", waypoints[i].y);
+                    segment.setAttribute("x2", nextPoint.x);
+                    segment.setAttribute("y2", nextPoint.y);
+                    segment.setAttribute("stroke", "black");
 
-                    this._html.appendChild(path);
-                    paths[i - 1] = paths[i - 1] || path;
+                    this._html.appendChild(segment);
+                    segments[i] = segments[i] || segment;
                 }
 
                 this._dom.arrow.setAttribute("transform", `translate(${waypoints[waypoints.length - 1].x}, ${waypoints[waypoints.length - 1].y})`);
@@ -268,11 +268,11 @@ class Connection extends BPMNElement {
                 this._dom.arrow.style.display = 'none';
             }
 
-            while (i < paths.length) {
-                paths[i++].style.display = 'none';
+            while (i < segments.length) {
+                segments[i++].style.display = 'none';
             }
 
-            this._dom.paths = paths;
+            this._dom.segments = segments;
         }
 
         return this;
