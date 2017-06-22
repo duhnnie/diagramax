@@ -28,7 +28,6 @@ class Port {
         this._shape = null;
 
         settings = jQuery.extend({
-            mode: null,
             connections: [],
             shape: null
         }, settings);
@@ -36,16 +35,7 @@ class Port {
         this.setShape(settings.shape)
             .setOrientation(settings.orientation)
             .setDirection(settings.direction)
-            .setConnections(settings.connections).mode = settings.mode;
-    }
-
-    set mode(mode) {
-        if (mode !== null && !Object.keys(Port.MODE).find(i => Port.MODE[i] === mode)) {
-            throw new Error('set mode: invalid parameter.');
-        }
-
-        this._mode = mode;
-        return this;
+            .setConnections(settings.connections);
     }
 
     get mode() {
@@ -92,6 +82,21 @@ class Port {
     }
 
     addConnection(connection) {
+        let newMode;
+
+        if (!connection instanceof Connection) {
+            throw new Error("addConnection(): Invalid parameter.");
+        } else if (!this._shape.useConnection(connection)) {
+            throw new Error('addConnection(): the supplied connection doesn\'t belong to this shape.');
+        }
+
+        newMode = connection.getOrigShape() === this._shape ? Port.MODE.OUT : Port.MODE.IN;
+
+        if (newMode !== this._mode && this._mode !== null) {
+            throw new Error('addConnection(): Invalid connection direction.');
+        }
+
+        this._mode = newMode;
         this._connections.add(connection);
         return this;
     }
@@ -109,7 +114,7 @@ class Port {
 
     removeConnection(connection) {
         if (this._connections.delete(connection)) {
-            this.mode = this._connections.size ? this.mode : null;
+            this._mode = this._connections.size ? this._mode : null;
         }
         return this;
     }
@@ -120,7 +125,7 @@ class Port {
     }
 
     reset() {
-        this.mode = null;
+        this._mode = null;
         return this.clearConnections();
     }
 

@@ -225,6 +225,12 @@ class BPMNShape extends BPMNElement {
         return direction;
     }
 
+    assignConnectionToPort(connection, portIndex) {
+        this._ports[portIndex].addConnection(connection);
+
+        return this;
+    }
+
     getPort(connection) {
         let mode = connection.getDestShape() === this ? Port.MODE.IN : Port.MODE.OUT,
             shape = mode === Port.MODE.IN ? connection.getOrigShape() : connection.getDestShape(),
@@ -256,8 +262,7 @@ class BPMNShape extends BPMNElement {
 
             if (!selectedPort && (port.mode === mode || port.mode === null)) {
                 selectedPort = port;
-                selectedPort.mode = mode;
-                selectedPort.addConnection(connection);
+                this.assignConnectionToPort(connection, i);
             }
         });
 
@@ -274,6 +279,10 @@ class BPMNShape extends BPMNElement {
             bottom: this._y + half_height,
             left: this._x - half_width
         };
+    }
+
+    useConnection(connection) {
+        return this._connections.has(connection);
     }
 
     _resetPorts() {
