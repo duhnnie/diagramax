@@ -107,114 +107,6 @@ class Connection extends BPMNElement {
         return this._origShape === shape || this._destShape === shape;
     }
 
-    _getWaypoints(orig, dest) {
-        let relativeX = dest.point.x - orig.point.x,
-            relativeY = dest.point.y - orig.point.y,
-            firstPoints = [],
-            lastPoints = [];
-
-        relativeX = relativeX !== 0 ? relativeX / Math.abs(relativeX) : 0;
-        relativeY = relativeY !== 0 ? relativeY / Math.abs(relativeY) : 0;
-
-        if ((orig.orientation && orig.direction !== relativeX) || (!orig.orientation && orig.direction !== relativeY)) {
-            orig = {
-                point: {
-                    x: orig.point.x + (orig.orientation ? Connection.ARROW_SEGMENT_LENGTH * orig.direction : 0),
-                    y: orig.point.y + (!orig.orientation ? Connection.ARROW_SEGMENT_LENGTH * orig.direction : 0)
-                },
-                orientation: orig.orientation ? 0 : 1,
-                direction: (orig.orientation ? relativeY : relativeX) || 1
-            };
-
-            firstPoints.push(orig.point);
-        }
-
-        if ((dest.orientation && dest.direction === relativeX) || (!dest.orientation && dest.direction === relativeY)) {
-            dest = {
-                point: {
-                    x: dest.point.x + (dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
-                    y: dest.point.y + (!dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0)
-                },
-                orientation: dest.orientation ? 0 : 1,
-                direction: ((dest.orientation ? relativeY : relativeX) * -1) || -1
-            };
-
-            lastPoints.unshift(dest.point);
-        }
-
-        if (firstPoints.length || lastPoints.length) {
-            return firstPoints.concat(this._getWaypoints(orig, dest), lastPoints);
-        }
-
-        if (orig.orientation === dest.orientation) {
-            let orientation = orig.orientation;
-
-            if ((orientation && orig.point.y === dest.point.y)
-                || (!orientation && orig.point.x === dest.point.x)) {
-                // points are face 2 face
-                return []; // There's no intermediate points.
-            } else {
-                let primaryGap = orientation ? Math.abs(dest.point.x - orig.point.x) : Math.abs(dest.point.y - orig.point.y),
-                    secondaryGap = orientation ? Math.abs(dest.point.y - orig.point.y) : Math.abs(dest.point.x - orig.point.x);
-
-                if (primaryGap / 2 < Connection.ARROW_SEGMENT_LENGTH && secondaryGap / 2 >= Connection.ARROW_SEGMENT_LENGTH) {
-                    orig = {
-                        point: {
-                            x: orig.point.x + (orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeX : 0),
-                            y: orig.point.y + (!orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeY : 0)
-                        },
-                        orientation: orig.orientation ? 0 : 1,
-                        direction: orientation ? relativeY : relativeX
-                    };
-
-                    dest = {
-                        point: {
-                            x: dest.point.x + (orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeX * -1 : 0),
-                            y: dest.point.y + (!orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeY * -1 : 0)
-                        },
-                        orientation: dest.orientation ? 0 : 1,
-                        direction: (orientation ? relativeY : relativeX) * -1
-                    };
-
-                    return [orig.point].concat(this._getWaypoints(orig, dest), dest.point);
-                }
-
-                primaryGap = primaryGap / 2;
-
-                return [{
-                        x: orig.point.x + (orientation ? primaryGap * relativeX : 0),
-                        y: orig.point.y + (!orientation? primaryGap * relativeY : 0)
-                    }, {
-                        x: dest.point.x + (orientation ? primaryGap * relativeX * -1 : 0),
-                        y: dest.point.y + (!orientation ? primaryGap * relativeY * -1 : 0)
-                    }];
-            }
-        } else {
-            let gapX = Math.abs(dest.point.x - orig.point.x),
-                gapY = Math.abs(dest.point.y - orig.point.y);
-
-            if (gapX < Connection.ARROW_SEGMENT_LENGTH === gapY < Connection.ARROW_SEGMENT_LENGTH
-                || ((dest.orientation && gapX >= Connection.ARROW_SEGMENT_LENGTH)
-                    || (!dest.orientation && gapY >= Connection.ARROW_SEGMENT_LENGTH))) {
-                return [{
-                    x: orig.orientation ? dest.point.x : orig.point.x,
-                    y: orig.orientation ? orig.point.y : dest.point.y
-                }];
-            } else {
-                dest = {
-                    point: {
-                        x: dest.point.x + (dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
-                        y: dest.point.y + (!dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0)
-                    },
-                    orientation: dest.orientation ? 0 : 1,
-                    direction: (dest.orientation ? relativeY : relativeX) * -1
-                };
-
-                return this._getWaypoints(orig, dest).concat(dest.point);
-            }
-        }
-    }
-
     connect() {
         let ports,
             nextPoint,
@@ -231,7 +123,7 @@ class Connection extends BPMNElement {
                 this._origShape.assignConnectionToPort(this, ports.orig.portIndex);
                 this._destShape.assignConnectionToPort(this, ports.dest.portIndex);
 
-                waypoints = this._getWaypoints(ports.orig, ports.dest);
+                waypoints = ConnectionManager.getWaypoints(ports.orig, ports.dest);
 
                 waypoints.unshift({
                     x: ports.orig.point.x,
