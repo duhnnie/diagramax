@@ -200,7 +200,9 @@ class BPMNShape extends BPMNElement {
 
     _removeFromPorts(connection) {
         for (let port of this._ports) {
-            port.removeConnection(connection);
+            if (port.hasConnection(connection)) {
+                port.removeConnection(connection);
+            }
         }
         return this;
     }
@@ -216,6 +218,7 @@ class BPMNShape extends BPMNElement {
     }
 
     assignConnectionToPort(connection, portIndex) {
+        this._removeFromPorts(connection);
         this._ports[portIndex].addConnection(connection);
 
         return this;
