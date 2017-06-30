@@ -1,11 +1,11 @@
 class StartEvent extends BPMNShape {
     setWidth() {
-        this._width = 50;
+        this._width = 40;
         return this;
     }
 
     setHeight() {
-        this._height = 50;
+        this._height = 40;
         return this;
     }
 
@@ -20,14 +20,12 @@ class StartEvent extends BPMNShape {
 
         circle.setAttribute("fill", "#B4DCCB");
         circle.setAttribute("stroke", "#01894E");
-        circle.setAttribute("r", "20");
-        circle.setAttribute("cx", "30");
-        circle.setAttribute("cy", "30");
-        circle.setAttribute("width", this._width);
-        circle.setAttribute("height", this._height);
+        circle.setAttribute("r", this._width / 2);
+        circle.setAttribute("cx", this._width / 2);
+        circle.setAttribute("cy", this._height / 2);
         circle.setAttribute("stroke-width", "4");
         circle.setAttribute("stroke-dasharray", "0");
-        circle.setAttribute("transform", "translate(-30, -30)");
+        circle.setAttribute("transform", `translate(-${this._width / 2}, -${this._height / 2})`);
 
         super._createHTML();
 
