@@ -86,7 +86,7 @@ class Port {
 
         if (!connection instanceof Connection) {
             throw new Error("addConnection(): Invalid parameter.");
-        } else if (!this._shape.useConnection(connection)) {
+        } else if (!this._shape.isUsingConnection(connection)) {
             throw new Error('addConnection(): the supplied connection doesn\'t belong to this shape.');
         }
 

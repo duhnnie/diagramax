@@ -236,7 +236,7 @@ class BPMNShape extends BPMNElement {
         };
     }
 
-    useConnection(connection) {
+    isUsingConnection(connection) {
         return this._connections.has(connection);
     }
 
