@@ -242,7 +242,7 @@ class BPMNShape extends BPMNElement {
 
     _resetPorts() {
         for (let port of this._ports) {
-            port.reset();
+            port.clearConnections();
         }
         return this;
     }

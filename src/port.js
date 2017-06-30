@@ -121,12 +121,8 @@ class Port {
 
     clearConnections() {
         this._connections.clear();
-        return this;
-    }
-
-    reset() {
         this._mode = null;
-        return this.clearConnections();
+        return this;
     }
 
     getDescriptor() {
