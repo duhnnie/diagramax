@@ -20,65 +20,63 @@ class DragAndDropManager {
     }
 
     _init() {
-        let diff,
+        let diffX,
+            diffY,
             dragged = false;
 
-        $(this._canvas.getHTML())
-            .on('mousemove', (e) => {
-                if (this._target) {
-                    this._target.setPosition(e.offsetX - diff.x, e.offsetY - diff.y);
+        $(this._canvas.getHTML()).on('mousemove', e => {
+            if (this._target) {
+                diffX = e.clientX - diffX;
+                diffY = e.clientY - diffY;
+
+                this._target.setPosition(this._target.getX() + diffX, this._target.getY() + diffY);
+                dragged = true;
+
+                diffX = e.clientX;
+                diffY = e.clientY;
+            } else if (this._fromTarget) {
+                this._dom.line.setAttribute("x2", e.offsetX + (this._fromTarget.getX() > e.offsetX ?  1 : - 1));
+                this._dom.line.setAttribute("y2", e.offsetY + (this._fromTarget.getY() > e.offsetY ?  1 : - 1));
+            }
+        }).on('mouseleave', e => {
+            this._target = null;
+            dragged = false;
+        }).on('mousedown', '.shape', e => {
+            this._target = this._getShape(e.currentTarget);
+
+            diffX = e.clientX;
+            diffY = e.clientY;
+        }).on('click', '.shape', e => {
+            let x, y;
+
+            if (!dragged) {
+                if (this._fromTarget) {
+                    this._canvas.connect(this._fromTarget, this._getShape(e.currentTarget));
+                    this._dom.line.setAttribute("stroke", "");
                     this._fromTarget = null;
-                    dragged = true;
-                } else if (this._fromTarget) {
-                    this._dom.line.setAttribute("x1", this._fromTarget.getX());
-                    this._dom.line.setAttribute("y1", this._fromTarget.getY());
-                    this._dom.line.setAttribute("x2", e.offsetX - 1);
-                    this._dom.line.setAttribute("y2", e.offsetY - 1);
-                }
-            }).on('mouseleave',  () => {
-                let html;
+                } else {
+                    this._fromTarget = this._target;
 
-                if (!this._target) return;
+                    x = this._fromTarget.getX();
+                    y = this._fromTarget.getY();
 
-                html = this._target.getHTML();
-                this._target.setPosition(html.getCTM().e, html.getCTM().f);
-                this._target = null;
-            }).on('mousedown', '.shape', (e) => {
-                this._target = this._getShape(e.currentTarget);
-                diff = {
-                    x: e.offsetX - this._target.getX(),
-                    y: e.offsetY - this._target.getY()
-                };
-                dragged = false;
-            }).on('mouseup', '.shape', (e) => {
-                console.log("up");
-            }).on('click', '.shape', (e) => {
-                if (!dragged){
-                    if (this._fromTarget) {
-                        this._canvas.connect(this._fromTarget.getID(), this._getShape(e.currentTarget).getID());
-                        this._dom.line.setAttribute("stroke", "");
-                    } else {
-                        this._dom.line.setAttribute("x1", 0);
-                        this._dom.line.setAttribute("y1", 0);
-                        this._dom.line.setAttribute("x2", 0);
-                        this._dom.line.setAttribute("y2", 0);
-                        this._dom.line.setAttribute("stroke", "black");
-                        this._canvas._dom.container.appendChild(this._dom.line);
-                    }
-                    this._fromTarget = this._fromTarget ? null : this._getShape(e.currentTarget);
-                }
+                    diffX = e.clientX;
+                    diffY = e.clientY;
 
-                if (this._target){
-                    this._target = null;
+                    this._dom.line.setAttribute("x1", x);
+                    this._dom.line.setAttribute("y1", y);
+                    this._dom.line.setAttribute("x2", x);
+                    this._dom.line.setAttribute("y2", y);
+                    this._dom.line.setAttribute("stroke", "black");
+                    this._canvas._dom.container.appendChild(this._dom.line);
                 }
-                dragged = false;
-                e.stopPropagation();
-            }).on('click', () => {
-                this._dom.line.setAttribute("stroke", "");
-            }).on('dblclick', '.shape', e => {
-                let shape = this._getShape(e.currentTarget);
-                this._canvas._onSelectShape(shape);
-            });
+            }
+            this._target = null;
+            dragged = false;
+        }).on('dblclick', '.shape', e => {
+            let shape = this._getShape(e.currentTarget);
+            this._canvas._onSelectShape(shape);
+        });
 
         this._dom.line = SVGFactory.create('line');
 
