@@ -32,9 +32,9 @@ class Port {
             shape: null
         }, settings);
 
-        this.setShape(settings.shape)
-            .setOrientation(settings.orientation)
-            .setDirection(settings.direction)
+        this._setShape(settings.shape)
+            ._setOrientation(settings.orientation)
+            ._setDirection(settings.direction)
             .setConnections(settings.connections);
     }
 
@@ -54,7 +54,7 @@ class Port {
         return this._connections.size;
     }
 
-    setShape(shape) {
+    _setShape(shape) {
         if (!(shape instanceof BPMNShape)) {
             throw new Error('setShape(): invalid parameter.');
         }
@@ -63,7 +63,7 @@ class Port {
         return this;
     }
 
-    setOrientation(orientation) {
+    _setOrientation(orientation) {
         if (!Object.keys(Port.ORIENTATION).find(i => Port.ORIENTATION[i] === orientation)) {
             throw new Error('setOrientation(): invalid parameter.');
         }
@@ -72,7 +72,7 @@ class Port {
         return this;
     }
 
-    setDirection(direction) {
+    _setDirection(direction) {
         if (!Object.keys(Port.DIRECTION).find(i => Port.DIRECTION[i] === direction)) {
             throw new Error('setDirection(): invalid parameter.');
         }
