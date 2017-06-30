@@ -35,8 +35,11 @@ class DragAndDropManager {
                 diffX = e.clientX;
                 diffY = e.clientY;
             } else if (this._fromTarget) {
-                this._dom.line.setAttribute("x2", e.offsetX + (this._fromTarget.getX() > e.offsetX ?  1 : - 1));
-                this._dom.line.setAttribute("y2", e.offsetY + (this._fromTarget.getY() > e.offsetY ?  1 : - 1));
+                diffX += e.clientX - diffX;
+                diffY += e.clientY - diffY;
+
+                this._dom.line.setAttribute("x2", diffX);
+                this._dom.line.setAttribute("y2", diffY);
             }
         }).on('mouseleave', e => {
             this._target = null;
@@ -47,7 +50,9 @@ class DragAndDropManager {
             diffX = e.clientX;
             diffY = e.clientY;
         }).on('click', '.shape', e => {
-            let x, y;
+            let x,
+                y,
+                aux;
 
             if (!dragged) {
                 if (this._fromTarget) {
@@ -57,11 +62,13 @@ class DragAndDropManager {
                 } else {
                     this._fromTarget = this._target;
 
-                    x = this._fromTarget.getX();
-                    y = this._fromTarget.getY();
+                    aux = this._fromTarget.getHTML().getBoundingClientRect();
 
-                    diffX = e.clientX;
-                    diffY = e.clientY;
+                    diffX = e.clientX - aux.left - (this._fromTarget.getWidth() / 2);
+                    diffY = e.clientY - aux.top - (this._fromTarget.getHeight() / 2);
+
+                    x = this._fromTarget.getX() + diffX;
+                    y = this._fromTarget.getY() + diffY;
 
                     this._dom.line.setAttribute("x1", x);
                     this._dom.line.setAttribute("y1", y);
