@@ -204,8 +204,10 @@ var ConnectionManager = (function () {
                 origPorts = origShape.getPorts(),
                 destPorts = destShape.getPorts();
 
-            candidatePorts.orig = candidatePorts.orig.find(i => origPorts[i].mode === Port.MODE.OUT || origPorts[i].mode === null);
-            candidatePorts.dest = candidatePorts.dest.find(i => destPorts[i].mode === Port.MODE.IN || destPorts[i].mode === null);
+            candidatePorts.orig = candidatePorts.orig.find(i => origPorts[i].mode === Port.MODE.OUT
+              || (origPorts[i].mode === null && origPorts.filter(i => i.mode === Port.MODE.OUT).length < 3));
+            candidatePorts.dest = candidatePorts.dest.find(i => destPorts[i].mode === Port.MODE.IN
+              || (destPorts[i].mode === null && destPorts.filter(i => i.mode === Port.MODE.IN).length < 3));
 
             return {
                 orig: origPorts[candidatePorts.orig],
