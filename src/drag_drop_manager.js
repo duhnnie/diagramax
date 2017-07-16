@@ -27,7 +27,10 @@ class DragAndDropManager {
 
         $(window).on('scroll', () => canvasOffset = this._canvas.getHTML().getBoundingClientRect());
 
-        $(this._canvas.getHTML()).on('mousemove', e => {
+        $(this._canvas.getHTML()).on('click', e => {
+          this._dom.line.setAttribute("stroke", "");
+          this._fromTarget = null;
+        }).on('mousemove', e => {
             if (this._target) {
                 diffX = e.clientX - diffX;
                 diffY = e.clientY - diffY;
@@ -56,6 +59,8 @@ class DragAndDropManager {
             let x,
                 y,
                 aux;
+
+            e.stopPropagation();
 
             if (!dragged) {
                 if (this._fromTarget) {
