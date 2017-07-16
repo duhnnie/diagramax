@@ -22,7 +22,10 @@ class DragAndDropManager {
     _init() {
         let diffX,
             diffY,
+            canvasOffset,
             dragged = false;
+
+        $(window).on('scroll', () => canvasOffset = this._canvas.getHTML().getBoundingClientRect());
 
         $(this._canvas.getHTML()).on('mousemove', e => {
             if (this._target) {
@@ -38,8 +41,8 @@ class DragAndDropManager {
                 diffX += e.clientX - diffX;
                 diffY += e.clientY - diffY;
 
-                this._dom.line.setAttribute("x2", diffX);
-                this._dom.line.setAttribute("y2", diffY);
+                this._dom.line.setAttribute("x2", diffX - canvasOffset.left + (this._fromTarget.getX() < diffX ? -1 : 1));
+                this._dom.line.setAttribute("y2", diffY - canvasOffset.top + (this._fromTarget.getY() < diffY ? -1 : 1));
             }
         }).on('mouseleave', e => {
             this._target = null;
@@ -86,6 +89,8 @@ class DragAndDropManager {
         });
 
         this._dom.line = SVGFactory.create('line');
+
+        canvasOffset = this._canvas.getHTML().getBoundingClientRect();
 
         return this;
     }
