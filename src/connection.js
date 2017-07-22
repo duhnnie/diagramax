@@ -82,6 +82,27 @@ class Connection extends BPMNElement {
         return this._destShape;
     }
 
+    getBBoxExtremePoints() {
+        if (this._html) {
+            let bbox = this._dom.path.getBBox();
+
+            return {
+                min: {
+                    x: bbox.x,
+                    y: bbox.y
+                },
+                max: {
+                    x: bbox.x + bbox.width,
+                    y: bbox.y + bbox.height
+                }
+            };
+        }
+        return {
+            min: { x: 0, y: 0 },
+            max: { x: 0, y: 0 }
+        };
+    }
+
     disconnect() {
         let origShape = this._origShape,
             destShape = this._destShape;
