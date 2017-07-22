@@ -8,7 +8,6 @@ class Connection extends BPMNElement {
         super(settings);
         this._origShape = null;
         this._destShape = null;
-        this._points = [];
 
         settings = jQuery.extend({
             origShape: null,
@@ -108,63 +107,38 @@ class Connection extends BPMNElement {
     }
 
     connect() {
-        let ports,
-            nextPoint,
-            segments;
-
         if (this._html) {
             let waypoints,
-                i = 0;
-
-            segments = this._dom.segments || [];
-            ports = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
+                ports = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
 
             if (ports.orig) {
+                let segments = "";
+
                 this._origShape.assignConnectionToPort(this, ports.orig.portIndex);
                 this._destShape.assignConnectionToPort(this, ports.dest.portIndex);
 
                 waypoints = ConnectionManager.getWaypoints(ports.orig, ports.dest);
 
-                waypoints.unshift({
-                    x: ports.orig.point.x,
-                    y: ports.orig.point.y
-                });
+                segments += `M${ports.orig.point.x} ${ports.orig.point.y} `;
 
                 waypoints.push({
                     x: ports.dest.point.x,
                     y: ports.dest.point.y
                 });
 
-                for (i; i < waypoints.length - 1; i += 1) {
-                    let segment = segments[i] || SVGFactory.create('line');
-
-                    nextPoint = waypoints[i + 1];
-
-                    segment.style.display = '';
-
-                    segment.setAttribute("x1", waypoints[i].x);
-                    segment.setAttribute("y1", waypoints[i].y);
-                    segment.setAttribute("x2", nextPoint.x);
-                    segment.setAttribute("y2", nextPoint.y);
-                    segment.setAttribute("stroke", "black");
-
-                    this._html.appendChild(segment);
-                    segments[i] = segments[i] || segment;
+                for (let i = 0; i < waypoints.length; i += 1) {
+                    segments += `L${waypoints[i].x} ${waypoints[i].y} `;
                 }
 
                 this._dom.arrow.setAttribute("transform", `translate(${waypoints[waypoints.length - 1].x}, ${waypoints[waypoints.length - 1].y})`);
                 this._dom.arrowRotateContainer.setAttribute("transform", `scale(0.5, 0.5) rotate(${90 * ports.dest.portIndex})`);
                 this._dom.arrow.style.display = '';
+                this._dom.path.setAttribute("d", segments);
                 this._html.appendChild(this._dom.arrow);
             } else {
+                this._dom.path.setAttribute("d", "");
                 this._dom.arrow.style.display = 'none';
             }
-
-            while (i < segments.length) {
-                segments[i++].style.display = 'none';
-            }
-
-            this._dom.segments = segments;
         }
 
         return this;
@@ -174,6 +148,7 @@ class Connection extends BPMNElement {
         let wrapper,
             arrowWrapper,
             arrowWrapper2,
+            path,
             arrow;
 
         if (this._origShape === this.destShape) {
@@ -191,10 +166,17 @@ class Connection extends BPMNElement {
         arrow.setAttribute("end", "target");
         arrow.setAttribute("d", "M 0 0 L -13 -26 L 13 -26 z");
 
+        path = SVGFactory.create('path');
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", "black");
+
         arrowWrapper2.appendChild(arrow);
         arrowWrapper.appendChild(arrowWrapper2);
+        wrapper.appendChild(path);
+        this._dom.path = path;
         this._dom.arrow = arrowWrapper;
         this._dom.arrowRotateContainer = arrowWrapper2;
+
 
         this._html = wrapper;
         return this.connect();
