@@ -38,4 +38,14 @@ class BPMNElement extends Element {
     getText(text) {
         return this._text;
     }
+
+    trigger(eventName, ...args) {
+        let canvas = this._canvas;
+
+        if (canvas) {
+            canvas.dispatchEvent(eventName, this, ...args);
+        }
+
+        return this;
+    }
 }
