@@ -24,7 +24,9 @@ class Element {
         return this._id;
     }
 
-    _createHTML() {}
+    trigger(eventName, ...args) { return this; }
+
+    _createHTML() { return this; }
 
     getHTML() {
         if (!this._html) {

@@ -5,6 +5,7 @@ class Canvas extends Element {
         this._height = null;
         this._elements = new Set();
         this._dom = {};
+        this._eventBus = new EventBus();
         this._onSelectShapeHandler = null;
         this._dragAndDropManager = null;
 
@@ -94,6 +95,22 @@ class Canvas extends Element {
         return [...this._elements].find((i) => i.getID() === id);
     }
 
+    addEventListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
+        this._eventBus.addListener.apply(this._eventBus, arguments);
+        return this;
+    }
+
+    removeEventListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
+        this._eventBus.addListener.apply(this._eventBus, arguments);
+        return this;
+    }
+
+    // TODO: Make this method internal
+    dispatchEvent(eventName, target, ...args) {
+        this._eventBus.dispatch(eventName, target, ...args);
+        return this;
+    }
+
     connect(origin, destination, connection_id) {
         let connection;
         origin = origin instanceof BPMNShape ? origin : this.getElementById(origin);
@@ -111,6 +128,10 @@ class Canvas extends Element {
         }
 
         return this;
+    }
+
+    trigger(eventName, ...args) {
+        return this.dispatchEvent(eventName, this, ...args);
     }
 
     _onSelectShape() {
