@@ -1,5 +1,13 @@
 class BPMNShape extends BPMNElement {
 
+    static get EVENT() {
+        return {
+            DRAG_START: 'dragstart',
+            DRAG: 'drag',
+            DRAG_END: 'dragend'
+        };
+    }
+
     static get PORT_INDEX() {
         return {
             NORTH: 0,
