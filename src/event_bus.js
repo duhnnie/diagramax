@@ -106,8 +106,8 @@ class EventBus {
             type: eventName,
             target: target
         }].concat(args);
-        
-        listeners = (listeners.get(target) || []).concat(listeners.get(this._allObject));
+
+        listeners = (listeners.get(target) || []).concat(listeners.get(this._allObject) || []);
 
         listeners.forEach(i => {
             i.callback.apply(i.scope || window, args);
