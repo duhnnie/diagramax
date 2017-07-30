@@ -63,6 +63,7 @@ class Canvas extends Element {
 
     addElement(element) {
         this._elements.add(element);
+        element.setCanvas(this);
         this._dragAndDropManager.registerShape(element);
 
         if (this._html) {

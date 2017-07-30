@@ -1,6 +1,7 @@
 class BPMNElement extends Element {
     constructor(settings) {
         super(settings);
+        this._canvas = null;
         this._text = null;
         this._dom = {};
 
@@ -8,7 +9,17 @@ class BPMNElement extends Element {
             text: ""
         }, settings);
 
-        this.setText(settings.text);
+        this.setCanvas(settings.canvas)
+            .setText(settings.text);
+    }
+
+    setCanvas(canvas) {
+        if (!(canvas === null || canvas instanceof Canvas)) {
+            throw new Error('setCanvas(): Invalid parameter.');
+        }
+        this._canvas = canvas;
+
+        return this;
     }
 
     setText(text) {
