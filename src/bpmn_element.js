@@ -6,6 +6,7 @@ class BPMNElement extends Element {
         this._dom = {};
 
         settings = jQuery.extend({
+            canvas: null,
             text: ""
         }, settings);
 
@@ -13,6 +14,7 @@ class BPMNElement extends Element {
             .setText(settings.text);
     }
 
+    // TODO: make this method internal.
     setCanvas(canvas) {
         if (!(canvas === null || canvas instanceof Canvas)) {
             throw new Error('setCanvas(): Invalid parameter.');
