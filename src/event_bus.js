@@ -102,16 +102,18 @@ class EventBus {
     dispatch(eventName, target, ...args) {
         let listeners =  this._listeners.get(eventName);
 
-        args = [{
-            type: eventName,
-            target: target
-        }].concat(args);
+        if (listeners) {
+            args = [{
+                type: eventName,
+                target: target
+            }].concat(args);
 
-        listeners = (listeners.get(target) || []).concat(listeners.get(this._allObject) || []);
+            listeners = (listeners.get(target) || []).concat(listeners.get(this._allObject) || []);
 
-        listeners.forEach(i => {
-            i.callback.apply(i.scope || window, args);
-        });
+            listeners.forEach(i => {
+                i.callback.apply(i.scope || window, args);
+            });
+        }
 
         return this;
     }
