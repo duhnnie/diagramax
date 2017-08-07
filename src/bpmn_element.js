@@ -24,6 +24,10 @@ class BPMNElement extends Element {
         return this;
     }
 
+    getCanvas() {
+        return this._canvas;
+    }
+
     setText(text) {
         this._text = text.toString();
 
