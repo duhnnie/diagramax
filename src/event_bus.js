@@ -4,7 +4,7 @@ class EventBus {
         this._listeners = new Map();
     }
 
-    addListener(eventName, targetOrCallback, callbackOrScope, scope = null) {
+    addListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
         let listeners,
             callbacks,
             callback,
@@ -41,7 +41,7 @@ class EventBus {
         return this;
     }
 
-    hasEventListener(eventName, targetOrCallback, callbackOrScope, scope) {
+    hasEventListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
         let listeners = this._listeners.get(eventName),
             callbacks,
             callback,
@@ -69,7 +69,7 @@ class EventBus {
         return false;
     }
 
-    removeListener(eventName, targetOrCallback, callbackOrScope, scope) {
+    removeListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
         let listeners = this._listeners.get(eventName),
             callbacks,
             callback,
