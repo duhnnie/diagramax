@@ -101,7 +101,7 @@ class Canvas extends Element {
     }
 
     removeEventListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
-        this._eventBus.addListener.apply(this._eventBus, arguments);
+        this._eventBus.removeListener.apply(this._eventBus, arguments);
         return this;
     }
 
