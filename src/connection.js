@@ -107,14 +107,13 @@ class Connection extends BPMNElement {
         let origShape = this._origShape,
             destShape = this._destShape;
 
-        this._origShape = null;
-        this._destShape = null;
-
         if (origShape.getOutgoingConnections().has(this)) {
+            this._origShape = null;
             origShape.removeConnection(this);
         }
 
         if (destShape.getIncomingConnections().has(this)) {
+            this._destShape = null;
             destShape.removeConnection(this);
         }
 
