@@ -93,6 +93,7 @@ class EventBus {
 
             if (callbacks) {
                 callbacks = callbacks.filter(i => !(i.callback === callback && i.scope === scope));
+                listeners.set(key, callbacks);
             }
         }
 
