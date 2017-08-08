@@ -4,8 +4,13 @@ class Connection extends BPMNElement {
         return 20;
     }
 
+    get segments() {
+        return this._segments;
+    }
+
     constructor(settings) {
         super(settings);
+        this._segments = [];
         this._origShape = null;
         this._destShape = null;
 
@@ -178,6 +183,11 @@ class Connection extends BPMNElement {
                     segments += `L${waypoints[i].x} ${waypoints[i].y} `;
                 }
 
+                waypoints.unshift({
+                    x: ports.orig.point.x,
+                    y: ports.orig.point.y
+                });
+
                 this._dom.arrow.setAttribute("transform", `translate(${waypoints[waypoints.length - 1].x}, ${waypoints[waypoints.length - 1].y})`);
                 this._dom.arrowRotateContainer.setAttribute("transform", `scale(0.5, 0.5) rotate(${90 * ports.dest.portIndex})`);
                 this._dom.arrow.style.display = '';
@@ -187,6 +197,8 @@ class Connection extends BPMNElement {
                 this._dom.path.setAttribute("d", "");
                 this._dom.arrow.style.display = 'none';
             }
+
+            this._segments = waypoints || [];
         }
 
         return this;
