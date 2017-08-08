@@ -31,15 +31,15 @@ class Connection extends BPMNElement {
     }
 
     _addDragListeners(shape) {
-        shape.getCanvas().addEventListener(BPMNShape.EVENT.DRAG_START, shape, this._onShapeDragStart, this);
-        shape.getCanvas().addEventListener(BPMNShape.EVENT.DRAG_END, shape, this._onShapeDragEnd, this);
+        this._canvas.addEventListener(BPMNShape.EVENT.DRAG_START, shape, this._onShapeDragStart, this);
+        this._canvas.addEventListener(BPMNShape.EVENT.DRAG_END, shape, this._onShapeDragEnd, this);
 
         return this;
     }
 
     _removeDragListeners(shape) {
-        shape.getCanvas().removeEventListener(BPMNShape.EVENT.DRAG_START, shape, this._onShapeDragStart, this);
-        shape.getCanvas().removeEventListener(BPMNShape.EVENT.DRAG_END, shape, this._onShapeDragEnd, this);
+        this._canvas.removeEventListener(BPMNShape.EVENT.DRAG_START, shape, this._onShapeDragStart, this);
+        this._canvas.removeEventListener(BPMNShape.EVENT.DRAG_END, shape, this._onShapeDragEnd, this);
 
         return this;
     }
