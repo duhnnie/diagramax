@@ -22,9 +22,13 @@ class Connection extends BPMNElement {
         return origShape !== destShape;
     }
 
-    _onShapeDragStart() {}
+    _onShapeDragStart() {
+        this._html.setAttribute("opacity", 0.5);
+    }
 
-    _onShapeDragEnd() {}
+    _onShapeDragEnd() {
+        this._html.setAttribute("opacity", 1);
+    }
 
     _addDragListeners(shape) {
         shape.getCanvas().addEventListener(BPMNShape.EVENT.DRAG_START, shape, this._onShapeDragStart, this);
