@@ -119,6 +119,7 @@ class Canvas extends Element {
         if (origin && destination && origin !== destination) {
             connection = new Connection({
                 id: connection_id,
+                canvas: this,
                 origShape: origin,
                 destShape: destination
             });
