@@ -22,6 +22,24 @@ class Connection extends BPMNElement {
         return origShape !== destShape;
     }
 
+    _onShapeDragStart() {}
+
+    _onShapeDragEnd() {}
+
+    _addDragListeners(shape) {
+        shape.getCanvas().addEventListener(BPMNShape.EVENT.DRAG_START, shape, this._onShapeDragStart, this);
+        shape.getCanvas().addEventListener(BPMNShape.EVENT.DRAG_END, shape, this._onShapeDragEnd, this);
+
+        return this;
+    }
+
+    _removeDragListeners(shape) {
+        shape.getCanvas().removeEventListener(BPMNShape.EVENT.DRAG_START, shape, this._onShapeDragStart, this);
+        shape.getCanvas().removeEventListener(BPMNShape.EVENT.DRAG_END, shape, this._onShapeDragEnd, this);
+
+        return this;
+    }
+
     setOrigShape(shape) {
         if (!(shape instanceof BPMNShape)) {
             throw new Error('setOrigShape(): invalid parameter.');
@@ -35,10 +53,12 @@ class Connection extends BPMNElement {
 
                 this._origShape = null;
                 oldOrigShape.removeConnection(this);
+                this._removeDragListeners(oldOrigShape);
             }
 
             this._origShape = shape;
             shape.addOutgoingConnection(this);
+            this._addDragListeners(shape);
 
             if (this._html) {
                 this.connect();
@@ -65,10 +85,12 @@ class Connection extends BPMNElement {
 
                 this._destShape = null;
                 oldDestShape.removeConnection(this);
+                this._removeDragListeners(oldDestShape);
             }
 
             this._destShape = shape;
             shape.addIncomingConnection(this);
+            this._addDragListeners(shape);
 
             if (this._html) {
                 this.connect();
@@ -110,11 +132,13 @@ class Connection extends BPMNElement {
         if (origShape.getOutgoingConnections().has(this)) {
             this._origShape = null;
             origShape.removeConnection(this);
+            this._removeDragListeners(origShape);
         }
 
         if (destShape.getIncomingConnections().has(this)) {
             this._destShape = null;
             destShape.removeConnection(this);
+            this._removeDragListeners(destShape);
         }
 
         $(this._html).remove();
