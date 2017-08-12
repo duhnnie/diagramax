@@ -52,4 +52,42 @@ class BPMNElement extends Element {
 
         return this;
     }
+
+    _createHTML() {
+        let wrapper,
+            title,
+            text,
+            tspan;
+
+        if (this._html) {
+            return this;
+        }
+
+        wrapper = SVGFactory.create('g');
+
+        title = document.createElement('title');
+        text = SVGFactory.create('text');
+        tspan = SVGFactory.create('tspan');
+        tspan.style.pointerEvents = 'none';
+
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('y', '0.5em');
+
+        text.appendChild(tspan);
+        wrapper.appendChild(title);
+        wrapper.appendChild(text);
+
+        this._dom.title = title;
+        this._dom.text = tspan;
+        this._dom.textContent = text;
+
+        this._html = wrapper;
+
+        if (this._dom.shapeElement) {
+            this._dom.shapeElement.setAttribute("cursor", "pointer");
+        }
+
+        return this.setText(this._text)
+                .setID(this._id);
+    }
 }

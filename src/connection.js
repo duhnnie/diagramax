@@ -205,19 +205,17 @@ class Connection extends BPMNElement {
     }
 
     _createHTML() {
-        let wrapper,
-            arrowWrapper,
+        let arrowWrapper,
             arrowWrapper2,
-            path,
-            arrow;
+            arrow,
+            path;
 
-        if (this._origShape === this.destShape) {
+        if (this._html) {
             return this;
         }
 
-        wrapper = SVGFactory.create('g');
-        wrapper.setAttribute("id", this._id);
-        wrapper.setAttribute("class", "connection");
+        super._createHTML();
+        this._html.setAttribute("class", "connection");
 
         arrowWrapper = SVGFactory.create('g');
         arrowWrapper2 = SVGFactory.create('g');
@@ -232,13 +230,11 @@ class Connection extends BPMNElement {
 
         arrowWrapper2.appendChild(arrow);
         arrowWrapper.appendChild(arrowWrapper2);
-        wrapper.appendChild(path);
+        this._html.appendChild(path);
         this._dom.path = path;
         this._dom.arrow = arrowWrapper;
         this._dom.arrowRotateContainer = arrowWrapper2;
 
-
-        this._html = wrapper;
         return this.connect();
     }
 }
