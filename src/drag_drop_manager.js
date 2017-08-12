@@ -19,6 +19,11 @@ class DragAndDropManager {
         return this;
     }
 
+    unregisterShape(element) {
+        delete this._registry[element.id];
+        return this;
+    }
+
     _init() {
         let diffX,
             diffY,
