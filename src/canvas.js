@@ -3,7 +3,8 @@ class Canvas extends Element {
         super(settings);
         this._width = null;
         this._height = null;
-        this._elements = new Set();
+        this._shapes = new Set();
+        this._connections = new Set();
         this._dom = {};
         this._eventBus = new EventBus();
         this._onSelectShapeHandler = null;
@@ -13,7 +14,8 @@ class Canvas extends Element {
             width: 800,
             height: 600,
             onSelectShape: null,
-            onReady: null
+            onReady: null,
+            elements: []
         }, settings);
 
         this.setWidth(settings.width)
@@ -21,6 +23,8 @@ class Canvas extends Element {
             .setOnSelectShapeCallback(settings.onSelectShape);
 
         this._dragAndDropManager = new DragAndDropManager(this);
+
+        this.setElements(settings.elements);
     }
 
     setWidth(width) {
@@ -63,7 +67,14 @@ class Canvas extends Element {
     }
 
     addElement(element) {
-        this._elements.add(element);
+        if (element instanceof BPMNShape) {
+            this._shapes.add(element);
+        } else if (element instanceof Connection) {
+            this._connections.add(element);
+        } else {
+            throw new Error('addElement(): Invalid parameter.');
+        }
+
         element.setCanvas(this);
         this._dragAndDropManager.registerShape(element);
 
@@ -74,13 +85,17 @@ class Canvas extends Element {
         return this;
     }
 
+    hasElement(element) {
+        return this._shapes.has(element) || this._connections.has(element);
+    }
+
     clearElements() {
-        this._elements.forEach((i) => {
+        this._shapes.forEach((i) => {
             try {
                 this._dom.container.removeChild(i.getHTML());
             } catch (e) {}
         });
-        this._elements.clear();
+        this._shapes.clear();
         return this;
     }
 
@@ -92,7 +107,7 @@ class Canvas extends Element {
     }
 
     getElementById(id) {
-        return [...this._elements].find((i) => i.getID() === id);
+        return [...this._shapes].find((i) => i.getID() === id);
     }
 
     addEventListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
@@ -169,7 +184,7 @@ class Canvas extends Element {
         this.setWidth(this._width)
             .setHeight(this._height);
 
-        return this.setElements([...this._elements].slice(0))
+        return this.setElements([...this._shapes].slice(0))
             .setID(this._id);
     }
 }
