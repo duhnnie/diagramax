@@ -103,11 +103,8 @@ class Canvas extends Element {
 
     clearElements() {
         this._shapes.forEach((i) => {
-            try {
-                this._dom.container.removeChild(i.getHTML());
-            } catch (e) {}
+            i.removeFromCanvas();
         });
-        this._shapes.clear();
         return this;
     }
 
