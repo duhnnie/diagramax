@@ -10,16 +10,37 @@ class BPMNElement extends Element {
             text: ""
         }, settings);
 
-        this.setCanvas(settings.canvas)
-            .setText(settings.text);
+        this.setText(settings.text)
+            .setCanvas(settings.canvas);
     }
 
     // TODO: make this method internal.
     setCanvas(canvas) {
+        let oldCanvas;
+
         if (!(canvas === null || canvas instanceof Canvas)) {
             throw new Error('setCanvas(): Invalid parameter.');
         }
-        this._canvas = canvas;
+
+        if (this._canvas !== canvas) {
+            if (this._canvas) {
+                this.removeFromCanvas();
+            }
+            this._canvas = canvas;
+            canvas.addElement(this);
+        }
+
+        return this;
+    }
+
+    removeFromCanvas() {
+        let oldCanvas = this._canvas;
+
+        if (oldCanvas) {
+            this._canvas = null;
+            oldCanvas.removeElement(this);
+            $(this._html).remove();
+        }
 
         return this;
     }

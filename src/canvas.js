@@ -67,19 +67,21 @@ class Canvas extends Element {
     }
 
     addElement(element) {
-        if (element instanceof BPMNShape) {
-            this._shapes.add(element);
-        } else if (element instanceof Connection) {
-            this._connections.add(element);
-        } else {
-            throw new Error('addElement(): Invalid parameter.');
-        }
+        if (!this.hasElement(element)) {
+            if (element instanceof BPMNShape) {
+                this._shapes.add(element);
+            } else if (element instanceof Connection) {
+                this._connections.add(element);
+            } else {
+                throw new Error('addElement(): Invalid parameter.');
+            }
 
-        element.setCanvas(this);
-        this._dragAndDropManager.registerShape(element);
+            element.setCanvas(this);
+            this._dragAndDropManager.registerShape(element);
 
-        if (this._html) {
-            this._dom.container.appendChild(element.getHTML());
+            if (this._html) {
+                this._dom.container.appendChild(element.getHTML());
+            }
         }
 
         return this;
@@ -87,6 +89,16 @@ class Canvas extends Element {
 
     hasElement(element) {
         return this._shapes.has(element) || this._connections.has(element);
+    }
+
+    removeElement(element) {
+        if (this.hasElement(element)) {
+            this._shapes.delete(element) || this._connections.delete(element);
+            this._dragAndDropManager.unregisterShape(element);
+            element.removeFromCanvas();
+        }
+
+        return this;
     }
 
     clearElements() {

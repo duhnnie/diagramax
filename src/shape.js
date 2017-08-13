@@ -255,6 +255,17 @@ class BPMNShape extends BPMNElement {
         return this._connections.has(connection);
     }
 
+    removeFromCanvas() {
+        let oldCanvas = this._canvas;
+
+        if (oldCanvas) {
+            super.removeFromCanvas()
+                .removeConnections();
+        }
+
+        return this;
+    }
+
     _resetPorts() {
         for (let port of this._ports) {
             port.clearConnections();

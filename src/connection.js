@@ -135,24 +135,7 @@ class Connection extends BPMNElement {
     }
 
     disconnect() {
-        let origShape = this._origShape,
-            destShape = this._destShape;
-
-        if (origShape.getOutgoingConnections().has(this)) {
-            this._origShape = null;
-            origShape.removeConnection(this);
-            this._removeDragListeners(origShape);
-        }
-
-        if (destShape.getIncomingConnections().has(this)) {
-            this._destShape = null;
-            destShape.removeConnection(this);
-            this._removeDragListeners(destShape);
-        }
-
-        $(this._html).remove();
-
-        return this;
+        return this.removeFromCanvas();
     }
 
     isConnectedWith(shape) {
@@ -160,7 +143,7 @@ class Connection extends BPMNElement {
     }
 
     connect() {
-        if (this._html) {
+        if (this._html && this._origShape && this._destShape && this._origShape !== this.destShape) {
             let waypoints,
                 ports = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
 
@@ -199,6 +182,30 @@ class Connection extends BPMNElement {
             }
 
             this._segments = waypoints || [];
+        }
+
+        return this;
+    }
+
+    removeFromCanvas() {
+        let oldCanvas = this._canvas,
+            origShape = this._origShape,
+            destShape = this._destShape;
+
+        if (oldCanvas) {
+            if (origShape.getOutgoingConnections().has(this)) {
+                this._origShape = null;
+                origShape.removeConnection(this);
+                this._removeDragListeners(origShape);
+            }
+
+            if (destShape.getIncomingConnections().has(this)) {
+                this._destShape = null;
+                destShape.removeConnection(this);
+                this._removeDragListeners(destShape);
+            }
+
+            super.removeFromCanvas();
         }
 
         return this;
