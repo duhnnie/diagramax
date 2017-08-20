@@ -27,8 +27,8 @@ var ConnectionIntersectionResolver = (function () {
 
     var getIntersectedPoints = function (connectionA, connectionB) {
         if (connectionA !== connectionB) {
-            let segmentsA = connectionA.segments,
-                segmentsB = connectionB.segments,
+            let segmentsA = connectionA.getSegments(),
+                segmentsB = connectionB.getSegments(),
                 intersectionPoints = [];
 
             segmentsA.forEach((segmentA, index) => {
