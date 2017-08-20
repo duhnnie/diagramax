@@ -4,6 +4,21 @@ class Connection extends BPMNElement {
         return 20;
     }
 
+    static _getSegmentOrientation(from, to) {
+        let orientation = from.x === to.x ? Port.ORIENTATION.VERTICAL :
+            (from.y === to.y ? Port.ORIENTATION.HORIZONTAL : -1);
+
+        if (orientation === -1) {
+            throw new Error("_getSegmentOrientation(): diagonal segment!");
+        }
+
+        return orientation;
+    }
+
+    static _getSegmentDirection(from, to) {
+        return from.x < to.x || from.y < to.y ? 1 : (from.x > to.x || from.y > to.y ? -1 : 0);
+    }
+
     constructor(settings) {
         super(settings);
         this._points = [];
@@ -29,7 +44,6 @@ class Connection extends BPMNElement {
 
     _onShapeDragEnd() {
         this._html.setAttribute("opacity", 1);
-        console.log(this._html, ConnectionIntersectionResolver.getIntersectionPoints(this));
     }
 
     _addDragListeners(shape) {
@@ -158,46 +172,62 @@ class Connection extends BPMNElement {
         return this._origShape === shape || this._destShape === shape;
     }
 
+    _draw(points, intersections = null) {
+        let pathString = "";
+
+        if (points.length) {
+            let lastSegmentOrientation,
+                lastSegmentDirection,
+                arrowAngle,
+                i;
+
+            intersections = intersections || [];
+
+            pathString += `M${points[0].x} ${points[0].y}`;
+
+            for (i = 1; i < points.length; i += 1) {
+                pathString += ` L${to.x} ${to.y}`;
+            }
+
+            lastSegmentOrientation = Connection._getSegmentOrientation(points[i - 2], points[i - 1]);
+            lastSegmentDirection = Connection._getSegmentDirection(points[i - 2], points[i - 1]);
+            arrowAngle = (lastSegmentOrientation === Port.ORIENTATION.HORIZONTAL ? 2 + lastSegmentDirection : 1 + (lastSegmentDirection * -1));
+
+            this._dom.arrow.setAttribute("transform", `translate(${points[points.length - 1].x}, ${points[points.length - 1].y})`);
+            this._dom.arrowRotateContainer.setAttribute("transform", `scale(0.5, 0.5) rotate(${90 * arrowAngle})`);
+        }
+
+        this._dom.arrow.style.display = pathString ? "" : "none";
+        this._dom.path.setAttribute("d", pathString);
+        this._html.appendChild(this._dom.arrow);
+
+        return this;
+    }
+
     connect() {
         if (this._html && this._origShape && this._destShape && this._origShape !== this.destShape) {
             let waypoints,
                 ports = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
 
             if (ports.orig) {
-                let segments = "";
-
                 this._origShape.assignConnectionToPort(this, ports.orig.portIndex);
                 this._destShape.assignConnectionToPort(this, ports.dest.portIndex);
 
                 waypoints = ConnectionManager.getWaypoints(ports.orig, ports.dest);
-
-                segments += `M${ports.orig.point.x} ${ports.orig.point.y} `;
 
                 waypoints.push({
                     x: ports.dest.point.x,
                     y: ports.dest.point.y
                 });
 
-                for (let i = 0; i < waypoints.length; i += 1) {
-                    segments += `L${waypoints[i].x} ${waypoints[i].y} `;
-                }
-
                 waypoints.unshift({
                     x: ports.orig.point.x,
                     y: ports.orig.point.y
                 });
-
-                this._dom.arrow.setAttribute("transform", `translate(${waypoints[waypoints.length - 1].x}, ${waypoints[waypoints.length - 1].y})`);
-                this._dom.arrowRotateContainer.setAttribute("transform", `scale(0.5, 0.5) rotate(${90 * ports.dest.portIndex})`);
-                this._dom.arrow.style.display = '';
-                this._dom.path.setAttribute("d", segments);
-                this._html.appendChild(this._dom.arrow);
-            } else {
-                this._dom.path.setAttribute("d", "");
-                this._dom.arrow.style.display = 'none';
             }
 
-            this._points = waypoints || [];
+            this._points = waypoints;
+            this._draw(waypoints || []);
         }
 
         return this;
