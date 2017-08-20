@@ -147,6 +147,8 @@ class Connection extends BPMNElement {
             let waypoints,
                 ports = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
 
+            this._segments = [];
+
             if (ports.orig) {
                 let segments = "";
 
@@ -164,7 +166,31 @@ class Connection extends BPMNElement {
 
                 for (let i = 0; i < waypoints.length; i += 1) {
                     segments += `L${waypoints[i].x} ${waypoints[i].y} `;
+
+                    if (i) {
+                        this._segments.push([
+                            {
+                                x: waypoints[i - 1].x,
+                                y: waypoints[i - 1].y
+                            },
+                            {
+                                x: waypoints[i].x,
+                                y: waypoints[i].y
+                            }
+                        ]);
+                    }
                 }
+
+                this._segments.unshift([
+                    {
+                        x: ports.orig.point.x,
+                        y: ports.orig.point.y
+                    },
+                    {
+                        x: waypoints[0].x,
+                        y: waypoints[0].y
+                    }
+                ]);
 
                 waypoints.unshift({
                     x: ports.orig.point.x,
@@ -180,8 +206,6 @@ class Connection extends BPMNElement {
                 this._dom.path.setAttribute("d", "");
                 this._dom.arrow.style.display = 'none';
             }
-
-            this._segments = waypoints || [];
         }
 
         return this;
