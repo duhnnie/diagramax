@@ -115,8 +115,12 @@ class Canvas extends Element {
         return this;
     }
 
+    getConnections() {
+        return [...this._connections];
+    }
+
     getElementById(id) {
-        return [...this._shapes].find((i) => i.getID() === id);
+        return [...this._shapes].find(i => i.getID() === id) || [...this._connections].find(i => i.getID() === id);
     }
 
     addEventListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
