@@ -65,7 +65,8 @@ gulp.task('default', function (cb) {
             'src/activity.js',
             'src/connection_manager.js',
             'src/drag_drop_manager.js',
-            'src/event_bus.js'
+            'src/event_bus.js',
+            'src/connection_intersection_resolver.js'
         ])
         .pipe(concat('designer.js'))
         .pipe(gulp.dest('./dist/'))
