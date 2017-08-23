@@ -4,6 +4,13 @@ class Connection extends BPMNElement {
         return 20;
     }
 
+    static get INTERSECTION_SIZE() {
+        return Object.freeze({
+            WIDTH: 10,
+            HEIGHT: 8
+        });
+    }
+
     static _getSegmentOrientation(from, to) {
         let orientation = from.x === to.x ? Port.ORIENTATION.VERTICAL :
             (from.y === to.y ? Port.ORIENTATION.HORIZONTAL : -1);
@@ -44,6 +51,7 @@ class Connection extends BPMNElement {
 
     _onShapeDragEnd() {
         this._html.setAttribute("opacity", 1);
+        this._draw(this._points || [], ConnectionIntersectionResolver.getIntersectionPoints(this));
     }
 
     _addDragListeners(shape) {
@@ -172,6 +180,37 @@ class Connection extends BPMNElement {
         return this._origShape === shape || this._destShape === shape;
     }
 
+    _getSegmentDrawing(from, to, intersections = []) {
+        let segmentString = "";
+
+        if (intersections.length) {
+            let segmentOrientation = Connection._getSegmentOrientation(from, to),
+                segmentDirection = Connection._getSegmentDirection(from, to);
+
+            intersections.forEach(intersection => {
+                let halfArc;
+
+                if (segmentOrientation === Port.ORIENTATION.HORIZONTAL) {
+                    halfArc = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
+                    segmentString += ` L${intersection.x + halfArc} ${intersection.y}` +
+                        ` C${intersection.x + halfArc} ${intersection.y + Connection.INTERSECTION_SIZE.HEIGHT},` +
+                        ` ${intersection.x - halfArc} ${intersection.y + Connection.INTERSECTION_SIZE.HEIGHT},` +
+                        ` ${intersection.x - halfArc} ${intersection.y}`;
+                } else {
+                    halfArc = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
+                    segmentString += ` L${intersection.x} ${intersection.y + halfArc}` +
+                        ` C${intersection.x + Connection.INTERSECTION_SIZE.HEIGHT} ${intersection.y + halfArc},` +
+                        ` ${intersection.x + Connection.INTERSECTION_SIZE.HEIGHT} ${intersection.y - halfArc},` +
+                        ` ${intersection.x} ${intersection.y - halfArc}`;
+                }
+            });
+        }
+
+        segmentString += ` L${to.x} ${to.y}`;
+
+        return segmentString;
+    }
+
     _draw(points, intersections = null) {
         let pathString = "";
 
@@ -186,7 +225,7 @@ class Connection extends BPMNElement {
             pathString += `M${points[0].x} ${points[0].y}`;
 
             for (i = 1; i < points.length; i += 1) {
-                pathString += ` L${to.x} ${to.y}`;
+                pathString += this._getSegmentDrawing(points[i - 1], points[i], intersections[i - 1]);
             }
 
             lastSegmentOrientation = Connection._getSegmentOrientation(points[i - 2], points[i - 1]);
