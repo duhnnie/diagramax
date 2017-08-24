@@ -187,6 +187,16 @@ class Connection extends BPMNElement {
             let segmentOrientation = Connection._getSegmentOrientation(from, to),
                 segmentDirection = Connection._getSegmentDirection(from, to);
 
+            if (segmentOrientation === Port.ORIENTATION.HORIZONTAL) {
+                intersections.sort((a, b) => {
+                    return (a.x < b.x ? -1 : 1) * segmentDirection;
+                });
+            } else {
+                intersections.sort((a, b) => {
+                    return (a.y < b.y ? -1 : 1) * segmentDirection;
+                });
+            }
+
             intersections.forEach(intersection => {
                 let halfArc;
 
