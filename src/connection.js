@@ -51,7 +51,7 @@ class Connection extends BPMNElement {
 
     _onShapeDragEnd() {
         this._html.setAttribute("opacity", 1);
-        this._draw(this._points || [], ConnectionIntersectionResolver.getIntersectionPoints(this));
+        this._draw(ConnectionIntersectionResolver.getIntersectionPoints(this));
     }
 
     _addDragListeners(shape) {
@@ -221,11 +221,12 @@ class Connection extends BPMNElement {
         return segmentString;
     }
 
-    _draw(points, intersections = null) {
+    _draw(intersections = null) {
         let pathString = "";
 
-        if (points.length) {
-            let lastSegmentOrientation,
+        if (this._points.length) {
+            let points = this._points,
+                lastSegmentOrientation,
                 lastSegmentDirection,
                 arrowAngle,
                 i;
@@ -275,8 +276,8 @@ class Connection extends BPMNElement {
                 });
             }
 
-            this._points = waypoints;
-            this._draw(waypoints || []);
+            this._points = waypoints || [];
+            this._draw();
         }
 
         return this;
