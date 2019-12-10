@@ -3,8 +3,10 @@ class Canvas extends Element {
         super(settings);
         this._width = null;
         this._height = null;
-        this._elements = new Set();
+        this._shapes = new Set();
+        this._connections = new Set();
         this._dom = {};
+        this._eventBus = new EventBus();
         this._onSelectShapeHandler = null;
         this._dragAndDropManager = null;
 
@@ -12,7 +14,8 @@ class Canvas extends Element {
             width: 800,
             height: 600,
             onSelectShape: null,
-            onReady: null
+            onReady: null,
+            elements: []
         }, settings);
 
         this.setWidth(settings.width)
@@ -20,6 +23,8 @@ class Canvas extends Element {
             .setOnSelectShapeCallback(settings.onSelectShape);
 
         this._dragAndDropManager = new DragAndDropManager(this);
+
+        this.setElements(settings.elements);
     }
 
     setWidth(width) {
@@ -62,23 +67,44 @@ class Canvas extends Element {
     }
 
     addElement(element) {
-        this._elements.add(element);
-        this._dragAndDropManager.registerShape(element);
+        if (!this.hasElement(element)) {
+            if (element instanceof BPMNShape) {
+                this._shapes.add(element);
+            } else if (element instanceof Connection) {
+                this._connections.add(element);
+            } else {
+                throw new Error('addElement(): Invalid parameter.');
+            }
 
-        if (this._html) {
-            this._dom.container.appendChild(element.getHTML());
+            element.setCanvas(this);
+            this._dragAndDropManager.registerShape(element);
+
+            if (this._html) {
+                this._dom.container.appendChild(element.getHTML());
+            }
+        }
+
+        return this;
+    }
+
+    hasElement(element) {
+        return this._shapes.has(element) || this._connections.has(element);
+    }
+
+    removeElement(element) {
+        if (this.hasElement(element)) {
+            this._shapes.delete(element) || this._connections.delete(element);
+            this._dragAndDropManager.unregisterShape(element);
+            element.removeFromCanvas();
         }
 
         return this;
     }
 
     clearElements() {
-        this._elements.forEach((i) => {
-            try {
-                this._dom.container.removeChild(i.getHTML());
-            } catch (e) {}
+        this._shapes.forEach((i) => {
+            i.removeFromCanvas();
         });
-        this._elements.clear();
         return this;
     }
 
@@ -89,8 +115,28 @@ class Canvas extends Element {
         return this;
     }
 
+    getConnections() {
+        return [...this._connections];
+    }
+
     getElementById(id) {
-        return [...this._elements].find((i) => i.getID() === id);
+        return [...this._shapes].find(i => i.getID() === id) || [...this._connections].find(i => i.getID() === id);
+    }
+
+    addEventListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
+        this._eventBus.addListener.apply(this._eventBus, arguments);
+        return this;
+    }
+
+    removeEventListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
+        this._eventBus.removeListener.apply(this._eventBus, arguments);
+        return this;
+    }
+
+    // TODO: Make this method internal
+    dispatchEvent(eventName, target, ...args) {
+        this._eventBus.dispatch(eventName, target, ...args);
+        return this;
     }
 
     connect(origin, destination, connection_id) {
@@ -101,6 +147,7 @@ class Canvas extends Element {
         if (origin && destination && origin !== destination) {
             connection = new Connection({
                 id: connection_id,
+                canvas: this,
                 origShape: origin,
                 destShape: destination
             });
@@ -110,6 +157,10 @@ class Canvas extends Element {
         }
 
         return this;
+    }
+
+    trigger(eventName, ...args) {
+        return this.dispatchEvent(eventName, this, ...args);
     }
 
     _onSelectShape() {
@@ -146,7 +197,7 @@ class Canvas extends Element {
         this.setWidth(this._width)
             .setHeight(this._height);
 
-        return this.setElements([...this._elements].slice(0))
+        return this.setElements([...this._shapes].slice(0))
             .setID(this._id);
     }
 }

@@ -46,17 +46,18 @@
             }),
             canvas = new Canvas({
                 width: 1440,
-                height: 900
+                height: 900,
+                elements: [
+                    ev,
+                    act,
+                    act2,
+                    eev
+                ]
             });
 
             document.addEventListener('DOMContentLoaded', function () {
                 let act3,
                     connection;
-
-                canvas.addElement(ev);
-                canvas.addElement(act);
-                canvas.addElement(act2);
-                canvas.addElement(eev);
 
                 canvas.connect('ev', 'act1');
                 canvas.connect('act1', 'act2');

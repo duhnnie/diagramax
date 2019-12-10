@@ -19,6 +19,11 @@ class DragAndDropManager {
         return this;
     }
 
+    unregisterShape(element) {
+        delete this._registry[element.id];
+        return this;
+    }
+
     _init() {
         let diffX,
             diffY,
@@ -35,8 +40,14 @@ class DragAndDropManager {
                 diffX = e.clientX - diffX;
                 diffY = e.clientY - diffY;
 
+                if (!dragged) {
+                    this._canvas.dispatchEvent(BPMNShape.EVENT.DRAG_START, this._target);
+                }
+
                 this._target.setPosition(this._target.getX() + diffX, this._target.getY() + diffY);
                 dragged = true;
+
+                this._canvas.dispatchEvent(BPMNShape.EVENT.DRAG, this._target);
 
                 diffX = e.clientX;
                 diffY = e.clientY;
@@ -48,6 +59,9 @@ class DragAndDropManager {
                 this._dom.line.setAttribute("y2", diffY - canvasOffset.top + (this._fromTarget.getY() < diffY ? -1 : 1));
             }
         }).on('mouseleave', e => {
+            if (this._target) {
+                this._canvas.dispatchEvent(BPMNShape.EVENT.DRAG_END, this._target);
+            }
             this._target = null;
             dragged = false;
         }).on('mousedown', '.shape', e => {
@@ -85,6 +99,9 @@ class DragAndDropManager {
                     this._dom.line.setAttribute("stroke", "black");
                     this._canvas._dom.container.appendChild(this._dom.line);
                 }
+            }
+            if (this._target) {
+                this._canvas.dispatchEvent(BPMNShape.EVENT.DRAG_END, this._target);
             }
             this._target = null;
             dragged = false;

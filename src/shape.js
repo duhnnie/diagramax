@@ -1,5 +1,13 @@
 class BPMNShape extends BPMNElement {
 
+    static get EVENT() {
+        return {
+            DRAG_START: 'dragstart',
+            DRAG: 'drag',
+            DRAG_END: 'dragend'
+        };
+    }
+
     static get PORT_INDEX() {
         return {
             NORTH: 0,
@@ -217,6 +225,13 @@ class BPMNShape extends BPMNElement {
         return this;
     }
 
+    removeConnections() {
+        for (let connection of this._connections) {
+            this.removeConnection(connection);
+        }
+        return this;
+    }
+
     assignConnectionToPort(connection, portIndex) {
         this._removeFromPorts(connection);
         this._ports[portIndex].addConnection(connection);
@@ -240,6 +255,17 @@ class BPMNShape extends BPMNElement {
         return this._connections.has(connection);
     }
 
+    removeFromCanvas() {
+        let oldCanvas = this._canvas;
+
+        if (oldCanvas) {
+            super.removeFromCanvas()
+                .removeConnections();
+        }
+
+        return this;
+    }
+
     _resetPorts() {
         for (let port of this._ports) {
             port.clearConnections();
@@ -256,42 +282,14 @@ class BPMNShape extends BPMNElement {
     }
 
     _createHTML() {
-        let wrapper,
-            title,
-            text,
-            tspan;
-
         if (this._html) {
             return this;
         }
 
-        wrapper = SVGFactory.create('g');
-        wrapper.setAttribute('transform', `translate(${this._x}, ${this._y})`);
-        wrapper.setAttribute('class', 'shape');
+        super._createHTML();
+        this._html.setAttribute('class', 'shape');
+        this._html.setAttribute('transform', `translate(${this._x}, ${this._y})`);
 
-        title = document.createElement('title');
-        text = SVGFactory.create('text');
-        tspan = SVGFactory.create('tspan');
-        tspan.style.pointerEvents = 'none';
-
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('y', '0.5em');
-
-        text.appendChild(tspan);
-        wrapper.appendChild(title);
-        wrapper.appendChild(text);
-
-        this._dom.title = title;
-        this._dom.text = tspan;
-        this._dom.textContent = text;
-
-        this._html = wrapper;
-
-        if (this._dom.shapeElement) {
-            this._dom.shapeElement.setAttribute("cursor", "pointer");
-        }
-
-        return this.setText(this._text)
-                .setID(this._id);
+        return this;
     }
 }
