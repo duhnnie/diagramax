@@ -1,3 +1,6 @@
+import BPMNShape from './shape';
+import SVGFactory from './svg_factory';
+
 class StartEvent extends BPMNShape {
     setWidth() {
         this._width = 40;
@@ -37,3 +40,5 @@ class StartEvent extends BPMNShape {
         return this;
     }
 }
+
+export default StartEvent;

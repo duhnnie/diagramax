@@ -1,4 +1,5 @@
 import SVGFactory from './svg_factory';
+import BPMNShape from './shape';
 
 class DragAndDropManager {
     constructor(canvas) {

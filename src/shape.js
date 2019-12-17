@@ -1,3 +1,5 @@
+import BPMNElement from './bpmn_element';
+import Port from './port';
 class BPMNShape extends BPMNElement {
 
     static get EVENT() {
@@ -293,3 +295,5 @@ class BPMNShape extends BPMNElement {
         return this;
     }
 }
+
+export default BPMNShape;

@@ -6,14 +6,14 @@
         <script src="../lib/lodash.js"></script>
         <script src="../dist/designer.js"></script>
         <script type="text/javascript">
-            // var ev = new StartEvent({
-            //     id: 'ev',
-            //     text: "Start",
-            //     position: {
-            //         x: 50,
-            //         y: 50
-            //     }
-            // }),
+            const ev = new Designer.StartEvent({
+                id: 'ev',
+                text: "Start",
+                position: {
+                    x: 50,
+                    y: 50
+                }
+            });
             // act = new Activity({
             //     id: 'act1',
             //     text: "Activity #1",
@@ -49,16 +49,22 @@
             //     ]
             // });
 
-            const canvas = new Designer.Canvas();
+            const canvas = new Designer.Canvas({
+              width: 1440,
+              height: 900,
+              elements: [
+                ev,
+              ]
+            });
 
-            // document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function () {
             //     let act3,
             //         connection;
 
             //     canvas.connect('ev', 'act1');
             //     canvas.connect('act1', 'act2');
             //     canvas.connect('act2', 'eev');
-            //     document.body.appendChild(canvas.getHTML());
+                document.body.appendChild(canvas.getHTML());
 
             //     act3 = new Activity({
             //         text: "Another Activity",
@@ -77,7 +83,7 @@
             //     connection.setDestShape(act3);
 
             //     canvas.connect(act3, eev);
-            // });
+            });
         </script>
     </head>
     <body>

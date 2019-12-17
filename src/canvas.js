@@ -2,6 +2,7 @@ import Element from './element';
 import EventBus from './event_bus';
 import DragAndDropManager from './drag_drop_manager';
 import SVGFactory from './svg_factory';
+import BPMNShape from './shape';
 
 class Canvas extends Element {
     constructor(settings) {

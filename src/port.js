@@ -1,3 +1,5 @@
+import BPMNShape from './shape';
+
 class Port {
     static get ORIENTATION() {
       return {
@@ -147,3 +149,5 @@ class Port {
         };
     }
 }
+
+export default Port;
