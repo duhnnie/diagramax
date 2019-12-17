@@ -6,5 +6,6 @@ module.exports = {
     filename: 'designer.js',
     path: path.resolve(__dirname, 'dist'),
     library: 'Designer',
-  }
+  },
+  devtool: 'inline-source-map',
 };

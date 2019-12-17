@@ -117,4 +117,5 @@ class BPMNElement extends Element {
     }
 }
 
+
 export default BPMNElement;
