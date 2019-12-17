@@ -1,58 +1,53 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
     <head>
-        <link rel="stylesheet" href="css/designer.css"/>
-        <script src="lib/jquery-3.2.1.min.js"></script>
-        <script src="lib/lodash.js"></script>
-        <script src="lib/utils.js"></script>
-        <script src="lib/tiny-stack.js"></script>
-        <script src="lib/sax.js"></script>
-        <script src="lib/refs.js"></script>
-        <script src="lib/BpmnTreeWalker.js"></script>
-        <script src="lib/bpmn-moddle.js"></script>
-        <script src="dist/designer.js"></script>
+        <link rel="stylesheet" href="../css/designer.css"/>
+        <script src="../lib/jquery-3.2.1.min.js"></script>
+        <script src="./lib/lodash.js"></script>
+        <script src="./dist/designer.js"></script>
         <script type="text/javascript">
-            var ev = new StartEvent({
+            const ev = new Designer.StartEvent({
                 id: 'ev',
                 text: "Start",
                 position: {
                     x: 50,
                     y: 50
                 }
-            }),
-            act = new Activity({
+            });
+            const act = new Designer.Activity({
                 id: 'act1',
                 text: "Activity #1",
                 position: {
                     x: 180,
                     y: 180
                 }
-            }),
-            act2 = new Activity({
+            });
+            const act2 = new Designer.Activity({
                 id: 'act2',
                 text: "Activity #2",
                 position: {
                     x: 350,
                     y: 300
                 }
-            }),
-            eev = new EndEvent({
+            });
+            const eev = new Designer.EndEvent({
                 id: 'eev',
                 text: "End Event",
                 position: {
                     x: 700,
                     y: 80
                 }
-            }),
-            canvas = new Canvas({
-                width: 1440,
-                height: 900,
-                elements: [
-                    ev,
-                    act,
-                    act2,
-                    eev
-                ]
+            });
+
+            const canvas = new Designer.Canvas({
+              width: 1440,
+              height: 900,
+              elements: [
+                ev,
+                act,
+                act2,
+                eev
+              ]
             });
 
             document.addEventListener('DOMContentLoaded', function () {
@@ -64,7 +59,7 @@
                 canvas.connect('act2', 'eev');
                 document.body.appendChild(canvas.getHTML());
 
-                act3 = new Activity({
+                act3 = new Designer.Activity({
                     text: "Another Activity",
                     position: {
                         x: 550,

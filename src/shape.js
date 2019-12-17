@@ -1,3 +1,7 @@
+import BPMNElement from './bpmn_element';
+import Port from './port';
+import Connection from './connection';
+
 class BPMNShape extends BPMNElement {
 
     static get EVENT() {
@@ -5,15 +9,6 @@ class BPMNShape extends BPMNElement {
             DRAG_START: 'dragstart',
             DRAG: 'drag',
             DRAG_END: 'dragend'
-        };
-    }
-
-    static get PORT_INDEX() {
-        return {
-            NORTH: 0,
-            EAST: 1,
-            SOUTH: 2,
-            WEST: 3
         };
     }
 
@@ -42,8 +37,8 @@ class BPMNShape extends BPMNElement {
     _initPorts() {
         let index;
 
-        for (let port_position in BPMNShape.PORT_INDEX) {
-            let index = BPMNShape.PORT_INDEX[port_position];
+        for (let port_position in Port.INDEX) {
+            let index = Port.INDEX[port_position];
 
             this._ports[index] = new Port({
                 shape: this,
@@ -293,3 +288,5 @@ class BPMNShape extends BPMNElement {
         return this;
     }
 }
+
+export default BPMNShape;

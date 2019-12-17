@@ -1,10 +1,12 @@
+import uuid from 'uuid/v1';
+
 class Element {
     constructor(settings) {
         this._id = null;
         this._html = null;
 
         settings = $.extend({
-            id: generateUniqueId()
+            id: uuid(),
         }, settings);
 
         this.setID(settings.id);
@@ -35,3 +37,5 @@ class Element {
         return this._html;
     }
 }
+
+export default Element;

@@ -4,17 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "watch 'gulp example' src/"
+    "build": "webpack --mode=production",
+    "build-dev": "webpack --mode=development",
+    "dev": "webpack-dev-server --mode=production",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-concat": "^2.6.1",
-    "gulpi": "^0.1.2",
-    "gutil": "^1.6.4",
-    "watch": "^1.0.2"
+    "lodash": "^4.17.15",
+    "webpack": "^4.41.3",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.9.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "uuid": "^3.3.3"
+  }
 }

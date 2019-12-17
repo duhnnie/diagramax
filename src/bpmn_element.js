@@ -1,3 +1,7 @@
+import Element from './element';
+import Canvas from './canvas';
+import SVGFactory from './svg_factory';
+
 class BPMNElement extends Element {
     constructor(settings) {
         super(settings);
@@ -112,3 +116,6 @@ class BPMNElement extends Element {
                 .setID(this._id);
     }
 }
+
+
+export default BPMNElement;

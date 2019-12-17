@@ -1,3 +1,10 @@
+import Element from './element';
+import EventBus from './event_bus';
+import DragAndDropManager from './drag_drop_manager';
+import SVGFactory from './svg_factory';
+import BPMNShape from './shape';
+import Connection from './connection';
+
 class Canvas extends Element {
     constructor(settings) {
         super(settings);
@@ -201,3 +208,6 @@ class Canvas extends Element {
             .setID(this._id);
     }
 }
+
+export default Canvas;
+

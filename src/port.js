@@ -1,3 +1,6 @@
+import BPMNShape from './shape';
+import Connection from './connection';
+
 class Port {
     static get ORIENTATION() {
       return {
@@ -18,6 +21,30 @@ class Port {
             IN: 0,
             OUT: 1
         }
+    }
+
+    static get INDEX() {
+        return {
+            NORTH: 0,
+            EAST: 1,
+            SOUTH: 2,
+            WEST: 3
+        };
+    }
+
+    static get PRIORITY() {
+      return {
+        [Port.ORIENTATION.VERTICAL]: {
+          '-1': [Port.INDEX.NORTH, Port.INDEX.SOUTH],
+          '0': [Port.INDEX.SOUTH, Port.INDEX.NORTH],
+          '1': [Port.INDEX.SOUTH, Port.INDEX.NORTH]
+        },
+        [Port.ORIENTATION.HORIZONTAL]: {
+            '-1': [Port.INDEX.WEST, Port.INDEX.EAST],
+            '0': [Port.INDEX.EAST, Port.INDEX.WEST],
+            '1': [Port.INDEX.EAST, Port.INDEX.WEST]
+        }
+      };
     }
 
     constructor(settings) {
@@ -147,3 +174,5 @@ class Port {
         };
     }
 }
+
+export default Port;

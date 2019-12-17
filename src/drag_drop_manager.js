@@ -1,3 +1,6 @@
+import SVGFactory from './svg_factory';
+import BPMNShape from './shape';
+
 class DragAndDropManager {
     constructor(canvas) {
         this._canvas = canvas;
@@ -117,3 +120,5 @@ class DragAndDropManager {
         return this;
     }
 }
+
+export default DragAndDropManager;

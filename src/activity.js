@@ -1,3 +1,6 @@
+import BPMNShape from './shape';
+import SVGFactory from './svg_factory';
+
 class Activity extends BPMNShape {
     constructor(settings) {
         settings = $.extend({
@@ -37,3 +40,4 @@ class Activity extends BPMNShape {
         return this;
     }
 }
+export default Activity;

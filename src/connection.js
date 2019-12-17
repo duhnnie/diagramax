@@ -1,3 +1,10 @@
+import BPMNElement from './bpmn_element';
+import SVGFactory from './svg_factory';
+import BPMNShape from './shape';
+import ConnectionManager from './connection_manager';
+import Port from './port';
+import ConnectionIntersectionResolver from './connection_intersection_resolver';
+
 class Connection extends BPMNElement {
 
     static get ARROW_SEGMENT_LENGTH() {
@@ -341,3 +348,5 @@ class Connection extends BPMNElement {
         return this.connect();
     }
 }
+
+export default Connection;

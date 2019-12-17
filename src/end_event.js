@@ -1,3 +1,5 @@
+import StartEvent from './start_event';
+
 class EndEvent extends StartEvent {
     _createHTML() {
         if (this._html) {
@@ -11,3 +13,4 @@ class EndEvent extends StartEvent {
     }
 }
 
+export default EndEvent;
