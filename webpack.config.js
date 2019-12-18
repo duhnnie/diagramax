@@ -1,18 +1,14 @@
 const path = require('path');
 const _ = require('lodash');
-const outputDir = 'dist';
 
 const devConfig = {
   devtool: 'eval-source-map',
   devServer: {
-    contentBase: path.resolve(__dirname, outputDir),
+    contentBase: path.resolve(__dirname),
   },
 };
 
-const prodConfig = {
-  devtool: '(none)'
-};
-
+const prodConfig = {};
 
 module.exports = (env, argv) => {
   const mode = argv.mode;
@@ -21,7 +17,7 @@ module.exports = (env, argv) => {
     entry: './src/index.js',
     output: {
       filename: 'designer.js',
-      path: path.resolve(__dirname, outputDir),
+      path: path.resolve(__dirname, 'dist'),
       library: 'Designer',
     },
   }, mode === 'production' ? prodConfig : devConfig);
