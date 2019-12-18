@@ -11,7 +11,7 @@ const devConfig = {
 const prodConfig = {};
 
 module.exports = (env, argv) => {
-  const mode = argv.mode;
+  const { mode } = argv;
 
   return _.merge({
     entry: './src/index.js',

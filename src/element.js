@@ -1,41 +1,41 @@
 import uuid from 'uuid/v1';
 
 class Element {
-    constructor(settings) {
-        this._id = null;
-        this._html = null;
+  constructor(settings) {
+    this._id = null;
+    this._html = null;
 
-        settings = $.extend({
-            id: uuid(),
-        }, settings);
+    settings = $.extend({
+      id: uuid(),
+    }, settings);
 
-        this.setID(settings.id);
+    this.setID(settings.id);
+  }
+
+  setID(id) {
+    this._id = id;
+
+    if (this._html) {
+      this._html.setAttribute('id', id);
     }
 
-    setID(id) {
-        this._id = id;
+    return this;
+  }
 
-        if (this._html) {
-            this._html.setAttribute("id", id);
-        }
+  getID() {
+    return this._id;
+  }
 
-        return this;
+  trigger(eventName, ...args) { return this; }
+
+  _createHTML() { return this; }
+
+  getHTML() {
+    if (!this._html) {
+      this._createHTML();
     }
-
-    getID() {
-        return this._id;
-    }
-
-    trigger(eventName, ...args) { return this; }
-
-    _createHTML() { return this; }
-
-    getHTML() {
-        if (!this._html) {
-            this._createHTML();
-        }
-        return this._html;
-    }
+    return this._html;
+  }
 }
 
 export default Element;
