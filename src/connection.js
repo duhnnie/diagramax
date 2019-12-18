@@ -53,7 +53,7 @@ class Connection extends BPMNElement {
     }
 
     _onShapeDragStart() {
-        this._html.setAttribute("opacity", 0.5);
+        this._html.setAttribute("opacity", 0.3);
     }
 
     _onShapeDragEnd() {

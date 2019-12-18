@@ -6,7 +6,6 @@ const devConfig = {
   devtool: 'eval-source-map',
   devServer: {
     contentBase: path.resolve(__dirname, outputDir),
-    
   },
 };
 
