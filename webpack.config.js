@@ -4,7 +4,7 @@ const _ = require('lodash');
 const devConfig = {
   devtool: 'eval-source-map',
   devServer: {
-    contentBase: path.resolve(__dirname),
+    contentBase: __dirname,
   },
 };
 
