@@ -2,6 +2,13 @@ import Component from '../component/Component';
 import Port from '../connection/Port';
 import Connection from '../connection/Connection';
 
+const DEFAULTS = {
+  position: {
+    x: 0,
+    y: 0,
+  },
+};
+
 class Shape extends Component {
   static get EVENT() {
     return {
@@ -21,12 +28,10 @@ class Shape extends Component {
     this._ports = [];
     this.__bulkAction = false;
 
-    settings = jQuery.extend({
-      position: {
-        x: 0,
-        y: 0,
-      },
-    }, settings);
+    settings = {
+      ...DEFAULTS,
+      ...settings,
+    };
 
     this._initPorts()
       .setPosition(settings.position.x, settings.position.y)
@@ -34,17 +39,19 @@ class Shape extends Component {
   }
 
   _initPorts() {
-    let index;
+    Object.values(Port.INDEX).forEach((portIndex) => {
+      let direction = portIndex % 2 ? -1 : 1;
 
-    for (const port_position in Port.INDEX) {
-      const index = Port.INDEX[port_position];
+      if (portIndex < 2) {
+        direction = portIndex % 2 || -1;
+      }
 
-      this._ports[index] = new Port({
+      this._ports[portIndex] = new Port({
         shape: this,
-        orientation: index % 2,
-        direction: index < 2 ? (index % 2 || -1) : (index % 2 ? -1 : 1),
+        orientation: portIndex % 2,
+        direction,
       });
-    }
+    });
 
     return this;
   }
@@ -191,9 +198,6 @@ class Shape extends Component {
   }
 
   getConnectedShapes() {
-    const prev = [];
-    const next = [];
-
     return {
       prev: [...this.getIncomingConnections()].map((i) => i.getOrigShape()),
       next: [...this.getOutgoingConnections()].map((i) => i.getDestShape()),
@@ -234,14 +238,14 @@ class Shape extends Component {
   }
 
   getBounds() {
-    const half_width = this._width / 2;
-    const half_height = this._height / 2;
+    const halfWidth = this._width / 2;
+    const halfHeight = this._height / 2;
 
     return {
-      top: this._y - half_height,
-      right: this._x + half_width,
-      bottom: this._y + half_height,
-      left: this._x - half_width,
+      top: this._y - halfHeight,
+      right: this._x + halfWidth,
+      bottom: this._y + halfHeight,
+      left: this._x - halfWidth,
     };
   }
 

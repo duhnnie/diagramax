@@ -1,12 +1,17 @@
 import Element from '../core/Element';
-import Shape from '../shape/Shape';
+import Shape from './Shape';
+
+const DEFAULTS = {
+  width: 80,
+  height: 80,
+};
 
 class Box extends Shape {
   constructor(settings) {
-    settings = $.extend({
-      width: 80,
-      height: 80,
-    }, settings);
+    settings = {
+      ...DEFAULTS,
+      ...settings,
+    };
 
     super(settings);
   }

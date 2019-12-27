@@ -5,6 +5,11 @@ import ConnectionManager from './ConnectionManager';
 import Port from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 
+const DEFAULTS = {
+  origShape: null,
+  destShape: null,
+};
+
 class Connection extends Component {
   static get ARROW_SEGMENT_LENGTH() {
     return 20;
@@ -88,10 +93,10 @@ class Connection extends Component {
     this._origShape = null;
     this._destShape = null;
 
-    settings = jQuery.extend({
-      origShape: null,
-      destShape: null,
-    }, settings);
+    settings = {
+      ...DEFAULTS,
+      ...settings,
+    };
 
     this.setOrigShape(settings.origShape)
       .setDestShape(settings.destShape);
