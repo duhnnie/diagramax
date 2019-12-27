@@ -1,6 +1,14 @@
 import uuid from 'uuid/v1';
 
 class Element {
+  static create(tag = 'div') {
+    return document.createElement(tag);
+  }
+
+  static createSVG(tag) {
+    return document.createElementNS('http://www.w3.org/2000/svg', tag);
+  }
+
   constructor(settings) {
     this._id = null;
     this._html = null;

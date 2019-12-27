@@ -1,5 +1,5 @@
+import Element from './element';
 import BPMNShape from './shape';
-import SVGFactory from './svg_factory';
 
 class StartEvent extends BPMNShape {
   setWidth() {
@@ -19,7 +19,7 @@ class StartEvent extends BPMNShape {
       return this;
     }
 
-    circle = SVGFactory.create('circle');
+    circle = Element.createSVG('circle');
 
     circle.setAttribute('fill', '#B4DCCB');
     circle.setAttribute('stroke', '#01894E');

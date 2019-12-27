@@ -1,5 +1,5 @@
+import Element from './element';
 import BPMNElement from './bpmn_element';
-import SVGFactory from './svg_factory';
 import BPMNShape from './shape';
 import ConnectionManager from './connection_manager';
 import Port from './port';
@@ -322,14 +322,14 @@ class Connection extends BPMNElement {
     super._createHTML();
     this._html.setAttribute('class', 'connection');
 
-    arrowWrapper = SVGFactory.create('g');
-    arrowWrapper2 = SVGFactory.create('g');
+    arrowWrapper = Element.createSVG('g');
+    arrowWrapper2 = Element.createSVG('g');
     arrowWrapper2.setAttribute('transform', 'scale(0.5,0.5) rotate(-180)');
-    arrow = SVGFactory.create('path');
+    arrow = Element.createSVG('path');
     arrow.setAttribute('end', 'target');
     arrow.setAttribute('d', 'M 0 0 L -13 -26 L 13 -26 z');
 
-    path = SVGFactory.create('path');
+    path = Element.createSVG('path');
     path.setAttribute('fill', 'none');
     path.setAttribute('stroke', 'black');
 

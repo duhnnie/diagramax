@@ -1,5 +1,5 @@
+import Element from './element';
 import BPMNShape from './shape';
-import SVGFactory from './svg_factory';
 
 class Activity extends BPMNShape {
   constructor(settings) {
@@ -18,7 +18,7 @@ class Activity extends BPMNShape {
       return this;
     }
 
-    rect = SVGFactory.create('rect');
+    rect = Element.createSVG('rect');
     rect.setAttribute('fill', '#ffffff');
     rect.setAttribute('stroke', '#000000');
     rect.setAttribute('width', this._width);

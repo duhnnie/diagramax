@@ -1,6 +1,5 @@
 import Element from './element';
 import Canvas from './canvas';
-import SVGFactory from './svg_factory';
 
 class BPMNElement extends Element {
   constructor(settings) {
@@ -88,11 +87,11 @@ class BPMNElement extends Element {
       return this;
     }
 
-    wrapper = SVGFactory.create('g');
+    wrapper = Element.createSVG('g');
 
     title = document.createElement('title');
-    text = SVGFactory.create('text');
-    tspan = SVGFactory.create('tspan');
+    text = Element.createSVG('text');
+    tspan = Element.createSVG('tspan');
     tspan.style.pointerEvents = 'none';
 
     text.setAttribute('text-anchor', 'middle');

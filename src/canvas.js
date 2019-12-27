@@ -1,7 +1,6 @@
 import Element from './element';
 import EventBus from './event_bus';
 import DragAndDropManager from './drag_drop_manager';
-import SVGFactory from './svg_factory';
 import BPMNShape from './shape';
 import Connection from './connection';
 
@@ -186,14 +185,14 @@ class Canvas extends Element {
       return this;
     }
 
-    svg = SVGFactory.create('svg');
+    svg = Element.createSVG('svg');
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
     svg.setAttribute('version', '1.1');
     svg.setAttribute('class', 'bpmn-canvas');
     svg.style.background = '#F0F0F0';
 
-    g = SVGFactory.create('g');
+    g = Element.createSVG('g');
     g.setAttribute('transform', 'scale(1, 1)');
 
     svg.appendChild(g);
