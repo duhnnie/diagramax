@@ -24,7 +24,7 @@ class BPMNProject extends Element {
   }
 
   _createHTML() {
-    const html = document.createElement('div');
+    const html = Element.create('div');
 
     html.id = this._id;
     html.className = 'bpmn-project';

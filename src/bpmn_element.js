@@ -89,7 +89,7 @@ class BPMNElement extends Element {
 
     wrapper = Element.createSVG('g');
 
-    title = document.createElement('title');
+    title = Element.create('title');
     text = Element.createSVG('text');
     tspan = Element.createSVG('tspan');
     tspan.style.pointerEvents = 'none';
