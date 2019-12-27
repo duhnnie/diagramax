@@ -18,8 +18,13 @@ class Connection extends Component {
   }
 
   static _getSegmentOrientation(from, to) {
-    const orientation = from.x === to.x ? Port.ORIENTATION.VERTICAL
-      : (from.y === to.y ? Port.ORIENTATION.HORIZONTAL : -1);
+    let orientation;
+
+    if (from.x === to.x) {
+      orientation = Port.ORIENTATION.VERTICAL;
+    } else {
+      orientation = (from.y === to.y ? Port.ORIENTATION.HORIZONTAL : -1);
+    }
 
     if (orientation === -1) {
       throw new Error('_getSegmentOrientation(): diagonal segment!');
@@ -28,8 +33,53 @@ class Connection extends Component {
     return orientation;
   }
 
+  static isValid(origShape, destShape) {
+    return origShape !== destShape;
+  }
+
   static _getSegmentDirection(from, to) {
-    return from.x < to.x || from.y < to.y ? 1 : (from.x > to.x || from.y > to.y ? -1 : 0);
+    if (from.x < to.x || from.y < to.y) {
+      return 1;
+    }
+
+    return from.x > to.x || from.y > to.y ? -1 : 0;
+  }
+
+  static getSegmentDrawing(from, to, intersections = []) {
+    let segmentString = '';
+
+    if (intersections.length) {
+      const segmentOrientation = Connection._getSegmentOrientation(from, to);
+      const segmentDirection = Connection._getSegmentDirection(from, to);
+
+      if (segmentOrientation === Port.ORIENTATION.HORIZONTAL) {
+        intersections.sort((a, b) => (a.x < b.x ? -1 : 1) * segmentDirection);
+      } else {
+        intersections.sort((a, b) => (a.y < b.y ? -1 : 1) * segmentDirection);
+      }
+
+      intersections.forEach((intersection) => {
+        let halfArc;
+
+        if (segmentOrientation === Port.ORIENTATION.HORIZONTAL) {
+          halfArc = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
+          segmentString += ` L${intersection.x + halfArc} ${intersection.y}`
+                        + ` C${intersection.x + halfArc} ${intersection.y + Connection.INTERSECTION_SIZE.HEIGHT},`
+                        + ` ${intersection.x - halfArc} ${intersection.y + Connection.INTERSECTION_SIZE.HEIGHT},`
+                        + ` ${intersection.x - halfArc} ${intersection.y}`;
+        } else {
+          halfArc = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
+          segmentString += ` L${intersection.x} ${intersection.y + halfArc}`
+                        + ` C${intersection.x + Connection.INTERSECTION_SIZE.HEIGHT} ${intersection.y + halfArc},`
+                        + ` ${intersection.x + Connection.INTERSECTION_SIZE.HEIGHT} ${intersection.y - halfArc},`
+                        + ` ${intersection.x} ${intersection.y - halfArc}`;
+        }
+      });
+    }
+
+    segmentString += ` L${to.x} ${to.y}`;
+
+    return segmentString;
   }
 
   constructor(settings) {
@@ -45,10 +95,6 @@ class Connection extends Component {
 
     this.setOrigShape(settings.origShape)
       .setDestShape(settings.destShape);
-  }
-
-  _isValid(origShape, destShape) {
-    return origShape !== destShape;
   }
 
   _onShapeDragStart() {
@@ -68,8 +114,10 @@ class Connection extends Component {
   }
 
   _removeDragListeners(shape) {
-    this._canvas.removeEventListener(BPMNShape.EVENT.DRAG_START, shape, this._onShapeDragStart, this);
-    this._canvas.removeEventListener(BPMNShape.EVENT.DRAG_END, shape, this._onShapeDragEnd, this);
+    this._canvas.removeEventListener(BPMNShape.EVENT.DRAG_START, shape, this._onShapeDragStart,
+      this);
+    this._canvas.removeEventListener(BPMNShape.EVENT.DRAG_END, shape, this._onShapeDragEnd,
+      this);
 
     return this;
   }
@@ -77,7 +125,7 @@ class Connection extends Component {
   setOrigShape(shape) {
     if (!(shape instanceof BPMNShape)) {
       throw new Error('setOrigShape(): invalid parameter.');
-    } else if (!this._isValid(shape, this._destShape)) {
+    } else if (!Connection.isValid(shape, this._destShape)) {
       throw new Error('setOrigShape(): The origin and destiny are the same.');
     }
 
@@ -109,7 +157,7 @@ class Connection extends Component {
   setDestShape(shape) {
     if (!(shape instanceof BPMNShape)) {
       throw new Error('setOrigShape(): invalid parameter.');
-    } else if (!this._isValid(this._origShape, shape)) {
+    } else if (!Connection.isValid(this._origShape, shape)) {
       throw new Error('setDestShape(): The origin and destiny are the same.');
     }
 
@@ -186,43 +234,6 @@ class Connection extends Component {
     return this._origShape === shape || this._destShape === shape;
   }
 
-  _getSegmentDrawing(from, to, intersections = []) {
-    let segmentString = '';
-
-    if (intersections.length) {
-      const segmentOrientation = Connection._getSegmentOrientation(from, to);
-      const segmentDirection = Connection._getSegmentDirection(from, to);
-
-      if (segmentOrientation === Port.ORIENTATION.HORIZONTAL) {
-        intersections.sort((a, b) => (a.x < b.x ? -1 : 1) * segmentDirection);
-      } else {
-        intersections.sort((a, b) => (a.y < b.y ? -1 : 1) * segmentDirection);
-      }
-
-      intersections.forEach((intersection) => {
-        let halfArc;
-
-        if (segmentOrientation === Port.ORIENTATION.HORIZONTAL) {
-          halfArc = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
-          segmentString += ` L${intersection.x + halfArc} ${intersection.y}`
-                        + ` C${intersection.x + halfArc} ${intersection.y + Connection.INTERSECTION_SIZE.HEIGHT},`
-                        + ` ${intersection.x - halfArc} ${intersection.y + Connection.INTERSECTION_SIZE.HEIGHT},`
-                        + ` ${intersection.x - halfArc} ${intersection.y}`;
-        } else {
-          halfArc = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
-          segmentString += ` L${intersection.x} ${intersection.y + halfArc}`
-                        + ` C${intersection.x + Connection.INTERSECTION_SIZE.HEIGHT} ${intersection.y + halfArc},`
-                        + ` ${intersection.x + Connection.INTERSECTION_SIZE.HEIGHT} ${intersection.y - halfArc},`
-                        + ` ${intersection.x} ${intersection.y - halfArc}`;
-        }
-      });
-    }
-
-    segmentString += ` L${to.x} ${to.y}`;
-
-    return segmentString;
-  }
-
   _draw(intersections = null) {
     let pathString = '';
 
@@ -238,12 +249,14 @@ class Connection extends Component {
       pathString += `M${points[0].x} ${points[0].y}`;
 
       for (i = 1; i < points.length; i += 1) {
-        pathString += this._getSegmentDrawing(points[i - 1], points[i], intersections[i - 1]);
+        pathString += Connection.getSegmentDrawing(points[i - 1], points[i], intersections[i - 1]);
       }
 
       lastSegmentOrientation = Connection._getSegmentOrientation(points[i - 2], points[i - 1]);
       lastSegmentDirection = Connection._getSegmentDirection(points[i - 2], points[i - 1]);
-      arrowAngle = (lastSegmentOrientation === Port.ORIENTATION.HORIZONTAL ? 2 + lastSegmentDirection : 1 + (lastSegmentDirection * -1));
+      arrowAngle = (lastSegmentOrientation === Port.ORIENTATION.HORIZONTAL
+        ? 2 + lastSegmentDirection
+        : 1 + (lastSegmentDirection * -1));
 
       this._dom.arrow.setAttribute('transform', `translate(${points[points.length - 1].x}, ${points[points.length - 1].y})`);
       this._dom.arrowRotateContainer.setAttribute('transform', `scale(0.5, 0.5) rotate(${90 * arrowAngle})`);
@@ -310,26 +323,22 @@ class Connection extends Component {
   }
 
   _createHTML() {
-    let arrowWrapper;
-    let arrowWrapper2;
-    let arrow;
-    let path;
-
     if (this._html) {
       return this;
     }
 
+    const arrowWrapper = Element.createSVG('g');
+    const arrowWrapper2 = Element.createSVG('g');
+    const arrow = Element.createSVG('path');
+    const path = Element.createSVG('path');
+
     super._createHTML();
     this._html.setAttribute('class', 'connection');
 
-    arrowWrapper = Element.createSVG('g');
-    arrowWrapper2 = Element.createSVG('g');
     arrowWrapper2.setAttribute('transform', 'scale(0.5,0.5) rotate(-180)');
-    arrow = Element.createSVG('path');
     arrow.setAttribute('end', 'target');
     arrow.setAttribute('d', 'M 0 0 L -13 -26 L 13 -26 z');
 
-    path = Element.createSVG('path');
     path.setAttribute('fill', 'none');
     path.setAttribute('stroke', 'black');
 

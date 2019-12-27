@@ -1,6 +1,11 @@
 import BPMNShape from '../shape/Shape';
 import Connection from './Connection';
 
+const DEFAULTS = {
+  connections: [],
+  shape: null,
+};
+
 class Port {
   static get ORIENTATION() {
     return {
@@ -54,10 +59,7 @@ class Port {
     this._connections = new Set();
     this._shape = null;
 
-    settings = jQuery.extend({
-      connections: [],
-      shape: null,
-    }, settings);
+    settings = { ...DEFAULTS, settings };
 
     this._setShape(settings.shape)
       ._setOrientation(settings.orientation)
@@ -109,15 +111,13 @@ class Port {
   }
 
   addConnection(connection) {
-    let newMode;
-
-    if (!connection instanceof Connection) {
+    if (!(connection instanceof Connection)) {
       throw new Error('addConnection(): Invalid parameter.');
     } else if (!this._shape.isUsingConnection(connection)) {
       throw new Error('addConnection(): the supplied connection doesn\'t belong to this shape.');
     }
 
-    newMode = connection.getOrigShape() === this._shape ? Port.MODE.OUT : Port.MODE.IN;
+    const newMode = connection.getOrigShape() === this._shape ? Port.MODE.OUT : Port.MODE.IN;
 
     if (newMode !== this._mode && this._mode !== null) {
       throw new Error('addConnection(): Invalid connection direction.');
@@ -129,9 +129,10 @@ class Port {
   }
 
   setConnections(connections) {
-    for (const connection in connections) {
+    connections.forEach((connection) => {
       this.addConnection(connection);
-    }
+    });
+
     return this;
   }
 
