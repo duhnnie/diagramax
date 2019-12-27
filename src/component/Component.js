@@ -1,8 +1,7 @@
-import Element from './element';
-import Canvas from './canvas';
-import SVGFactory from './svg_factory';
+import Element from '../core/Element';
+import Canvas from '../canvas/Canvas';
 
-class BPMNElement extends Element {
+class Component extends Element {
   constructor(settings) {
     super(settings);
     this._canvas = null;
@@ -88,11 +87,11 @@ class BPMNElement extends Element {
       return this;
     }
 
-    wrapper = SVGFactory.create('g');
+    wrapper = Element.createSVG('g');
 
-    title = document.createElement('title');
-    text = SVGFactory.create('text');
-    tspan = SVGFactory.create('tspan');
+    title = Element.create('title');
+    text = Element.createSVG('text');
+    tspan = Element.createSVG('tspan');
     tspan.style.pointerEvents = 'none';
 
     text.setAttribute('text-anchor', 'middle');
@@ -118,4 +117,4 @@ class BPMNElement extends Element {
 }
 
 
-export default BPMNElement;
+export default Component;

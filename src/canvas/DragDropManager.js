@@ -1,5 +1,5 @@
-import SVGFactory from './svg_factory';
-import BPMNShape from './shape';
+import Element from '../core/Element';
+import BPMNShape from '../shape/Shape';
 
 class DragAndDropManager {
   constructor(canvas) {
@@ -116,7 +116,7 @@ class DragAndDropManager {
         this._canvas._onSelectShape(shape);
       });
 
-    this._dom.line = SVGFactory.create('line');
+    this._dom.line = Element.createSVG('line');
 
     canvasOffset = this._canvas.getHTML().getBoundingClientRect();
 

@@ -15,7 +15,10 @@
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
+    "plugins": [ "import" ],
     "rules": {
-      "no-underscore-dangle": "off"
+      "no-underscore-dangle": "off",
+      "no-param-reassign": "off",
+      "import/no-cycle": "off"
     }
 }

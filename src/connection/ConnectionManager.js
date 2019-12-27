@@ -1,5 +1,5 @@
-import Port from './port';
-import Connection from './connection';
+import Port from './Port';
+import Connection from './Connection';
 
 function getShortestPathLength(pointA, pointB) {
   return Math.abs(pointA.y - pointB.y) + Math.abs(pointA.x - pointB.x);

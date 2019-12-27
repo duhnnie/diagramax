@@ -1,8 +1,8 @@
-import BPMNElement from './bpmn_element';
-import Port from './port';
-import Connection from './connection';
+import Component from '../component/Component';
+import Port from '../connection/Port';
+import Connection from '../connection/Connection';
 
-class BPMNShape extends BPMNElement {
+class Shape extends Component {
   static get EVENT() {
     return {
       DRAG_START: 'dragstart',
@@ -288,4 +288,4 @@ class BPMNShape extends BPMNElement {
   }
 }
 
-export default BPMNShape;
+export default Shape;

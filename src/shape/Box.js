@@ -1,10 +1,10 @@
-import BPMNShape from './shape';
-import SVGFactory from './svg_factory';
+import Element from '../core/Element';
+import Shape from '../shape/Shape';
 
-class Activity extends BPMNShape {
+class Box extends Shape {
   constructor(settings) {
     settings = $.extend({
-      width: 150,
+      width: 80,
       height: 80,
     }, settings);
 
@@ -18,7 +18,7 @@ class Activity extends BPMNShape {
       return this;
     }
 
-    rect = SVGFactory.create('rect');
+    rect = Element.createSVG('rect');
     rect.setAttribute('fill', '#ffffff');
     rect.setAttribute('stroke', '#000000');
     rect.setAttribute('width', this._width);
@@ -40,4 +40,4 @@ class Activity extends BPMNShape {
     return this;
   }
 }
-export default Activity;
+export default Box;

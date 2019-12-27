@@ -1,9 +1,5 @@
-import Canvas from './canvas';
-import StartEvent from './start_event';
-import Activity from './activity';
-import EndWEvent from './end_event';
+import Canvas from './canvas/Canvas';
+import Box from './shape/Box';
 
 export { Canvas };
-export { StartEvent };
-export { Activity };
-export { EndWEvent as EndEvent };
+export { Box };
