@@ -59,7 +59,7 @@ class Port {
     this._connections = new Set();
     this._shape = null;
 
-    settings = { ...DEFAULTS, settings };
+    settings = { ...DEFAULTS, ...settings };
 
     this._setShape(settings.shape)
       ._setOrientation(settings.orientation)

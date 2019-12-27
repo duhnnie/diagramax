@@ -6,7 +6,7 @@
         <script src="./lib/lodash.js"></script>
         <script src="./designer.js"></script>
         <script type="text/javascript">
-            const ev = new Designer.StartEvent({
+            const ev = new Designer.Box({
                 id: 'ev',
                 text: "Start",
                 position: {
@@ -14,7 +14,7 @@
                     y: 50
                 }
             });
-            const act = new Designer.Activity({
+            const act = new Designer.Box({
                 id: 'act1',
                 text: "Activity #1",
                 position: {
@@ -22,7 +22,7 @@
                     y: 180
                 }
             });
-            const act2 = new Designer.Activity({
+            const act2 = new Designer.Box({
                 id: 'act2',
                 text: "Activity #2",
                 position: {
@@ -30,7 +30,7 @@
                     y: 300
                 }
             });
-            const eev = new Designer.EndEvent({
+            const eev = new Designer.Box({
                 id: 'eev',
                 text: "End Event",
                 position: {
@@ -59,7 +59,7 @@
                 canvas.connect('act2', 'eev');
                 document.body.appendChild(canvas.getHTML());
 
-                act3 = new Designer.Activity({
+                act3 = new Designer.Box({
                     text: "Another Activity",
                     position: {
                         x: 550,

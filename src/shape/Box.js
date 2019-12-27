@@ -1,10 +1,10 @@
 import Element from '../core/Element';
-import BPMNShape from '../shape/Shape';
+import Shape from '../shape/Shape';
 
-class Activity extends BPMNShape {
+class Box extends Shape {
   constructor(settings) {
     settings = $.extend({
-      width: 150,
+      width: 80,
       height: 80,
     }, settings);
 
@@ -40,4 +40,4 @@ class Activity extends BPMNShape {
     return this;
   }
 }
-export default Activity;
+export default Box;
