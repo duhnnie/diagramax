@@ -1,4 +1,4 @@
-import Port from './port';
+import Port from './Port';
 
 const getSegmentOrientation = function (segment) {
   if (segment[0].x === segment[1].x) {

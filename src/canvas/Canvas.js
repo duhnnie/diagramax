@@ -1,8 +1,8 @@
-import Element from './element';
-import EventBus from './event_bus';
-import DragAndDropManager from './drag_drop_manager';
-import BPMNShape from './shape';
-import Connection from './connection';
+import Element from '../core/Element';
+import EventBus from './EventBus';
+import DragAndDropManager from './DragDropManager';
+import BPMNShape from '../shape/Shape';
+import Connection from '../connection/Connection';
 
 class Canvas extends Element {
   constructor(settings) {

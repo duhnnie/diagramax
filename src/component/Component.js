@@ -1,7 +1,7 @@
-import Element from './element';
-import Canvas from './canvas';
+import Element from '../core/Element';
+import Canvas from '../canvas/Canvas';
 
-class BPMNElement extends Element {
+class Component extends Element {
   constructor(settings) {
     super(settings);
     this._canvas = null;
@@ -117,4 +117,4 @@ class BPMNElement extends Element {
 }
 
 
-export default BPMNElement;
+export default Component;

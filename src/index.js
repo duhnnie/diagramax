@@ -1,7 +1,7 @@
-import Canvas from './canvas';
-import StartEvent from './start_event';
-import Activity from './activity';
-import EndWEvent from './end_event';
+import Canvas from './canvas/Canvas';
+import StartEvent from './bpmn/start_event';
+import Activity from './bpmn/activity';
+import EndWEvent from './bpmn/end_event';
 
 export { Canvas };
 export { StartEvent };

@@ -1,11 +1,11 @@
-import Element from './element';
-import BPMNElement from './bpmn_element';
-import BPMNShape from './shape';
-import ConnectionManager from './connection_manager';
-import Port from './port';
-import ConnectionIntersectionResolver from './connection_intersection_resolver';
+import Element from '../core/Element';
+import Component from '../component/Component';
+import BPMNShape from '../shape/Shape';
+import ConnectionManager from './ConnectionManager';
+import Port from './Port';
+import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 
-class Connection extends BPMNElement {
+class Connection extends Component {
   static get ARROW_SEGMENT_LENGTH() {
     return 20;
   }

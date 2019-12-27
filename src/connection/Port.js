@@ -1,5 +1,5 @@
-import BPMNShape from './shape';
-import Connection from './connection';
+import BPMNShape from '../shape/Shape';
+import Connection from './Connection';
 
 class Port {
   static get ORIENTATION() {

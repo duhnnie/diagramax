@@ -1,5 +1,5 @@
-import Element from './element';
-import BPMNShape from './shape';
+import Element from '../core/Element';
+import BPMNShape from '../shape/Shape';
 
 class Activity extends BPMNShape {
   constructor(settings) {
