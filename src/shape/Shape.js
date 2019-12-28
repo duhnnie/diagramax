@@ -205,11 +205,11 @@ class Shape extends Component {
   }
 
   _removeFromPorts(connection) {
-    for (const port of this._ports) {
+    this._ports.forEach((port) => {
       if (port.hasConnection(connection)) {
         port.removeConnection(connection);
       }
-    }
+    });
     return this;
   }
 
@@ -224,9 +224,10 @@ class Shape extends Component {
   }
 
   removeConnections() {
-    for (const connection of this._connections) {
+    this._connections.forEach((connection) => {
       this.removeConnection(connection);
-    }
+    });
+
     return this;
   }
 
@@ -265,17 +266,20 @@ class Shape extends Component {
   }
 
   _resetPorts() {
-    for (const port of this._ports) {
+    this._ports.forEach((port) => {
       port.clearConnections();
-    }
+    });
+
     return this;
   }
 
   _drawConnections() {
     this._resetPorts();
-    for (const connection of this._connections) {
+
+    this._connections.forEach((connection) => {
       connection.connect();
-    }
+    });
+
     return this;
   }
 

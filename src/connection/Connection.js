@@ -240,28 +240,26 @@ class Connection extends Component {
   }
 
   _draw(intersections = null) {
+    const pointsLength = this._points.length;
     let pathString = '';
 
-    if (this._points.length) {
+    if (pointsLength > 0) {
       const points = this._points;
-      let lastSegmentOrientation;
-      let lastSegmentDirection;
-      let arrowAngle;
-      let i;
+      const lastSegmentOrientation = Connection._getSegmentOrientation(points[pointsLength - 2],
+        points[pointsLength - 1]);
+      const lastSegmentDirection = Connection._getSegmentDirection(points[pointsLength - 2],
+        points[pointsLength - 1]);
+      const arrowAngle = (lastSegmentOrientation === Port.ORIENTATION.HORIZONTAL
+        ? 2 + lastSegmentDirection
+        : 1 + (lastSegmentDirection * -1));
 
       intersections = intersections || [];
 
       pathString += `M${points[0].x} ${points[0].y}`;
 
-      for (i = 1; i < points.length; i += 1) {
+      for (let i = 1; i < pointsLength; i += 1) {
         pathString += Connection.getSegmentDrawing(points[i - 1], points[i], intersections[i - 1]);
       }
-
-      lastSegmentOrientation = Connection._getSegmentOrientation(points[i - 2], points[i - 1]);
-      lastSegmentDirection = Connection._getSegmentDirection(points[i - 2], points[i - 1]);
-      arrowAngle = (lastSegmentOrientation === Port.ORIENTATION.HORIZONTAL
-        ? 2 + lastSegmentDirection
-        : 1 + (lastSegmentDirection * -1));
 
       this._dom.arrow.setAttribute('transform', `translate(${points[points.length - 1].x}, ${points[points.length - 1].y})`);
       this._dom.arrowRotateContainer.setAttribute('transform', `scale(0.5, 0.5) rotate(${90 * arrowAngle})`);
