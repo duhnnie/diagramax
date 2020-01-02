@@ -1,77 +1,40 @@
+import Geometry from '../utils/Geometry';
 import Port from './Port';
 import Connection from './Connection';
 
-function getShortestPathLength(pointA, pointB) {
-  return Math.abs(pointA.y - pointB.y) + Math.abs(pointA.x - pointB.x);
-}
-
 function getPortPriorityOrder(primaryOrientation, relativeX, relativeY) {
-  let secondaryOrientation = primaryOrientation ? 0 : 1;
-  let ports;
+  const secondaryOrientation = primaryOrientation === Port.ORIENTATION.HORIZONTAL
+    ? Port.ORIENTATION.VERTICAL : Port.ORIENTATION.HORIZONTAL;
+  const ports = Port.PRIORITY[primaryOrientation][primaryOrientation ? relativeX : relativeY];
+  const secondaryPorts = Port.PRIORITY[secondaryOrientation][secondaryOrientation
+    ? relativeX : relativeY];
 
-  primaryOrientation = Port.PRIORITY[primaryOrientation][primaryOrientation ? relativeX : relativeY];
-  secondaryOrientation = Port.PRIORITY[secondaryOrientation][secondaryOrientation ? relativeX : relativeY];
-
-  ports = [].concat(primaryOrientation);
-  ports.splice(1, 0, ...secondaryOrientation);
+  ports.splice(1, 0, ...secondaryPorts);
 
   return ports;
 }
 
 function getConnectionPriorityPorts(origShape, destShape) {
-  let origPorts;
-  let destPorts;
-  const origPos = origShape.getPosition();
-  const destPos = destShape.getPosition();
   const origBounds = origShape.getBounds();
   const destBounds = destShape.getBounds();
-  let relativeX = destPos.x - origPos.x;
-  let relativeY = destPos.y - origPos.y;
-  let intersectsX;
-  let intersectsY;
+  const { x: overlapX, y: overlapY } = Geometry.getOverlappedDimensions(origBounds, destBounds);
+  const { x: relativeX, y: relativeY } = Geometry.getNormalizedRelativePos(origShape, destShape);
+  let origPorts;
+  let destPorts;
 
-  relativeX = relativeX ? relativeX / Math.abs(relativeX) : 0;
-  relativeY = relativeY ? relativeY / Math.abs(relativeY) : 0;
-
-  intersectsX = (relativeX > 0 && origBounds.right - destBounds.left > 0)
-        || (relativeX < 0 && destBounds.right - origBounds.left > 0)
-        || relativeX === 0;
-  intersectsY = (relativeY > 0 && origBounds.bottom - destBounds.top > 0)
-        || (relativeY < 0 && destBounds.bottom - origBounds.top > 0)
-        || relativeY === 0;
-
-  if (intersectsX === intersectsY) {
-    if (intersectsX) {
-      origPorts = destPorts = [];
+  if (overlapX === overlapY) {
+    if (overlapX) {
+      origPorts = [];
+      destPorts = [];
     } else {
-      const origA = {
-        x: origPos.x,
-        y: relativeY > 0 ? origBounds.bottom : origBounds.top,
-      };
-      const destA = {
-        x: relativeX > 0 ? destBounds.west : destBounds.east,
-        y: destPos.y,
-      };
-      const origB = {
-        x: relativeX > 0 ? origBounds.east : origBounds.west,
-        y: origPos.y,
-      };
-      const destB = {
-        x: destPos.x,
-        y: relativeY > 0 ? destBounds.top : destBounds.bottom,
-      };
-
-      if (getShortestPathLength(origA, destA) < getShortestPathLength(origB, destB)) {
-        origPorts = getPortPriorityOrder(Port.ORIENTATION.VERTICAL, relativeX, relativeY);
-        destPorts = getPortPriorityOrder(Port.ORIENTATION.HORIZONTAL, relativeX * -1, relativeY * -1);
-      } else {
-        origPorts = getPortPriorityOrder(Port.ORIENTATION.HORIZONTAL, relativeX, relativeY);
-        destPorts = getPortPriorityOrder(Port.ORIENTATION.VERTICAL, relativeX * -1, relativeY * -1);
-      }
+      origPorts = getPortPriorityOrder(Port.ORIENTATION.VERTICAL, relativeX, relativeY);
+      destPorts = getPortPriorityOrder(Port.ORIENTATION.HORIZONTAL, relativeX * -1, relativeY * -1);
     }
   } else {
-    origPorts = getPortPriorityOrder(intersectsX ? Port.ORIENTATION.VERTICAL : Port.ORIENTATION.HORIZONTAL, relativeX || 1, relativeY || 1);
-    destPorts = getPortPriorityOrder(intersectsX ? Port.ORIENTATION.VERTICAL : Port.ORIENTATION.HORIZONTAL, (relativeX * -1) || -1, (relativeY * -1) || -1);
+    const orientation = overlapX ? Port.ORIENTATION.VERTICAL : Port.ORIENTATION.HORIZONTAL;
+
+    origPorts = getPortPriorityOrder(orientation, relativeX, relativeY);
+    destPorts = getPortPriorityOrder(orientation, relativeX * -1, relativeY * -1);
   }
 
   return {
