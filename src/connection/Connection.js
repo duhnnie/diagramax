@@ -275,22 +275,24 @@ class Connection extends Component {
   connect() {
     if (this._html && this._origShape && this._destShape && this._origShape !== this.destShape) {
       let waypoints;
-      const ports = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
+      const portIndexes = ConnectionManager.getConnectionPortIndexes(this._origShape, this._destShape);
+      const origPortDescriptor = this._origShape.getPortDescriptor(portIndexes.orig);
+      const destPortDescriptor = this._destShape.getPortDescriptor(portIndexes.dest); 
 
-      if (ports.orig) {
-        this._origShape.assignConnectionToPort(this, ports.orig.portIndex);
-        this._destShape.assignConnectionToPort(this, ports.dest.portIndex);
+      if (origPortDescriptor) {
+        this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex);
+        this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex);
 
-        waypoints = ConnectionManager.getWaypoints(ports.orig, ports.dest);
+        waypoints = ConnectionManager.getWaypoints(origPortDescriptor, destPortDescriptor);
 
         waypoints.push({
-          x: ports.dest.point.x,
-          y: ports.dest.point.y,
+          x: destPortDescriptor.point.x,
+          y: destPortDescriptor.point.y,
         });
 
         waypoints.unshift({
-          x: ports.orig.point.x,
-          y: ports.orig.point.y,
+          x: origPortDescriptor.point.x,
+          y: origPortDescriptor.point.y,
         });
       }
 

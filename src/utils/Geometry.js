@@ -51,16 +51,14 @@ export default {
    * If destination Shape is up the origin Shape the relative position on y is -1.
    * If destination Shape is on the same y position than destination Shape,
    * then the relative position on y is 0.
-   * @param {Shape} originShape Origin shape
-   * @param {Shape} destinationShape destination shape
+   * @param {Point} originPoint Origin point
+   * @param {Point} destinationPoint destination point
    * @return {Object} An object with 'x' and 'y' keys, whose values are the normalized 
    * relative position for those axis.
    */
-  getNormalizedRelativePos(originShape, destinationShape) {
-    const origPos = originShape.getPosition();
-    const destPos = destinationShape.getPosition();
-    const diffX = destPos.x - origPos.x;
-    const diffY = destPos.y - origPos.y;
+  getNormalizedRelativePos(origPoint, destPoint) {
+    const diffX = destPoint.x - origPoint.x;
+    const diffY = destPoint.y - origPoint.y;
 
     return {
       x: diffX ? diffX / Math.abs(diffX) : 0,

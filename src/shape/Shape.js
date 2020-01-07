@@ -179,13 +179,22 @@ class Shape extends Component {
     };
   }
 
-  getPorts() {
-    return this._ports.map((port, index) => {
+  getPortDescriptor(index) {
+    const port = this._ports[index];
+
+    if (port) {
       const descriptor = port.getDescriptor();
+
       descriptor.portIndex = index;
 
       return descriptor;
-    });
+    }
+
+    return null;
+  }
+
+  getPorts() {
+    return this._ports.map((port, index) => this.getPortDescriptor(index));
   }
 
   addOutgoingConnection(connection) {
@@ -290,6 +299,24 @@ class Shape extends Component {
     }
 
     return this;
+  }
+
+  hasAvailablePortFor(portIndex, mode) {
+    const port = this._ports[portIndex];
+
+    if (port) {
+      if (port.mode === null) {
+        const portsInMode = this._ports.filter(port => {
+          return port.mode === mode;
+        });
+
+        return portsInMode.length < 3;
+      }
+
+      return port.isAvailableFor(mode);
+    }
+
+    return false;
   }
 
   _resetPorts() {

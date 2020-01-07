@@ -110,6 +110,10 @@ class Port {
     return this;
   }
 
+  isAvailableFor(mode) {
+    return this._mode === null || this._mode === mode;
+  }
+
   addConnection(connection) {
     if (!(connection instanceof Connection)) {
       throw new Error('addConnection(): Invalid parameter.');
