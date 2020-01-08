@@ -9,8 +9,8 @@ const DEFAULTS = {
 class Port {
   static get ORIENTATION() {
     return {
-      VERTICAL: 0,
-      HORIZONTAL: 1,
+      VERTICAL: 'y',
+      HORIZONTAL: 'x',
     };
   }
 
@@ -170,8 +170,8 @@ class Port {
     const shapePosition = this._shape.getPosition();
     const orientation = this._orientation;
     const direction = this._direction;
-    const xOffset = orientation ? this._shape.getWidth() / 2 : 0;
-    const yOffset = !orientation ? this._shape.getHeight() / 2 : 0;
+    const xOffset = orientation === Port.ORIENTATION.HORIZONTAL ? this._shape.getWidth() / 2 : 0;
+    const yOffset = orientation === Port.ORIENTATION.VERTICAL ? this._shape.getHeight() / 2 : 0;
 
     return {
       x: shapePosition.x + (xOffset * direction),

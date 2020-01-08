@@ -28,12 +28,14 @@ export default {
     let x = false;
     let y = false;
 
-    if (this.isInBetween(boundsB.left, boundsA.left, boundsA.right) 
+    if (boundsA.left === boundsB.left || boundsA.right === boundsB.right
+      || this.isInBetween(boundsB.left, boundsA.left, boundsA.right)
       || this.isInBetween(boundsA.left, boundsB.left, boundsB.right)) {
       x = true;
     }
 
-    if (this.isInBetween(boundsB.top, boundsA.top, boundsA.bottom)
+    if (boundsA.top === boundsB.top || boundsA.bottom === boundsB.bottom
+      || this.isInBetween(boundsB.top, boundsA.top, boundsA.bottom)
       || this.isInBetween(boundsA.top, boundsB.top, boundsB.bottom)) {
       y = true;
     }

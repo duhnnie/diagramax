@@ -245,13 +245,13 @@ class Connection extends Component {
 
     if (pointsLength > 0) {
       const points = this._points;
-      const lastSegmentOrientation = Connection._getSegmentOrientation(points[pointsLength - 2],
-        points[pointsLength - 1]);
-      const lastSegmentDirection = Connection._getSegmentDirection(points[pointsLength - 2],
-        points[pointsLength - 1]);
-      const arrowAngle = (lastSegmentOrientation === Port.ORIENTATION.HORIZONTAL
-        ? 2 + lastSegmentDirection
-        : 1 + (lastSegmentDirection * -1));
+      // const lastSegmentOrientation = Connection._getSegmentOrientation(points[pointsLength - 2],
+      //   points[pointsLength - 1]);
+      // const lastSegmentDirection = Connection._getSegmentDirection(points[pointsLength - 2],
+      //   points[pointsLength - 1]);
+      // const arrowAngle = (lastSegmentOrientation === Port.ORIENTATION.HORIZONTAL
+      //   ? 2 + lastSegmentDirection
+      //   : 1 + (lastSegmentDirection * -1));
 
       intersections = intersections || [];
 
@@ -262,7 +262,7 @@ class Connection extends Component {
       }
 
       this._dom.arrow.setAttribute('transform', `translate(${points[points.length - 1].x}, ${points[points.length - 1].y})`);
-      this._dom.arrowRotateContainer.setAttribute('transform', `scale(0.5, 0.5) rotate(${90 * arrowAngle})`);
+      // this._dom.arrowRotateContainer.setAttribute('transform', `scale(0.5, 0.5) rotate(${90 * arrowAngle})`);
     }
 
     this._dom.arrow.style.display = pathString ? '' : 'none';
