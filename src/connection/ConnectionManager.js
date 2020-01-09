@@ -91,7 +91,7 @@ export default {
         const newTarget = {
           point,
           orientation: target.orientation === Port.ORIENTATION.HORIZONTAL ? Port.ORIENTATION.VERTICAL : Port.ORIENTATION.HORIZONTAL,
-          direction: (target.orientation === Port.ORIENTATION.HORIZONTAL ? relativePos.y : relativePos.x) * directionFactor,
+          direction: ((target.orientation === Port.ORIENTATION.HORIZONTAL ? relativePos.y : relativePos.x) * directionFactor) || 1,
         };
 
         if (target === orig) {
@@ -106,57 +106,56 @@ export default {
         x: orig.orientation === Port.ORIENTATION.HORIZONTAL ? dest.point.x : orig.point.x,
         y: dest.orientation === Port.ORIENTATION.HORIZONTAL ? dest.point.y : orig.point.y,
       }];
-    } else {
-      if (orig.direction !== relativePos[orig.orientation]) {
-        const { x, y } = orig.point;
-
-        const point = {
-          x: x + (orig.orientation === Port.ORIENTATION.HORIZONTAL ? Connection.ARROW_SEGMENT_LENGTH * orig.direction : 0),
-          y: y + (orig.orientation === Port.ORIENTATION.VERTICAL ? Connection.ARROW_SEGMENT_LENGTH * orig.direction : 0), 
-        };
-
-        const newOrig = {
-          point, 
-          orientation: orig.orientation === Port.ORIENTATION.HORIZONTAL ? Port.ORIENTATION.VERTICAL :  Port.ORIENTATION.HORIZONTAL,
-          direction: orig.orientation === Port.ORIENTATION.HORIZONTAL ? relativePos.y : relativePos.x,
-        };
-
-        return [point].concat(this.getWaypoints(newOrig, dest));
-      } else if (dest.direction !== relativePos[dest.orientation] * -1) {
-        const { x, y } = dest.point;
-
-        const point = {
-          x: x + (dest.orientation === Port.ORIENTATION.HORIZONTAL ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
-          y: y + (dest.orientation === Port.ORIENTATION.VERTICAL ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
-        };
-
-        const newDest = {
-          point,
-          orientation: dest.orientation === Port.ORIENTATION.HORIZONTAL ? Port.ORIENTATION.VERTICAL : Port.ORIENTATION.HORIZONTAL,
-          direction: (dest.orientation === Port.ORIENTATION.HORIZONTAL ? relativePos.y : relativePos.x) * -1,
-        };
-
-        return this.getWaypoints(orig, newDest).concat(point);
-      } else if (orig.point.x === dest.point.x || orig.point.y === dest.point.y) {
-        return [];
-      } else {
-        const diff = (orig.orientation === Port.ORIENTATION.HORIZONTAL ? dest.point.x - orig.point.x : dest.point.y - orig.point.y) / 2;
-
-        return [{
-          x: orig.point.x + (orig.orientation === Port.ORIENTATION.HORIZONTAL ? diff : 0),
-          y: orig.point.y + (orig.orientation === Port.ORIENTATION.VERTICAL ? diff : 0),
-        }, {
-          x: dest.point.x - (dest.orientation === Port.ORIENTATION.HORIZONTAL ? diff : 0),
-          y: dest.point.y - (dest.orientation === Port.ORIENTATION.VERTICAL ? diff : 0),
-        }];
-      }
-
-      if (false){
-        return;
-      } 
     }
 
-    return [];
+    if (orig.direction !== relativePos[orig.orientation]) {
+      const { x, y } = orig.point;
+
+      const point = {
+        x: x + (orig.orientation === Port.ORIENTATION.HORIZONTAL ? Connection.ARROW_SEGMENT_LENGTH * orig.direction : 0),
+        y: y + (orig.orientation === Port.ORIENTATION.VERTICAL ? Connection.ARROW_SEGMENT_LENGTH * orig.direction : 0), 
+      };
+
+      const newOrig = {
+        point, 
+        orientation: orig.orientation === Port.ORIENTATION.HORIZONTAL ? Port.ORIENTATION.VERTICAL :  Port.ORIENTATION.HORIZONTAL,
+        direction: (orig.orientation === Port.ORIENTATION.HORIZONTAL ? relativePos.y : relativePos.x) || 1,
+      };
+
+      return [point].concat(this.getWaypoints(newOrig, dest));
+    }
+
+    if (dest.direction !== relativePos[dest.orientation] * -1) {
+      const { x, y } = dest.point;
+
+      const point = {
+        x: x + (dest.orientation === Port.ORIENTATION.HORIZONTAL ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
+        y: y + (dest.orientation === Port.ORIENTATION.VERTICAL ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
+      };
+
+      const newDest = {
+        point,
+        orientation: dest.orientation === Port.ORIENTATION.HORIZONTAL ? Port.ORIENTATION.VERTICAL : Port.ORIENTATION.HORIZONTAL,
+        direction: ((dest.orientation === Port.ORIENTATION.HORIZONTAL ? relativePos.y : relativePos.x) * -1) || 1,
+      };
+
+      return this.getWaypoints(orig, newDest).concat(point);
+    }
+
+    if (orig.point.x === dest.point.x || orig.point.y === dest.point.y) {
+      return [];
+    }
+
+    const diff = (orig.orientation === Port.ORIENTATION.HORIZONTAL ? dest.point.x - orig.point.x : dest.point.y - orig.point.y) / 2;
+
+    return [{
+      x: orig.point.x + (orig.orientation === Port.ORIENTATION.HORIZONTAL ? diff : 0),
+      y: orig.point.y + (orig.orientation === Port.ORIENTATION.VERTICAL ? diff : 0),
+    }, {
+      x: dest.point.x - (dest.orientation === Port.ORIENTATION.HORIZONTAL ? diff : 0),
+      y: dest.point.y - (dest.orientation === Port.ORIENTATION.VERTICAL ? diff : 0),
+    }];
+
     // const { x: relativeX, y: relativeY } = Geometry.getNormalizedRelativePos(orig.point, dest.point);
     // const firstPoints = [];
     // const lastPoints = [];
