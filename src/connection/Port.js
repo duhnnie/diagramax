@@ -9,8 +9,8 @@ const DEFAULTS = {
 class Port {
   static get ORIENTATION() {
     return {
-      VERTICAL: 'y',
-      HORIZONTAL: 'x',
+      X: 'x',
+      Y: 'y',
     };
   }
 
@@ -39,12 +39,12 @@ class Port {
 
   static get PRIORITY() {
     return {
-      [Port.ORIENTATION.VERTICAL]: {
+      [Port.ORIENTATION.Y]: {
         '-1': [Port.INDEX.NORTH, Port.INDEX.SOUTH],
         0: [Port.INDEX.SOUTH, Port.INDEX.NORTH],
         1: [Port.INDEX.SOUTH, Port.INDEX.NORTH],
       },
-      [Port.ORIENTATION.HORIZONTAL]: {
+      [Port.ORIENTATION.X]: {
         '-1': [Port.INDEX.WEST, Port.INDEX.EAST],
         0: [Port.INDEX.EAST, Port.INDEX.WEST],
         1: [Port.INDEX.EAST, Port.INDEX.WEST],
@@ -170,8 +170,8 @@ class Port {
     const shapePosition = this._shape.getPosition();
     const orientation = this._orientation;
     const direction = this._direction;
-    const xOffset = orientation === Port.ORIENTATION.HORIZONTAL ? this._shape.getWidth() / 2 : 0;
-    const yOffset = orientation === Port.ORIENTATION.VERTICAL ? this._shape.getHeight() / 2 : 0;
+    const xOffset = orientation === Port.ORIENTATION.X ? this._shape.getWidth() / 2 : 0;
+    const yOffset = orientation === Port.ORIENTATION.Y ? this._shape.getHeight() / 2 : 0;
 
     return {
       x: shapePosition.x + (xOffset * direction),

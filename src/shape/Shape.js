@@ -75,7 +75,7 @@ class Shape extends Component {
 
       this._ports[portIndex] = new Port({
         shape: this,
-        orientation: portIndex % 2 ? Port.ORIENTATION.HORIZONTAL : Port.ORIENTATION.VERTICAL,
+        orientation: portIndex % 2 ? Port.ORIENTATION.X : Port.ORIENTATION.Y,
         direction,
       });
     });

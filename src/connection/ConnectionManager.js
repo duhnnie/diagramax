@@ -12,11 +12,11 @@ import Connection from './Connection';
  * @returns {Array}
  */
 function getPortPriorityOrder(mainOrientation, relativeX, relativeY) {
-  const crossOrientation = mainOrientation === Port.ORIENTATION.HORIZONTAL
-    ? Port.ORIENTATION.VERTICAL : Port.ORIENTATION.HORIZONTAL;
-  const mainPorts = Port.PRIORITY[mainOrientation][mainOrientation === Port.ORIENTATION.HORIZONTAL
+  const crossOrientation = mainOrientation === Port.ORIENTATION.X
+    ? Port.ORIENTATION.Y : Port.ORIENTATION.X;
+  const mainPorts = Port.PRIORITY[mainOrientation][mainOrientation === Port.ORIENTATION.X
     ? relativeX : relativeY];
-  const crossPorts = Port.PRIORITY[crossOrientation][crossOrientation === Port.ORIENTATION.HORIZONTAL
+  const crossPorts = Port.PRIORITY[crossOrientation][crossOrientation === Port.ORIENTATION.X
     ? relativeX : relativeY];
 
   mainPorts.splice(1, 0, ...crossPorts);
@@ -45,18 +45,18 @@ function getConnectionPriorityPorts(origShape, destShape) {
       origPorts = [];
       destPorts = [];
     } else {
-      origPorts = getPortPriorityOrder(Port.ORIENTATION.VERTICAL, relativeX, relativeY);
-      destPorts = getPortPriorityOrder(Port.ORIENTATION.HORIZONTAL, relativeX * -1, relativeY * -1);
+      origPorts = getPortPriorityOrder(Port.ORIENTATION.Y, relativeX, relativeY);
+      destPorts = getPortPriorityOrder(Port.ORIENTATION.X, relativeX * -1, relativeY * -1);
     }
   } else {
     let orientation;
 
     if (relativeX === 0) {
-      orientation = Port.ORIENTATION.VERTICAL;
+      orientation = Port.ORIENTATION.Y;
     } else if (relativeY === 0) {
-      orientation = Port.ORIENTATION.HORIZONTAL;
+      orientation = Port.ORIENTATION.X;
     } else {
-      orientation = overlapX ? Port.ORIENTATION.VERTICAL : Port.ORIENTATION.HORIZONTAL;
+      orientation = overlapX ? Port.ORIENTATION.Y : Port.ORIENTATION.X;
     }
 
     origPorts = getPortPriorityOrder(orientation, relativeX, relativeY);
@@ -80,8 +80,8 @@ function getNextPoint(descriptor, distance) {
   const { orientation } = descriptor;
 
   return {
-    x: x + (orientation === Port.ORIENTATION.HORIZONTAL ? distance : 0),
-    y: y + (orientation === Port.ORIENTATION.VERTICAL ? distance : 0),
+    x: x + (orientation === Port.ORIENTATION.X ? distance : 0),
+    y: y + (orientation === Port.ORIENTATION.Y ? distance : 0),
   };
 }
 
@@ -98,9 +98,9 @@ function getNextDescriptor(descriptor, normalizedPos, directionFactor) {
 
   return {
     point,
-    orientation: descriptor.orientation === Port.ORIENTATION.HORIZONTAL
-      ? Port.ORIENTATION.VERTICAL : Port.ORIENTATION.HORIZONTAL,
-    direction: ((descriptor.orientation === Port.ORIENTATION.HORIZONTAL
+    orientation: descriptor.orientation === Port.ORIENTATION.X
+      ? Port.ORIENTATION.Y : Port.ORIENTATION.X,
+    direction: ((descriptor.orientation === Port.ORIENTATION.X
       ? normalizedPos.y : normalizedPos.x) * directionFactor) || 1,
   };
 }
@@ -142,8 +142,8 @@ export default {
     // None of the points (orig and dest) direction is opposite respect the other one.
     if (orig.orientation !== dest.orientation) {
       return [{
-        x: orig.orientation === Port.ORIENTATION.HORIZONTAL ? dest.point.x : orig.point.x,
-        y: dest.orientation === Port.ORIENTATION.HORIZONTAL ? dest.point.y : orig.point.y,
+        x: orig.orientation === Port.ORIENTATION.X ? dest.point.x : orig.point.x,
+        y: dest.orientation === Port.ORIENTATION.X ? dest.point.y : orig.point.y,
       }];
     }
 

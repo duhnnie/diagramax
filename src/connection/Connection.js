@@ -26,9 +26,9 @@ class Connection extends Component {
     let orientation;
 
     if (from.x === to.x) {
-      orientation = Port.ORIENTATION.VERTICAL;
+      orientation = Port.ORIENTATION.Y;
     } else {
-      orientation = (from.y === to.y ? Port.ORIENTATION.HORIZONTAL : -1);
+      orientation = (from.y === to.y ? Port.ORIENTATION.X : -1);
     }
 
     if (orientation === -1) {
@@ -57,7 +57,7 @@ class Connection extends Component {
       const segmentOrientation = Connection._getSegmentOrientation(from, to);
       const segmentDirection = Connection._getSegmentDirection(from, to);
 
-      if (segmentOrientation === Port.ORIENTATION.HORIZONTAL) {
+      if (segmentOrientation === Port.ORIENTATION.X) {
         intersections.sort((a, b) => (a.x < b.x ? -1 : 1) * segmentDirection);
       } else {
         intersections.sort((a, b) => (a.y < b.y ? -1 : 1) * segmentDirection);
@@ -66,7 +66,7 @@ class Connection extends Component {
       intersections.forEach((intersection) => {
         let halfArc;
 
-        if (segmentOrientation === Port.ORIENTATION.HORIZONTAL) {
+        if (segmentOrientation === Port.ORIENTATION.X) {
           halfArc = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
           segmentString += ` L${intersection.x + halfArc} ${intersection.y}`
                         + ` C${intersection.x + halfArc} ${intersection.y + Connection.INTERSECTION_SIZE.HEIGHT},`
@@ -249,7 +249,7 @@ class Connection extends Component {
         points[pointsLength - 1]);
       const lastSegmentDirection = Connection._getSegmentDirection(points[pointsLength - 2],
         points[pointsLength - 1]);
-      const arrowAngle = (lastSegmentOrientation === Port.ORIENTATION.HORIZONTAL
+      const arrowAngle = (lastSegmentOrientation === Port.ORIENTATION.X
         ? 2 + lastSegmentDirection
         : 1 + (lastSegmentDirection * -1));
 
