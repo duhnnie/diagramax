@@ -1,6 +1,14 @@
+import Geometry from '../utils/Geometry';
 import Component from '../component/Component';
 import Port from '../connection/Port';
 import Connection from '../connection/Connection';
+
+const DEFAULTS = {
+  position: {
+    x: 0,
+    y: 0,
+  },
+};
 
 class Shape extends Component {
   static get EVENT() {
@@ -10,6 +18,32 @@ class Shape extends Component {
       DRAG_END: 'dragend',
     };
   }
+
+  // static getIntersectionBounds(shapeA, shapeB) {
+  //   const aBounds = shapeA.getBounds();
+  //   const bBounds = shapeB.getBounds();
+  //   const bounds = {};
+  //   const diffX = shapeB.getPosition().x - shapeA.getPosition().x;
+  //   const diffY = shapeB.getPosition().y - shapeA.getPosition().y;
+
+
+
+  //   if (Geometry.isInBetween(bBounds.left, aBounds.left, aBounds.right)) {
+  //     bounds.left = bBounds.left;
+  //   } else if (Geometry.isInBetween(aBounds.left, bBounds.left, bBounds.right)) {
+  //     bounds.left = aBounds.left;
+  //   } else {
+  //     bounds.left = null;
+  //   }
+
+  //   if (aBounds.left < bBounds.right && aBounds.right > bBounds.right) {
+  //     bounds.right = aBounds.right;
+  //   } else if () {
+
+  //   }
+
+
+  // }
 
   constructor(settings) {
     super(settings);
@@ -21,12 +55,10 @@ class Shape extends Component {
     this._ports = [];
     this.__bulkAction = false;
 
-    settings = jQuery.extend({
-      position: {
-        x: 0,
-        y: 0,
-      },
-    }, settings);
+    settings = {
+      ...DEFAULTS,
+      ...settings,
+    };
 
     this._initPorts()
       .setPosition(settings.position.x, settings.position.y)
@@ -34,17 +66,19 @@ class Shape extends Component {
   }
 
   _initPorts() {
-    let index;
+    Object.values(Port.INDEX).forEach((portIndex) => {
+      let direction = portIndex % 2 ? -1 : 1;
 
-    for (const port_position in Port.INDEX) {
-      const index = Port.INDEX[port_position];
+      if (portIndex < 2) {
+        direction = portIndex % 2 || -1;
+      }
 
-      this._ports[index] = new Port({
+      this._ports[portIndex] = new Port({
         shape: this,
-        orientation: index % 2,
-        direction: index < 2 ? (index % 2 || -1) : (index % 2 ? -1 : 1),
+        orientation: portIndex % 2 ? Port.ORIENTATION.X : Port.ORIENTATION.Y,
+        direction,
       });
-    }
+    });
 
     return this;
   }
@@ -141,17 +175,26 @@ class Shape extends Component {
   getSize() {
     return {
       width: this._width,
-      height: this.height,
+      height: this._height,
     };
   }
 
-  getPorts() {
-    return this._ports.map((port, index) => {
+  getPortDescriptor(index) {
+    const port = this._ports[index];
+
+    if (port) {
       const descriptor = port.getDescriptor();
+
       descriptor.portIndex = index;
 
       return descriptor;
-    });
+    }
+
+    return null;
+  }
+
+  getPorts() {
+    return this._ports.map((port, index) => this.getPortDescriptor(index));
   }
 
   addOutgoingConnection(connection) {
@@ -191,9 +234,6 @@ class Shape extends Component {
   }
 
   getConnectedShapes() {
-    const prev = [];
-    const next = [];
-
     return {
       prev: [...this.getIncomingConnections()].map((i) => i.getOrigShape()),
       next: [...this.getOutgoingConnections()].map((i) => i.getDestShape()),
@@ -201,11 +241,11 @@ class Shape extends Component {
   }
 
   _removeFromPorts(connection) {
-    for (const port of this._ports) {
+    this._ports.forEach((port) => {
       if (port.hasConnection(connection)) {
         port.removeConnection(connection);
       }
-    }
+    });
     return this;
   }
 
@@ -220,9 +260,10 @@ class Shape extends Component {
   }
 
   removeConnections() {
-    for (const connection of this._connections) {
+    this._connections.forEach((connection) => {
       this.removeConnection(connection);
-    }
+    });
+
     return this;
   }
 
@@ -234,14 +275,14 @@ class Shape extends Component {
   }
 
   getBounds() {
-    const half_width = this._width / 2;
-    const half_height = this._height / 2;
+    const halfWidth = this._width / 2;
+    const halfHeight = this._height / 2;
 
     return {
-      top: this._y - half_height,
-      right: this._x + half_width,
-      bottom: this._y + half_height,
-      left: this._x - half_width,
+      top: this._y - halfHeight,
+      right: this._x + halfWidth,
+      bottom: this._y + halfHeight,
+      left: this._x - halfWidth,
     };
   }
 
@@ -260,18 +301,39 @@ class Shape extends Component {
     return this;
   }
 
-  _resetPorts() {
-    for (const port of this._ports) {
-      port.clearConnections();
+  hasAvailablePortFor(portIndex, mode) {
+    const port = this._ports[portIndex];
+
+    if (port) {
+      if (port.mode === null) {
+        const portsInMode = this._ports.filter(port => {
+          return port.mode === mode;
+        });
+
+        return portsInMode.length < 3;
+      }
+
+      return port.isAvailableFor(mode);
     }
+
+    return false;
+  }
+
+  _resetPorts() {
+    this._ports.forEach((port) => {
+      port.clearConnections();
+    });
+
     return this;
   }
 
   _drawConnections() {
     this._resetPorts();
-    for (const connection of this._connections) {
+
+    this._connections.forEach((connection) => {
       connection.connect();
-    }
+    });
+
     return this;
   }
 

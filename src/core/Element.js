@@ -13,9 +13,10 @@ class Element {
     this._id = null;
     this._html = null;
 
-    settings = $.extend({
+    settings = {
       id: uuid(),
-    }, settings);
+      ...settings,
+    };
 
     this.setID(settings.id);
   }
@@ -34,7 +35,7 @@ class Element {
     return this._id;
   }
 
-  trigger(eventName, ...args) { return this; }
+  trigger() { return this; }
 
   _createHTML() { return this; }
 

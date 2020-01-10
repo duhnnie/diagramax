@@ -5,6 +5,11 @@ import ConnectionManager from './ConnectionManager';
 import Port from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 
+const DEFAULTS = {
+  origShape: null,
+  destShape: null,
+};
+
 class Connection extends Component {
   static get ARROW_SEGMENT_LENGTH() {
     return 20;
@@ -21,9 +26,9 @@ class Connection extends Component {
     let orientation;
 
     if (from.x === to.x) {
-      orientation = Port.ORIENTATION.VERTICAL;
+      orientation = Port.ORIENTATION.Y;
     } else {
-      orientation = (from.y === to.y ? Port.ORIENTATION.HORIZONTAL : -1);
+      orientation = (from.y === to.y ? Port.ORIENTATION.X : -1);
     }
 
     if (orientation === -1) {
@@ -52,7 +57,7 @@ class Connection extends Component {
       const segmentOrientation = Connection._getSegmentOrientation(from, to);
       const segmentDirection = Connection._getSegmentDirection(from, to);
 
-      if (segmentOrientation === Port.ORIENTATION.HORIZONTAL) {
+      if (segmentOrientation === Port.ORIENTATION.X) {
         intersections.sort((a, b) => (a.x < b.x ? -1 : 1) * segmentDirection);
       } else {
         intersections.sort((a, b) => (a.y < b.y ? -1 : 1) * segmentDirection);
@@ -61,7 +66,7 @@ class Connection extends Component {
       intersections.forEach((intersection) => {
         let halfArc;
 
-        if (segmentOrientation === Port.ORIENTATION.HORIZONTAL) {
+        if (segmentOrientation === Port.ORIENTATION.X) {
           halfArc = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
           segmentString += ` L${intersection.x + halfArc} ${intersection.y}`
                         + ` C${intersection.x + halfArc} ${intersection.y + Connection.INTERSECTION_SIZE.HEIGHT},`
@@ -88,10 +93,10 @@ class Connection extends Component {
     this._origShape = null;
     this._destShape = null;
 
-    settings = jQuery.extend({
-      origShape: null,
-      destShape: null,
-    }, settings);
+    settings = {
+      ...DEFAULTS,
+      ...settings,
+    };
 
     this.setOrigShape(settings.origShape)
       .setDestShape(settings.destShape);
@@ -235,28 +240,26 @@ class Connection extends Component {
   }
 
   _draw(intersections = null) {
+    const pointsLength = this._points.length;
     let pathString = '';
 
-    if (this._points.length) {
+    if (pointsLength > 0) {
       const points = this._points;
-      let lastSegmentOrientation;
-      let lastSegmentDirection;
-      let arrowAngle;
-      let i;
+      const lastSegmentOrientation = Connection._getSegmentOrientation(points[pointsLength - 2],
+        points[pointsLength - 1]);
+      const lastSegmentDirection = Connection._getSegmentDirection(points[pointsLength - 2],
+        points[pointsLength - 1]);
+      const arrowAngle = (lastSegmentOrientation === Port.ORIENTATION.X
+        ? 2 + lastSegmentDirection
+        : 1 + (lastSegmentDirection * -1));
 
       intersections = intersections || [];
 
       pathString += `M${points[0].x} ${points[0].y}`;
 
-      for (i = 1; i < points.length; i += 1) {
+      for (let i = 1; i < pointsLength; i += 1) {
         pathString += Connection.getSegmentDrawing(points[i - 1], points[i], intersections[i - 1]);
       }
-
-      lastSegmentOrientation = Connection._getSegmentOrientation(points[i - 2], points[i - 1]);
-      lastSegmentDirection = Connection._getSegmentDirection(points[i - 2], points[i - 1]);
-      arrowAngle = (lastSegmentOrientation === Port.ORIENTATION.HORIZONTAL
-        ? 2 + lastSegmentDirection
-        : 1 + (lastSegmentDirection * -1));
 
       this._dom.arrow.setAttribute('transform', `translate(${points[points.length - 1].x}, ${points[points.length - 1].y})`);
       this._dom.arrowRotateContainer.setAttribute('transform', `scale(0.5, 0.5) rotate(${90 * arrowAngle})`);
@@ -272,22 +275,24 @@ class Connection extends Component {
   connect() {
     if (this._html && this._origShape && this._destShape && this._origShape !== this.destShape) {
       let waypoints;
-      const ports = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
+      const portIndexes = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
+      const origPortDescriptor = this._origShape.getPortDescriptor(portIndexes.orig);
+      const destPortDescriptor = this._destShape.getPortDescriptor(portIndexes.dest); 
 
-      if (ports.orig) {
-        this._origShape.assignConnectionToPort(this, ports.orig.portIndex);
-        this._destShape.assignConnectionToPort(this, ports.dest.portIndex);
+      if (origPortDescriptor) {
+        this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex);
+        this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex);
 
-        waypoints = ConnectionManager.getWaypoints(ports.orig, ports.dest);
+        waypoints = ConnectionManager.getWaypoints(origPortDescriptor, destPortDescriptor);
 
         waypoints.push({
-          x: ports.dest.point.x,
-          y: ports.dest.point.y,
+          x: destPortDescriptor.point.x,
+          y: destPortDescriptor.point.y,
         });
 
         waypoints.unshift({
-          x: ports.orig.point.x,
-          y: ports.orig.point.y,
+          x: origPortDescriptor.point.x,
+          y: origPortDescriptor.point.y,
         });
       }
 
