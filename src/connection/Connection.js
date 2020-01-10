@@ -275,7 +275,7 @@ class Connection extends Component {
   connect() {
     if (this._html && this._origShape && this._destShape && this._origShape !== this.destShape) {
       let waypoints;
-      const portIndexes = ConnectionManager.getConnectionPortIndexes(this._origShape, this._destShape);
+      const portIndexes = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
       const origPortDescriptor = this._origShape.getPortDescriptor(portIndexes.orig);
       const destPortDescriptor = this._destShape.getPortDescriptor(portIndexes.dest); 
 

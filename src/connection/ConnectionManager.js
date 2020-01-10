@@ -163,8 +163,9 @@ export default {
    * Returns the best-eligible ports for connect 2 shapes.
    * @param {Shape} origShape Origin shape.
    * @param {Shape} destShape Destination shape.
+   * @returns {Object} An object with 'orig' and 'dest' keys and values with the port index.
    */
-  getConnectionPortIndexes(origShape, destShape) {
+  getConnectionPorts(origShape, destShape) {
     const candidatePorts = getConnectionPriorityPorts(origShape, destShape);
 
     return {
