@@ -25,7 +25,6 @@ const normalizeSegment = function (segment) {
 };
 
 const getIntersectedPoints = function (connectionA, connectionB) {
-  return [];
   if (connectionA !== connectionB) {
     const segmentsA = connectionA.getSegments();
     const segmentsB = connectionB.getSegments();
