@@ -58,7 +58,7 @@ export default {
    * @return {Object} An object with 'x' and 'y' keys, whose values are the normalized 
    * relative position for those axis.
    */
-  getNormalizedRelativePos(origPoint, destPoint) {
+  getNormalizedPosition(origPoint, destPoint) {
     const diffX = destPoint.x - origPoint.x;
     const diffY = destPoint.y - origPoint.y;
 

@@ -3,24 +3,25 @@ import Port from './Port';
 import Connection from './Connection';
 
 /**
- * Returns and array with the port indexes sorted in priority order for elegibility based on a 
+ * Returns and array with the port indexes sorted in priority order for elegibility based on a
  * primary orientation.
- * @param {Number} primaryOrientation The orientation index that will be the assumed as the 
+ * @param {Number} mainOrientation The orientation index that will be the assumed as the
  * prioritized one.
  * @param {Number} relativeX The relative position of origin respects destination in x axis.
  * @param {Number} relativeY The relative position of origin respects destination in y axis.
  * @returns {Array}
  */
-function getPortPriorityOrder(primaryOrientation, relativeX, relativeY) {
-  const secondaryOrientation = primaryOrientation === Port.ORIENTATION.HORIZONTAL
+function getPortPriorityOrder(mainOrientation, relativeX, relativeY) {
+  const crossOrientation = mainOrientation === Port.ORIENTATION.HORIZONTAL
     ? Port.ORIENTATION.VERTICAL : Port.ORIENTATION.HORIZONTAL;
-  const ports = Port.PRIORITY[primaryOrientation][primaryOrientation === Port.ORIENTATION.HORIZONTAL ? relativeX : relativeY];
-  const secondaryPorts = Port.PRIORITY[secondaryOrientation][secondaryOrientation === Port.ORIENTATION.HORIZONTAL
+  const mainPorts = Port.PRIORITY[mainOrientation][mainOrientation === Port.ORIENTATION.HORIZONTAL
+    ? relativeX : relativeY];
+  const crossPorts = Port.PRIORITY[crossOrientation][crossOrientation === Port.ORIENTATION.HORIZONTAL
     ? relativeX : relativeY];
 
-  ports.splice(1, 0, ...secondaryPorts);
+  mainPorts.splice(1, 0, ...crossPorts);
 
-  return ports;
+  return mainPorts;
 }
 
 /**
@@ -32,8 +33,10 @@ function getPortPriorityOrder(primaryOrientation, relativeX, relativeY) {
 function getConnectionPriorityPorts(origShape, destShape) {
   const origBounds = origShape.getBounds();
   const destBounds = destShape.getBounds();
+  const origPosition = origShape.getPosition();
+  const destPosition = destShape.getPosition();
   const { x: overlapX, y: overlapY } = Geometry.getOverlappedDimensions(origBounds, destBounds);
-  const { x: relativeX, y: relativeY } = Geometry.getNormalizedRelativePos(origShape.getPosition(), destShape.getPosition());
+  const { x: relativeX, y: relativeY } = Geometry.getNormalizedPosition(origPosition, destPosition);
   let origPorts;
   let destPorts;
 
@@ -66,203 +69,109 @@ function getConnectionPriorityPorts(origShape, destShape) {
   };
 }
 
+/**
+ * Return the next point based on the a point description and a distance.
+ * @param {Object} descriptor Point description.
+ * @param {Number} distance Amount of units to move the point.
+ * @returns {Point} A point.
+ */
+function getNextPoint(descriptor, distance) {
+  const { x, y } = descriptor.point;
+  const { orientation } = descriptor;
+
+  return {
+    x: x + (orientation === Port.ORIENTATION.HORIZONTAL ? distance : 0),
+    y: y + (orientation === Port.ORIENTATION.VERTICAL ? distance : 0),
+  };
+}
+
+/**
+ * Returns the next descriptor based on a previous one.
+ * @param {Object} descriptor The descriptor the next one will be calculated from.
+ * @param {Object} normalizedPos The normalized position.
+ * @param {Number} directionFactor The direction factor.
+ * @returns {Object} An object that represents a point descriptor.
+ */
+function getNextDescriptor(descriptor, normalizedPos, directionFactor) {
+  const { direction } = descriptor;
+  const point = getNextPoint(descriptor, Connection.ARROW_SEGMENT_LENGTH * direction);
+
+  return {
+    point,
+    orientation: descriptor.orientation === Port.ORIENTATION.HORIZONTAL
+      ? Port.ORIENTATION.VERTICAL : Port.ORIENTATION.HORIZONTAL,
+    direction: ((descriptor.orientation === Port.ORIENTATION.HORIZONTAL
+      ? normalizedPos.y : normalizedPos.x) * directionFactor) || 1,
+  };
+}
+
 export default {
+  /**
+   * Returns an array of intermediate points from an origin an a destiny point.
+   * @param {Object} orig The origin descriptor.
+   * @param {Object} dest The destiny descriptor.
+   * @returns {Array}
+   */
   getWaypoints(orig, dest) {
-    const relativePos = Geometry.getNormalizedRelativePos(orig.point, dest.point);
+    const normalizedPos = Geometry.getNormalizedPosition(orig.point, dest.point);
+    let target;
+    let directionFactor;
 
+    // orig point direction is opposite to its destiny.
+    if (orig.direction !== normalizedPos[orig.orientation]) {
+      target = orig;
+      directionFactor = 1;
+    // dest point direction is opposite to its destiny
+    } else if (dest.direction !== normalizedPos[dest.orientation] * -1) {
+      target = dest;
+      directionFactor = -1;
+    }
+
+    // if any of the point directions (orig or dest) is opposite respect each other
+    if (target) {
+      const newTarget = getNextDescriptor(target, normalizedPos, directionFactor);
+      const { point } = newTarget;
+
+      if (target === orig) {
+        return [point].concat(this.getWaypoints(newTarget, dest));
+      }
+
+      return this.getWaypoints(orig, newTarget).concat(point);
+    }
+
+    // None of the points (orig and dest) direction is opposite respect the other one.
     if (orig.orientation !== dest.orientation) {
-      let target;
-      let directionFactor;
-
-      if (orig.direction !== relativePos[orig.orientation]) { // orig point direction is opposite to its destiny.
-        target = orig;
-        directionFactor = 1;
-      } else if (dest.direction !== relativePos[dest.orientation] * -1) { // dest point direction is opposite to its destiny
-        target = dest;
-        directionFactor = -1;
-      }
-
-      if (target) { // if any of the point directions (orig or dest) is opposite respect each other
-        const { x, y } = target.point;
-        const point = {
-          x: x + (target.orientation === Port.ORIENTATION.HORIZONTAL ? Connection.ARROW_SEGMENT_LENGTH * target.direction : 0),
-          y: y + (target.orientation === Port.ORIENTATION.VERTICAL ? Connection.ARROW_SEGMENT_LENGTH * target.direction : 0),
-        };
-        const newTarget = {
-          point,
-          orientation: target.orientation === Port.ORIENTATION.HORIZONTAL ? Port.ORIENTATION.VERTICAL : Port.ORIENTATION.HORIZONTAL,
-          direction: ((target.orientation === Port.ORIENTATION.HORIZONTAL ? relativePos.y : relativePos.x) * directionFactor) || 1,
-        };
-
-        if (target === orig) {
-          return [point].concat(this.getWaypoints(newTarget, dest));
-        }
-
-        return this.getWaypoints(orig, newTarget).concat(point);
-      }
-
-      // None of the points (orig and dest) direction is opposite respect the other one.
       return [{
         x: orig.orientation === Port.ORIENTATION.HORIZONTAL ? dest.point.x : orig.point.x,
         y: dest.orientation === Port.ORIENTATION.HORIZONTAL ? dest.point.y : orig.point.y,
       }];
     }
 
-    if (orig.direction !== relativePos[orig.orientation]) {
-      const { x, y } = orig.point;
-
-      const point = {
-        x: x + (orig.orientation === Port.ORIENTATION.HORIZONTAL ? Connection.ARROW_SEGMENT_LENGTH * orig.direction : 0),
-        y: y + (orig.orientation === Port.ORIENTATION.VERTICAL ? Connection.ARROW_SEGMENT_LENGTH * orig.direction : 0), 
-      };
-
-      const newOrig = {
-        point, 
-        orientation: orig.orientation === Port.ORIENTATION.HORIZONTAL ? Port.ORIENTATION.VERTICAL :  Port.ORIENTATION.HORIZONTAL,
-        direction: (orig.orientation === Port.ORIENTATION.HORIZONTAL ? relativePos.y : relativePos.x) || 1,
-      };
-
-      return [point].concat(this.getWaypoints(newOrig, dest));
-    }
-
-    if (dest.direction !== relativePos[dest.orientation] * -1) {
-      const { x, y } = dest.point;
-
-      const point = {
-        x: x + (dest.orientation === Port.ORIENTATION.HORIZONTAL ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
-        y: y + (dest.orientation === Port.ORIENTATION.VERTICAL ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
-      };
-
-      const newDest = {
-        point,
-        orientation: dest.orientation === Port.ORIENTATION.HORIZONTAL ? Port.ORIENTATION.VERTICAL : Port.ORIENTATION.HORIZONTAL,
-        direction: ((dest.orientation === Port.ORIENTATION.HORIZONTAL ? relativePos.y : relativePos.x) * -1) || 1,
-      };
-
-      return this.getWaypoints(orig, newDest).concat(point);
-    }
-
+    // Both points have the same orientation (validated above) and they're at the same level
     if (orig.point.x === dest.point.x || orig.point.y === dest.point.y) {
       return [];
     }
 
-    const diff = (orig.orientation === Port.ORIENTATION.HORIZONTAL ? dest.point.x - orig.point.x : dest.point.y - orig.point.y) / 2;
+    const diff = (dest.point[orig.orientation] - orig.point[orig.orientation]) / 2;
 
-    return [{
-      x: orig.point.x + (orig.orientation === Port.ORIENTATION.HORIZONTAL ? diff : 0),
-      y: orig.point.y + (orig.orientation === Port.ORIENTATION.VERTICAL ? diff : 0),
-    }, {
-      x: dest.point.x - (dest.orientation === Port.ORIENTATION.HORIZONTAL ? diff : 0),
-      y: dest.point.y - (dest.orientation === Port.ORIENTATION.VERTICAL ? diff : 0),
-    }];
-
-    // const { x: relativeX, y: relativeY } = Geometry.getNormalizedRelativePos(orig.point, dest.point);
-    // const firstPoints = [];
-    // const lastPoints = [];
-
-    // if ((orig.orientation === Port.ORIENTATION.HORIZONTAL && orig.direction !== relativeX)
-    //   || (orig.orientation === Port.ORIENTATION.VERTICAL && orig.direction !== relativeY)) {
-    //   orig = {
-    //     point: {
-    //       x: orig.point.x + (orig.orientation ? Connection.ARROW_SEGMENT_LENGTH * orig.direction : 0),
-    //       y: orig.point.y + (!orig.orientation ? Connection.ARROW_SEGMENT_LENGTH * orig.direction : 0),
-    //     },
-    //     orientation: orig.orientation ? 0 : 1,
-    //     direction: (orig.orientation ? relativeY : relativeX) || 1,
-    //   };
-
-    //   firstPoints.push(orig.point);
-    // }
-
-    // if ((dest.orientation === Port.ORIENTATION.HORIZONTAL && dest.direction === relativeX)
-    //   || (dest.orientation === Port.ORIENTATION.VERTICAL && dest.direction === relativeY)) {
-    //   dest = {
-    //     point: {
-    //       x: dest.point.x + (dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
-    //       y: dest.point.y + (!dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
-    //     },
-    //     orientation: dest.orientation ? 0 : 1,
-    //     direction: ((dest.orientation ? relativeY : relativeX) * -1) || -1,
-    //   };
-
-    //   lastPoints.unshift(dest.point);
-    // }
-
-    // if (firstPoints.length || lastPoints.length) {
-    //   return firstPoints.concat(this.getWaypoints(orig, dest), lastPoints);
-    // }
-
-    // if (orig.orientation === dest.orientation) {
-    //   const { orientation } = orig;
-
-    //   if ((orientation === Port.ORIENTATION.HORIZONTAL && orig.point.y === dest.point.y)
-    //           || (orientation === Port.ORIENTATION.VERTICAL && orig.point.x === dest.point.x)) {
-    //     // points are face 2 face
-    //     return []; // There's no intermediate points.
-    //   }
-    //   let primaryGap = orientation ? Math.abs(dest.point.x - orig.point.x) : Math.abs(dest.point.y - orig.point.y);
-    //   const secondaryGap = orientation ? Math.abs(dest.point.y - orig.point.y) : Math.abs(dest.point.x - orig.point.x);
-
-    //   if (primaryGap / 2 < Connection.ARROW_SEGMENT_LENGTH && secondaryGap / 2 >= Connection.ARROW_SEGMENT_LENGTH) {
-    //     orig = {
-    //       point: {
-    //         x: orig.point.x + (orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeX : 0),
-    //         y: orig.point.y + (!orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeY : 0),
-    //       },
-    //       orientation: orig.orientation ? 0 : 1,
-    //       direction: orientation ? relativeY : relativeX,
-    //     };
-
-    //     dest = {
-    //       point: {
-    //         x: dest.point.x + (orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeX * -1 : 0),
-    //         y: dest.point.y + (!orientation ? Connection.ARROW_SEGMENT_LENGTH * relativeY * -1 : 0),
-    //       },
-    //       orientation: dest.orientation ? 0 : 1,
-    //       direction: (orientation ? relativeY : relativeX) * -1,
-    //     };
-
-    //     return [orig.point].concat(this.getWaypoints(orig, dest), dest.point);
-    //   }
-
-    //   primaryGap /= 2;
-
-    //   return [{
-    //     x: orig.point.x + (orientation ? primaryGap * relativeX : 0),
-    //     y: orig.point.y + (!orientation ? primaryGap * relativeY : 0),
-    //   }, {
-    //     x: dest.point.x + (orientation ? primaryGap * relativeX * -1 : 0),
-    //     y: dest.point.y + (!orientation ? primaryGap * relativeY * -1 : 0),
-    //   }];
-    // }
-    // const gapX = Math.abs(dest.point.x - orig.point.x);
-    // const gapY = Math.abs(dest.point.y - orig.point.y);
-
-    // if (gapX < Connection.ARROW_SEGMENT_LENGTH === gapY < Connection.ARROW_SEGMENT_LENGTH
-    //   || ((dest.orientation === Port.ORIENTATION.HORIZONTAL && gapX >= Connection.ARROW_SEGMENT_LENGTH)
-    //     || (dest.orientation === Port.ORIENTATION.VERTICAL && gapY >= Connection.ARROW_SEGMENT_LENGTH))) {
-    //   return [{
-    //     x: orig.orientation ? dest.point.x : orig.point.x,
-    //     y: orig.orientation ? orig.point.y : dest.point.y,
-    //   }];
-    // }
-    // dest = {
-    //   point: {
-    //     x: dest.point.x + (dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
-    //     y: dest.point.y + (!dest.orientation ? Connection.ARROW_SEGMENT_LENGTH * dest.direction : 0),
-    //   },
-    //   orientation: dest.orientation ? 0 : 1,
-    //   direction: (dest.orientation ? relativeY : relativeX) * -1,
-    // };
-
-    // return this.getWaypoints(orig, dest).concat(dest.point);
+    return [
+      getNextPoint(orig, diff),
+      getNextPoint(dest, diff * -1),
+    ];
   },
+  /**
+   * Returns the best-eligible ports for connect 2 shapes.
+   * @param {Shape} origShape Origin shape.
+   * @param {Shape} destShape Destination shape.
+   */
   getConnectionPortIndexes(origShape, destShape) {
     const candidatePorts = getConnectionPriorityPorts(origShape, destShape);
 
     return {
-      orig: candidatePorts.orig.find((portIndex) => origShape.hasAvailablePortFor(portIndex, Port.MODE.OUT)),
-      dest: candidatePorts.dest.find((portIndex) => destShape.hasAvailablePortFor(portIndex, Port.MODE.IN)),
+      orig: candidatePorts.orig.find((portIndex) => origShape.hasAvailablePortFor(portIndex,
+        Port.MODE.OUT)),
+      dest: candidatePorts.dest.find((portIndex) => destShape.hasAvailablePortFor(portIndex,
+        Port.MODE.IN)),
     };
   },
 };
