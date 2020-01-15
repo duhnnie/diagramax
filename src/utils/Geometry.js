@@ -67,4 +67,17 @@ export default {
       y: diffY ? diffY / Math.abs(diffY) : 0,
     };
   },
+  /**
+   * Verifies if two rect planes (defined by 2 points, min and max) are overlapped.
+   * @param {Object} rectA An object with the min and max points.
+   * @param {Object} rectB An object with the min and max points.
+   * @returns {Boolean}
+   */
+  isRectOverlapped(rectA, rectB) {
+    const { min: { x: aMinX, y: aMinY }, max: { x: aMaxX, y: aMaxY } } = rectA;
+    const { min: { x: bMinX, y: bMinY }, max: { x: bMaxX, y: bMaxY } } = rectB;
+
+    return ((aMinX > bMinX && aMinX < bMaxX) || (bMinX > aMinX && bMinX < aMaxX))
+      && ((aMinY > bMinY && aMinY < bMaxY) || (bMinY > aMinY && bMinY < aMaxY));
+  },
 };

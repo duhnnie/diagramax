@@ -1,4 +1,5 @@
 import Port from './Port';
+import Geometry from '../utils/Geometry';
 
 const getSegmentOrientation = function (segment) {
   if (segment[0].x === segment[1].x) {
@@ -69,11 +70,6 @@ const getIntersectedPoints = function (connectionA, connectionB) {
 export default {
   getIntersectionPoints(connection) {
     const connectionExtremePoints = connection.getBBoxExtremePoints();
-    const minX = connectionExtremePoints.min.x;
-    const minY = connectionExtremePoints.min.y;
-    const maxX = connectionExtremePoints.max.x;
-    const maxY = connectionExtremePoints.max.y;
-    const posibleIntersectedConnections = [];
     const canvas = connection.getCanvas();
     const otherConnections = (canvas && canvas.getConnections()) || [];
     const segments = {};
@@ -84,8 +80,7 @@ export default {
       if (otherConnection !== connection) {
         extremePoints = otherConnection.getBBoxExtremePoints();
 
-        if (((minX > extremePoints.min.x && minX < extremePoints.max.x) || (extremePoints.min.x > minX && extremePoints.min.x < maxX))
-                && ((minY > extremePoints.min.y && minY < extremePoints.max.y) || (extremePoints.min.y > minY && extremePoints.min.y < maxY))) {
+        if (Geometry.isRectOverlapped(connectionExtremePoints, extremePoints)) {
           const intersectedSegments = getIntersectedPoints(connection, otherConnection);
 
           for (let i = 0; i < intersectedSegments.length; i += 1) {
