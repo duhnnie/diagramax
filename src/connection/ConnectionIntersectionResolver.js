@@ -29,13 +29,14 @@ const getIntersectedPoints = function (connectionA, connectionB) {
   if (connectionA !== connectionB) {
     const segmentsA = connectionA.getSegments();
     const segmentsB = connectionB.getSegments();
-    const intersectionPoints = [];
+    const intersectionPoints = {};
 
     segmentsA.forEach((segmentA, index) => {
+      const orientationA = getSegmentOrientation(segmentA);
+
       segmentA = normalizeSegment(segmentA);
 
       segmentsB.forEach((segmentB) => {
-        const orientationA = getSegmentOrientation(segmentA);
         const orientationB = getSegmentOrientation(segmentB);
 
         segmentB = normalizeSegment(segmentB);
@@ -56,7 +57,9 @@ const getIntersectedPoints = function (connectionA, connectionB) {
           }
 
           if (point) {
-            intersectionPoints[index] = intersectionPoints[index] || [];
+            if (!intersectionPoints[index]) {
+              intersectionPoints[index] = [];
+            }
             intersectionPoints[index].push(point);
           }
         }
@@ -83,16 +86,12 @@ export default {
         extremePoints = otherConnection.getBBoxExtremePoints();
 
         if (Geometry.isRectOverlapped(connectionExtremePoints, extremePoints)) {
-          const intersectedSegments = getIntersectedPoints(connection, otherConnection);
+          const segmentIntersectionPoints = getIntersectedPoints(connection, otherConnection);
 
-          for (let i = 0; i < intersectedSegments.length; i += 1) {
-            const pointsInSegment = intersectedSegments[i];
-
-            if (pointsInSegment) {
-              segments[i] = segments[i] || [];
-              segments[i].push(...pointsInSegment);
-            }
-          }
+          Object.entries(segmentIntersectionPoints).forEach(([key, value]) => {
+            segments[key] = segments[key] || [];
+            segments[key].push(...value);
+          });
         }
       }
     });
