@@ -24,7 +24,7 @@ const normalizeSegment = function (segment) {
     },
   ];
 };
-
+// TODO: move to utils/move to Geometry.js
 const getIntersectedPoints = function (connectionA, connectionB) {
   if (connectionA !== connectionB) {
     const segmentsA = connectionA.getSegments();
@@ -65,6 +65,8 @@ const getIntersectedPoints = function (connectionA, connectionB) {
 
     return intersectionPoints;
   }
+
+  return [];
 };
 
 export default {

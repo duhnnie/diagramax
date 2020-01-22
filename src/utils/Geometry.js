@@ -80,4 +80,35 @@ export default {
     return ((aMinX > bMinX && aMinX < bMaxX) || (bMinX > aMinX && bMinX < aMaxX))
       && ((aMinY > bMinY && aMinY < bMaxY) || (bMinY > aMinY && bMinY < aMaxY));
   },
+  /**
+   * Returns value clamped to the inclusive range of min and max.
+   * @param {*} value The value to be clamped
+   * @param {*} limitA An inclusive border
+   * @param {*} limitB An inclusive border
+   */
+  clamp(value, limitA, limitB) {
+    const min = Math.min(limitA, limitB);
+    const max = Math.max(limitA, limitB);
+
+    if (value > max) {
+      return max;
+    }
+
+    if (value < min) {
+      return min;
+    }
+
+    return value;
+  },
+  /**
+   * Creates an object with point structure.
+   * @param {Number} x The x coordinate value.
+   * @param {Number} y The y coordinate value.
+   */
+  toPoint(x, y) {
+    return {
+      x,
+      y,
+    };
+  },
 };
