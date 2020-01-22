@@ -16,6 +16,14 @@ const INTERSECTION_SIZE = Object.freeze({
   HEIGHT: 8,
 });
 
+const toPointForX = function (mainValue, secondaryValue) {
+  return Geometry.toPoint(mainValue, secondaryValue);
+};
+
+const toPointForY = function (mainValue, secondaryValue) {
+  return Geometry.toPoint(secondaryValue, mainValue);
+};
+
 class Connection extends Component {
   static get ARROW_SEGMENT_LENGTH() {
     return 20;
@@ -69,68 +77,51 @@ class Connection extends Component {
       }
 
       intersections.forEach((intersection) => {
-        const halfArc = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
+        const halfArcWidth = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
+        let toPoint;
+        let axis;
+        let crossAxis;
 
         if (segmentOrientation === Port.ORIENTATION.X) {
-          let initialX = intersection.x + halfArc;
-          const finalX = Geometry.clamp(intersection.x - halfArc, to.x);
-
-          if (lastPoint && ((segmentDirection === 1 && initialX < lastPoint.x) || (segmentDirection === -1 && initialX > lastPoint.x))) {
-            const target = pathPieces.pop();
-            let { x } = lastPoint;
-
-            x = Geometry.clamp(finalX, lastPoint.x, to.x);
-            lastPoint = Geometry.toPoint(x, intersection.y);
-
-            target.pop();
-            target.pop();
-            target.push(Geometry.toPoint(x, intersection.y + Connection.INTERSECTION_SIZE.HEIGHT));
-            target.push(lastPoint);
-
-            pathPieces.push(target);
-          } else {
-            initialX = Geometry.clamp(initialX, from.x, to.x);
-
-            const intersectionPoints = [
-              Geometry.toPoint(initialX, intersection.y),
-              Geometry.toPoint(initialX, intersection.y + Connection.INTERSECTION_SIZE.HEIGHT),
-              Geometry.toPoint(finalX, intersection.y + Connection.INTERSECTION_SIZE.HEIGHT),
-              Geometry.toPoint(finalX, intersection.y),
-            ];
-
-            pathPieces.push(intersectionPoints);
-            lastPoint = _.last(intersectionPoints);
-          }
+          axis = 'x';
+          crossAxis = 'y';
+          toPoint = toPointForX;
         } else {
-          let initialY = intersection.y + halfArc;
-          const finalY = Geometry.clamp(intersection.y - halfArc, to.y);
+          axis = 'y';
+          crossAxis = 'x';
+          toPoint = toPointForY;
+        }
 
-          if (lastPoint && ((segmentDirection === 1 && initialY < lastPoint.y) || (segmentDirection === -1 && initialY > lastPoint.y))) {
-            const target = pathPieces.pop();
-            let { y } = lastPoint;
+        let initial = intersection[axis] + halfArcWidth;
+        const final = Geometry.clamp(intersection[axis] - halfArcWidth, to[axis]);
 
-            y = Geometry.clamp(finalY, lastPoint.y, to.y);
-            lastPoint = Geometry.toPoint(intersection.x, y);
+        if (lastPoint && ((segmentDirection === 1 && initial < lastPoint[axis])
+          || (segmentDirection === -1 && initial > lastPoint[axis]))) {
+          const targetPiece = pathPieces.pop();
+          let last = lastPoint[axis];
 
-            target.pop();
-            target.pop();
-            target.push(Geometry.toPoint(intersection.x + Connection.INTERSECTION_SIZE.HEIGHT, y));
-            target.push(lastPoint);
+          last = Geometry.clamp(final, lastPoint[axis], to[axis]);
+          lastPoint = toPoint(final, intersection[crossAxis]);
 
-            pathPieces.push(target);
-          } else {
-            initialY = Geometry.clamp(initialY, from.y, to.y);
+          targetPiece.pop();
+          targetPiece.pop();
+          targetPiece.push(toPoint(last,
+            intersection[crossAxis] + Connection.INTERSECTION_SIZE.HEIGHT));
+          targetPiece.push(lastPoint);
 
-            const intersectionPoints = [
-              Geometry.toPoint(intersection.x, initialY),
-              Geometry.toPoint(intersection.x + Connection.INTERSECTION_SIZE.HEIGHT, initialY),
-              Geometry.toPoint(intersection.x + Connection.INTERSECTION_SIZE.HEIGHT, finalY),
-              Geometry.toPoint(intersection.x, finalY),
-            ];
+          pathPieces.push(targetPiece);
+        } else {
+          initial = Geometry.clamp(initial, from[axis], to[axis]);
 
-            pathPieces.push(intersectionPoints);
-            lastPoint = _.last(intersectionPoints);
-          }
+          const intersectionPoints = [
+            toPoint(initial, intersection[crossAxis]),
+            toPoint(initial, intersection[crossAxis] + Connection.INTERSECTION_SIZE.HEIGHT),
+            toPoint(final, intersection[crossAxis] + Connection.INTERSECTION_SIZE.HEIGHT),
+            toPoint(final, intersection[crossAxis]),
+          ];
+
+          pathPieces.push(intersectionPoints);
+          lastPoint = _.last(intersectionPoints);
         }
       });
 
