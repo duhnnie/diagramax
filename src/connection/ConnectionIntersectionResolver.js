@@ -1,4 +1,5 @@
 import Port from './Port';
+import Geometry from '../utils/Geometry';
 
 const getSegmentOrientation = function (segment) {
   if (segment[0].x === segment[1].x) {
@@ -23,7 +24,7 @@ const normalizeSegment = function (segment) {
     },
   ];
 };
-
+// TODO: move to utils/move to Geometry.js
 const getIntersectedPoints = function (connectionA, connectionB) {
   if (connectionA !== connectionB) {
     const segmentsA = connectionA.getSegments();
@@ -31,10 +32,12 @@ const getIntersectedPoints = function (connectionA, connectionB) {
     const intersectionPoints = [];
 
     segmentsA.forEach((segmentA, index) => {
+      const orientationA = getSegmentOrientation(segmentA);
+      const points = [];
+
       segmentA = normalizeSegment(segmentA);
 
       segmentsB.forEach((segmentB) => {
-        const orientationA = getSegmentOrientation(segmentA);
         const orientationB = getSegmentOrientation(segmentB);
 
         segmentB = normalizeSegment(segmentB);
@@ -42,6 +45,7 @@ const getIntersectedPoints = function (connectionA, connectionB) {
         if (orientationA !== orientationB) {
           let point;
 
+          // TODO: move to a util function
           if (orientationA === Port.ORIENTATION.X && segmentA[0].y > segmentB[0].y && segmentA[0].y < segmentB[1].y && segmentB[0].x > segmentA[0].x && segmentB[0].x < segmentA[1].x) {
             point = {
               x: segmentB[0].x,
@@ -55,28 +59,26 @@ const getIntersectedPoints = function (connectionA, connectionB) {
           }
 
           if (point) {
-            intersectionPoints[index] = intersectionPoints[index] || [];
-            intersectionPoints[index].push(point);
+            points.push(point);
           }
         }
       });
+
+      intersectionPoints[index] = points;
     });
 
     return intersectionPoints;
   }
+
+  return [];
 };
 
 export default {
   getIntersectionPoints(connection) {
     const connectionExtremePoints = connection.getBBoxExtremePoints();
-    const minX = connectionExtremePoints.min.x;
-    const minY = connectionExtremePoints.min.y;
-    const maxX = connectionExtremePoints.max.x;
-    const maxY = connectionExtremePoints.max.y;
-    const posibleIntersectedConnections = [];
     const canvas = connection.getCanvas();
     const otherConnections = (canvas && canvas.getConnections()) || [];
-    const segments = {};
+    const segments = [];
 
     otherConnections.forEach((otherConnection) => {
       let extremePoints;
@@ -84,18 +86,20 @@ export default {
       if (otherConnection !== connection) {
         extremePoints = otherConnection.getBBoxExtremePoints();
 
-        if (((minX > extremePoints.min.x && minX < extremePoints.max.x) || (extremePoints.min.x > minX && extremePoints.min.x < maxX))
-                && ((minY > extremePoints.min.y && minY < extremePoints.max.y) || (extremePoints.min.y > minY && extremePoints.min.y < maxY))) {
-          const intersectedSegments = getIntersectedPoints(connection, otherConnection);
+        if (Geometry.isRectOverlapped(connectionExtremePoints, extremePoints)) {
+          const segmentIntersectionPoints = getIntersectedPoints(connection, otherConnection);
 
-          for (let i = 0; i < intersectedSegments.length; i += 1) {
-            const pointsInSegment = intersectedSegments[i];
-
-            if (pointsInSegment) {
-              segments[i] = segments[i] || [];
-              segments[i].push(...pointsInSegment);
+          segmentIntersectionPoints.forEach((points, index) => {
+            if (points) {
+              const intersectionPoints = points.map(point => ({
+                connection: otherConnection,
+                point,
+              }));
+  
+              segments[index] = segments[index] || [];
+              segments[index].push(...intersectionPoints);
             }
-          }
+          });
         }
       }
     });

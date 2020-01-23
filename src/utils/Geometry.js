@@ -67,4 +67,48 @@ export default {
       y: diffY ? diffY / Math.abs(diffY) : 0,
     };
   },
+  /**
+   * Verifies if two rect planes (defined by 2 points, min and max) are overlapped.
+   * @param {Object} rectA An object with the min and max points.
+   * @param {Object} rectB An object with the min and max points.
+   * @returns {Boolean}
+   */
+  isRectOverlapped(rectA, rectB) {
+    const { min: { x: aMinX, y: aMinY }, max: { x: aMaxX, y: aMaxY } } = rectA;
+    const { min: { x: bMinX, y: bMinY }, max: { x: bMaxX, y: bMaxY } } = rectB;
+
+    return ((aMinX > bMinX && aMinX < bMaxX) || (bMinX > aMinX && bMinX < aMaxX))
+      && ((aMinY > bMinY && aMinY < bMaxY) || (bMinY > aMinY && bMinY < aMaxY));
+  },
+  /**
+   * Returns value clamped to the inclusive range of min and max.
+   * @param {*} value The value to be clamped
+   * @param {*} limitA An inclusive border
+   * @param {*} limitB An inclusive border
+   */
+  clamp(value, limitA, limitB) {
+    const min = Math.min(limitA, limitB);
+    const max = Math.max(limitA, limitB);
+
+    if (value > max) {
+      return max;
+    }
+
+    if (value < min) {
+      return min;
+    }
+
+    return value;
+  },
+  /**
+   * Creates an object with point structure.
+   * @param {Number} x The x coordinate value.
+   * @param {Number} y The y coordinate value.
+   */
+  toPoint(x, y) {
+    return {
+      x,
+      y,
+    };
+  },
 };

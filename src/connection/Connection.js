@@ -4,10 +4,24 @@ import BPMNShape from '../shape/Shape';
 import ConnectionManager from './ConnectionManager';
 import Port from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
+import Geometry from '../utils/Geometry';
 
 const DEFAULTS = {
   origShape: null,
   destShape: null,
+};
+
+const INTERSECTION_SIZE = Object.freeze({
+  WIDTH: 10,
+  HEIGHT: 8,
+});
+
+const toPointForX = function (mainValue, secondaryValue) {
+  return Geometry.toPoint(mainValue, secondaryValue);
+};
+
+const toPointForY = function (mainValue, secondaryValue) {
+  return Geometry.toPoint(secondaryValue, mainValue);
 };
 
 class Connection extends Component {
@@ -16,10 +30,7 @@ class Connection extends Component {
   }
 
   static get INTERSECTION_SIZE() {
-    return Object.freeze({
-      WIDTH: 10,
-      HEIGHT: 8,
-    });
+    return INTERSECTION_SIZE;
   }
 
   static _getSegmentOrientation(from, to) {
@@ -56,30 +67,76 @@ class Connection extends Component {
     if (intersections.length) {
       const segmentOrientation = Connection._getSegmentOrientation(from, to);
       const segmentDirection = Connection._getSegmentDirection(from, to);
+      const pathPieces = [];
+      let lastPoint = null;
 
       if (segmentOrientation === Port.ORIENTATION.X) {
-        intersections.sort((a, b) => (a.x < b.x ? -1 : 1) * segmentDirection);
+        intersections.sort(({ point: a }, { point: b }) => (a.x < b.x ? -1 : 1) * segmentDirection);
       } else {
-        intersections.sort((a, b) => (a.y < b.y ? -1 : 1) * segmentDirection);
+        intersections.sort(({ point: a }, { point: b }) => (a.y < b.y ? -1 : 1) * segmentDirection);
       }
 
-      intersections.forEach((intersection) => {
-        let halfArc;
+      intersections.forEach(({ point: intersection }) => {
+        const halfArcWidth = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
+        let toPoint;
+        let axis;
+        let crossAxis;
 
         if (segmentOrientation === Port.ORIENTATION.X) {
-          halfArc = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
-          segmentString += ` L${intersection.x + halfArc} ${intersection.y}`
-                        + ` C${intersection.x + halfArc} ${intersection.y + Connection.INTERSECTION_SIZE.HEIGHT},`
-                        + ` ${intersection.x - halfArc} ${intersection.y + Connection.INTERSECTION_SIZE.HEIGHT},`
-                        + ` ${intersection.x - halfArc} ${intersection.y}`;
+          axis = 'x';
+          crossAxis = 'y';
+          toPoint = toPointForX;
         } else {
-          halfArc = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
-          segmentString += ` L${intersection.x} ${intersection.y + halfArc}`
-                        + ` C${intersection.x + Connection.INTERSECTION_SIZE.HEIGHT} ${intersection.y + halfArc},`
-                        + ` ${intersection.x + Connection.INTERSECTION_SIZE.HEIGHT} ${intersection.y - halfArc},`
-                        + ` ${intersection.x} ${intersection.y - halfArc}`;
+          axis = 'y';
+          crossAxis = 'x';
+          toPoint = toPointForY;
+        }
+
+        let initial = intersection[axis] + halfArcWidth;
+        const final = Geometry.clamp(intersection[axis] - halfArcWidth, to[axis]);
+
+        if (lastPoint && ((segmentDirection === 1 && initial < lastPoint[axis])
+          || (segmentDirection === -1 && initial > lastPoint[axis]))) {
+          const targetPiece = pathPieces.pop();
+          let last = lastPoint[axis];
+
+          last = Geometry.clamp(final, lastPoint[axis], to[axis]);
+          lastPoint = toPoint(final, intersection[crossAxis]);
+
+          targetPiece.pop();
+          targetPiece.pop();
+          targetPiece.push(toPoint(last,
+            intersection[crossAxis] + Connection.INTERSECTION_SIZE.HEIGHT));
+          targetPiece.push(lastPoint);
+
+          pathPieces.push(targetPiece);
+        } else {
+          initial = Geometry.clamp(initial, from[axis], to[axis]);
+
+          const intersectionPoints = [
+            toPoint(initial, intersection[crossAxis]),
+            toPoint(initial, intersection[crossAxis] + Connection.INTERSECTION_SIZE.HEIGHT),
+            toPoint(final, intersection[crossAxis] + Connection.INTERSECTION_SIZE.HEIGHT),
+            toPoint(final, intersection[crossAxis]),
+          ];
+
+          pathPieces.push(intersectionPoints);
+          lastPoint = _.last(intersectionPoints);
         }
       });
+
+      segmentString = pathPieces.map((piece) => piece.map((point, index) => {
+        const { x, y } = point;
+
+        if (index === 0) {
+          return `L${x} ${y}`;
+        }
+        if (index === 1) {
+          return ` C${x} ${y}`;
+        }
+
+        return `, ${x} ${y}`;
+      }).join('')).join(' ');
     }
 
     segmentString += ` L${to.x} ${to.y}`;
@@ -92,6 +149,8 @@ class Connection extends Component {
     this._points = [];
     this._origShape = null;
     this._destShape = null;
+    this._interceptors = new Set();
+    this._intersections = new Map();
 
     settings = {
       ...DEFAULTS,
@@ -102,13 +161,52 @@ class Connection extends Component {
       .setDestShape(settings.destShape);
   }
 
+  addInterceptor(connection) {
+    this._interceptors.add(connection);
+  }
+
+  _setIntersections(intersectionsSet) {
+    this._removeIntersections();
+
+    intersectionsSet.forEach((intersections, index) => {
+      if (intersections) {
+        intersections.forEach((intersection) => {
+          intersection.connection.addInterceptor(this);
+        });
+
+        this._intersections.set(index, intersections);
+      }
+    });
+  }
+
+  _removeIntersections(connection = null) {
+    if (connection) {
+      this._intersections.forEach((intersections, key) => {
+        this._intersections.set(key,
+          intersections.filter((intersection) => intersection.connection !== connection));
+      });
+
+      this._draw();
+    } else {
+      this._intersections.clear();
+    }
+  }
+
   _onShapeDragStart() {
     this._html.setAttribute('opacity', 0.3);
+
+    this._interceptors.forEach((connection) => connection._removeIntersections(this));
+
+    this._removeIntersections();
   }
 
   _onShapeDragEnd() {
     this._html.setAttribute('opacity', 1);
-    this._draw(ConnectionIntersectionResolver.getIntersectionPoints(this));
+
+    const intersections = ConnectionIntersectionResolver.getIntersectionPoints(this);
+
+    this._setIntersections(intersections);
+    this._draw();
   }
 
   _addDragListeners(shape) {
@@ -239,12 +337,12 @@ class Connection extends Component {
     return this._origShape === shape || this._destShape === shape;
   }
 
-  _draw(intersections = null) {
+  _draw() {
     const pointsLength = this._points.length;
     let pathString = '';
 
     if (pointsLength > 0) {
-      const points = this._points;
+      const { _points: points } = this;
       const lastSegmentOrientation = Connection._getSegmentOrientation(points[pointsLength - 2],
         points[pointsLength - 1]);
       const lastSegmentDirection = Connection._getSegmentDirection(points[pointsLength - 2],
@@ -253,12 +351,15 @@ class Connection extends Component {
         ? 2 + lastSegmentDirection
         : 1 + (lastSegmentDirection * -1));
 
-      intersections = intersections || [];
-
       pathString += `M${points[0].x} ${points[0].y}`;
 
       for (let i = 1; i < pointsLength; i += 1) {
-        pathString += Connection.getSegmentDrawing(points[i - 1], points[i], intersections[i - 1]);
+        const pathIntersections = this._intersections.get(i - 1);
+
+        pathString += Connection.getSegmentDrawing(
+          points[i - 1], points[i],
+          pathIntersections && pathIntersections.slice(0),
+        );
       }
 
       this._dom.arrow.setAttribute('transform', `translate(${points[points.length - 1].x}, ${points[points.length - 1].y})`);
@@ -277,7 +378,7 @@ class Connection extends Component {
       let waypoints;
       const portIndexes = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
       const origPortDescriptor = this._origShape.getPortDescriptor(portIndexes.orig);
-      const destPortDescriptor = this._destShape.getPortDescriptor(portIndexes.dest); 
+      const destPortDescriptor = this._destShape.getPortDescriptor(portIndexes.dest);
 
       if (origPortDescriptor) {
         this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex);
