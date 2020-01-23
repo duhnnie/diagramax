@@ -29,10 +29,11 @@ const getIntersectedPoints = function (connectionA, connectionB) {
   if (connectionA !== connectionB) {
     const segmentsA = connectionA.getSegments();
     const segmentsB = connectionB.getSegments();
-    const intersectionPoints = {};
+    const intersectionPoints = [];
 
     segmentsA.forEach((segmentA, index) => {
       const orientationA = getSegmentOrientation(segmentA);
+      const points = [];
 
       segmentA = normalizeSegment(segmentA);
 
@@ -44,6 +45,7 @@ const getIntersectedPoints = function (connectionA, connectionB) {
         if (orientationA !== orientationB) {
           let point;
 
+          // TODO: move to a util function
           if (orientationA === Port.ORIENTATION.X && segmentA[0].y > segmentB[0].y && segmentA[0].y < segmentB[1].y && segmentB[0].x > segmentA[0].x && segmentB[0].x < segmentA[1].x) {
             point = {
               x: segmentB[0].x,
@@ -57,13 +59,12 @@ const getIntersectedPoints = function (connectionA, connectionB) {
           }
 
           if (point) {
-            if (!intersectionPoints[index]) {
-              intersectionPoints[index] = [];
-            }
-            intersectionPoints[index].push(point);
+            points.push(point);
           }
         }
       });
+
+      intersectionPoints[index] = points;
     });
 
     return intersectionPoints;
@@ -77,7 +78,7 @@ export default {
     const connectionExtremePoints = connection.getBBoxExtremePoints();
     const canvas = connection.getCanvas();
     const otherConnections = (canvas && canvas.getConnections()) || [];
-    const segments = {};
+    const segments = [];
 
     otherConnections.forEach((otherConnection) => {
       let extremePoints;
@@ -88,9 +89,16 @@ export default {
         if (Geometry.isRectOverlapped(connectionExtremePoints, extremePoints)) {
           const segmentIntersectionPoints = getIntersectedPoints(connection, otherConnection);
 
-          Object.entries(segmentIntersectionPoints).forEach(([key, value]) => {
-            segments[key] = segments[key] || [];
-            segments[key].push(...value);
+          segmentIntersectionPoints.forEach((points, index) => {
+            if (points) {
+              const intersectionPoints = points.map(point => ({
+                connection: otherConnection,
+                point,
+              }));
+  
+              segments[index] = segments[index] || [];
+              segments[index].push(...intersectionPoints);
+            }
           });
         }
       }

@@ -71,12 +71,12 @@ class Connection extends Component {
       let lastPoint = null;
 
       if (segmentOrientation === Port.ORIENTATION.X) {
-        intersections.sort((a, b) => (a.x < b.x ? -1 : 1) * segmentDirection);
+        intersections.sort(({ point: a }, { point: b }) => (a.x < b.x ? -1 : 1) * segmentDirection);
       } else {
-        intersections.sort((a, b) => (a.y < b.y ? -1 : 1) * segmentDirection);
+        intersections.sort(({ point: a }, { point: b }) => (a.y < b.y ? -1 : 1) * segmentDirection);
       }
 
-      intersections.forEach((intersection) => {
+      intersections.forEach(({ point: intersection }) => {
         const halfArcWidth = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
         let toPoint;
         let axis;
@@ -149,8 +149,8 @@ class Connection extends Component {
     this._points = [];
     this._origShape = null;
     this._destShape = null;
-    this._interceptor = new Set();
-    this._intersections = [];
+    this._interceptors = new Set();
+    this._intersections = new Map();
 
     settings = {
       ...DEFAULTS,
@@ -161,18 +161,51 @@ class Connection extends Component {
       .setDestShape(settings.destShape);
   }
 
-  _addInterceptor(connection) {
-    this._interceptor.add(connection);
+  addInterceptor(connection) {
+    this._interceptors.add(connection);
+  }
+
+  _setIntersections(intersectionsSet) {
+    this._removeIntersections();
+
+    intersectionsSet.forEach((intersections, index) => {
+      if (intersections) {
+        intersections.forEach((intersection) => {
+          intersection.connection.addInterceptor(this);
+        });
+
+        this._intersections.set(index, intersections);
+      }
+    });
+  }
+
+  _removeIntersections(connection = null) {
+    if (connection) {
+      this._intersections.forEach((intersections, key) => {
+        this._intersections.set(key,
+          intersections.filter((intersection) => intersection.connection !== connection));
+      });
+
+      this._draw();
+    } else {
+      this._intersections.clear();
+    }
   }
 
   _onShapeDragStart() {
     this._html.setAttribute('opacity', 0.3);
-    this._intersections = [];
+
+    this._interceptors.forEach((connection) => connection._removeIntersections(this));
+
+    this._removeIntersections();
   }
 
   _onShapeDragEnd() {
     this._html.setAttribute('opacity', 1);
-    this._intersections = ConnectionIntersectionResolver.getIntersectionPoints(this);
+
+    const intersections = ConnectionIntersectionResolver.getIntersectionPoints(this);
+
+    this._setIntersections(intersections);
     this._draw();
   }
 
@@ -321,7 +354,12 @@ class Connection extends Component {
       pathString += `M${points[0].x} ${points[0].y}`;
 
       for (let i = 1; i < pointsLength; i += 1) {
-        pathString += Connection.getSegmentDrawing(points[i - 1], points[i], this._intersections[i - 1]);
+        const pathIntersections = this._intersections.get(i - 1);
+
+        pathString += Connection.getSegmentDrawing(
+          points[i - 1], points[i],
+          pathIntersections && pathIntersections.slice(0),
+        );
       }
 
       this._dom.arrow.setAttribute('transform', `translate(${points[points.length - 1].x}, ${points[points.length - 1].y})`);
