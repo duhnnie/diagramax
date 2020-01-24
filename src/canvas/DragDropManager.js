@@ -105,7 +105,7 @@ class DragAndDropManager {
             this._canvas._dom.container.appendChild(this._dom.line);
           }
         }
-        if (this._target) {
+        if (this._target && dragged) {
           this._canvas.dispatchEvent(BPMNShape.EVENT.DRAG_END, this._target);
         }
         this._target = null;
