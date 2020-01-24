@@ -165,6 +165,50 @@ class Connection extends Component {
     this._interceptors.add(connection);
   }
 
+  /**
+   * Add a new intersection point.
+   * @param {Number} segmentIndex The index of the segment the intersection will be draw over.
+   * @param {Connection} connection The connection that the intersection crosses.
+   * @param {Point} point The intersection point.
+   */
+  addIntersection(segmentIndex, connection, point) {
+    let intersections = this._intersections.get(segmentIndex);
+
+    if (!intersections) {
+      intersections = [];
+
+      this._intersections.set(segmentIndex, intersections);
+    }
+
+    intersections.push({
+      connection,
+      point,
+    });
+  }
+
+  /**
+   * Determines if a intersection point already exists in any of the segments of a Connection.
+   * @param {Point} point The point to find
+   * @returns {Boolean}
+   */
+  hasIntersectionPoint(x, y) {
+    const iterator = this._intersections.entries();
+    let current = iterator.next();
+
+    while (!current.done) {
+      const [, points] = current.value;
+      const found = points.find(({ point }) => x === point.x && y === point.y);
+
+      if (found) {
+        return true;
+      }
+
+      current = iterator.next();
+    }
+
+    return false;
+  }
+
   _setIntersections(intersectionsSet) {
     this._removeIntersections();
 

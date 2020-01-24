@@ -37,7 +37,7 @@ const getIntersectedPoints = function (connectionA, connectionB) {
 
       segmentA = normalizeSegment(segmentA);
 
-      segmentsB.forEach((segmentB) => {
+      segmentsB.forEach((segmentB, segmentIndex) => {
         const orientationB = getSegmentOrientation(segmentB);
 
         segmentB = normalizeSegment(segmentB);
@@ -59,7 +59,11 @@ const getIntersectedPoints = function (connectionA, connectionB) {
           }
 
           if (point) {
-            points.push(point);
+            if (connectionB.hasIntersectionPoint(point.x, point.y)) {
+              connectionB.addIntersection(segmentIndex, connectionA, point);
+            } else {
+              points.push(point);
+            }
           }
         }
       });
