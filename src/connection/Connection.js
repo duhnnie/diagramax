@@ -186,6 +186,29 @@ class Connection extends Component {
     });
   }
 
+  /**
+   * Determines if a intersection point already exists in any of the segments of a Connection.
+   * @param {Point} point The point to find
+   * @returns {Boolean}
+   */
+  hasIntersectionPoint(x, y) {
+    const iterator = this._intersections.entries();
+    let current = iterator.next();
+
+    while (!current.done) {
+      const [, points] = current.value;
+      const found = points.find(({ point }) => x === point.x && y === point.y);
+
+      if (found) {
+        return true;
+      }
+
+      current = iterator.next();
+    }
+
+    return false;
+  }
+
   _setIntersections(intersectionsSet) {
     this._removeIntersections();
 
