@@ -333,24 +333,14 @@ class Connection extends Component {
     return this._destShape;
   }
 
-  getBBoxExtremePoints() {
-    if (this._html) {
-      const bbox = this._dom.path.getBBox();
+  getBounds() {
+    const bbox = this._dom.path.getBBox();
 
-      return {
-        min: {
-          x: bbox.x,
-          y: bbox.y,
-        },
-        max: {
-          x: bbox.x + bbox.width,
-          y: bbox.y + bbox.height,
-        },
-      };
-    }
     return {
-      min: { x: 0, y: 0 },
-      max: { x: 0, y: 0 },
+      top: bbox.y || 0,
+      right: (bbox.x + bbox.width) || 0,
+      bottom: (bbox.y + bbox.height) || 0,
+      left: bbox.y || 0,
     };
   }
 

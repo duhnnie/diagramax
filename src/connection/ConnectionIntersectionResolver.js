@@ -79,18 +79,18 @@ const getIntersectedPoints = function (connectionA, connectionB) {
 
 export default {
   getIntersectionPoints(connection) {
-    const connectionExtremePoints = connection.getBBoxExtremePoints();
+    const bounds = connection.getBounds();
     const canvas = connection.getCanvas();
     const otherConnections = (canvas && canvas.getConnections()) || [];
     const segments = [];
 
     otherConnections.forEach((otherConnection) => {
-      let extremePoints;
+      let otherBounds;
 
       if (otherConnection !== connection) {
-        extremePoints = otherConnection.getBBoxExtremePoints();
+        otherBounds = otherConnection.getBounds();
 
-        if (Geometry.isRectOverlapped(connectionExtremePoints, extremePoints)) {
+        if (Geometry.areOverlapped(bounds, otherBounds)) {
           const segmentIntersectionPoints = getIntersectedPoints(connection, otherConnection);
 
           segmentIntersectionPoints.forEach((points, index) => {

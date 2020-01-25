@@ -68,17 +68,15 @@ export default {
     };
   },
   /**
-   * Verifies if two rect planes (defined by 2 points, min and max) are overlapped.
-   * @param {Object} rectA An object with the min and max points.
-   * @param {Object} rectB An object with the min and max points.
+   * Verifies if two planes (defined by a boundary object) are overlapped.
+   * @param {Object} boundsA An boundary object.
+   * @param {Object} boundsB An boundary object.
    * @returns {Boolean}
    */
-  isRectOverlapped(rectA, rectB) {
-    const { min: { x: aMinX, y: aMinY }, max: { x: aMaxX, y: aMaxY } } = rectA;
-    const { min: { x: bMinX, y: bMinY }, max: { x: bMaxX, y: bMaxY } } = rectB;
+  areOverlapped(boundsA, boundsB) {
+    const { x, y } = this.getOverlappedDimensions(boundsA, boundsB);
 
-    return ((aMinX > bMinX && aMinX < bMaxX) || (bMinX > aMinX && bMinX < aMaxX))
-      && ((aMinY > bMinY && aMinY < bMaxY) || (bMinY > aMinY && bMinY < aMaxY));
+    return x && y;
   },
   /**
    * Returns value clamped to the inclusive range of min and max.
