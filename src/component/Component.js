@@ -77,6 +77,8 @@ class Component extends Element {
     return this;
   }
 
+  getBounds() { throw new Error('getBounds() should be implemented.'); }
+
   _createHTML() {
     let wrapper;
     let title;
