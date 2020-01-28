@@ -172,15 +172,15 @@ class Connection extends Component {
    * @param {Point} point The intersection point.
    */
   addIntersection(segmentIndex, connection, point) {
-    let intersections = this._intersections.get(segmentIndex);
+    let segmentIntersections = this._intersections.get(segmentIndex);
 
-    if (!intersections) {
-      intersections = [];
+    if (!segmentIntersections) {
+      segmentIntersections = [];
 
-      this._intersections.set(segmentIndex, intersections);
+      this._intersections.set(segmentIndex, segmentIntersections);
     }
 
-    intersections.push({
+    segmentIntersections.push({
       connection,
       point,
     });
