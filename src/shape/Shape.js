@@ -1,4 +1,3 @@
-import Geometry from '../utils/Geometry';
 import Component from '../component/Component';
 import Port from '../connection/Port';
 import Connection from '../connection/Connection';
@@ -10,40 +9,16 @@ const DEFAULTS = {
   },
 };
 
+const EVENT = Object.freeze({
+  DRAG_START: 'dragstart',
+  DRAG: 'drag',
+  DRAG_END: 'dragend',
+});
+
 class Shape extends Component {
   static get EVENT() {
-    return {
-      DRAG_START: 'dragstart',
-      DRAG: 'drag',
-      DRAG_END: 'dragend',
-    };
+    return EVENT;
   }
-
-  // static getIntersectionBounds(shapeA, shapeB) {
-  //   const aBounds = shapeA.getBounds();
-  //   const bBounds = shapeB.getBounds();
-  //   const bounds = {};
-  //   const diffX = shapeB.getPosition().x - shapeA.getPosition().x;
-  //   const diffY = shapeB.getPosition().y - shapeA.getPosition().y;
-
-
-
-  //   if (Geometry.isInBetween(bBounds.left, aBounds.left, aBounds.right)) {
-  //     bounds.left = bBounds.left;
-  //   } else if (Geometry.isInBetween(aBounds.left, bBounds.left, bBounds.right)) {
-  //     bounds.left = aBounds.left;
-  //   } else {
-  //     bounds.left = null;
-  //   }
-
-  //   if (aBounds.left < bBounds.right && aBounds.right > bBounds.right) {
-  //     bounds.right = aBounds.right;
-  //   } else if () {
-
-  //   }
-
-
-  // }
 
   constructor(settings) {
     super(settings);
