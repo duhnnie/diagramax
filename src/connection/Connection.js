@@ -209,10 +209,12 @@ class Connection extends Component {
     return false;
   }
 
-  _setIntersections(intersectionsSet) {
+  _updateIntersectionPoints() {
+    const intersectionsArray = ConnectionIntersectionResolver.getIntersectionPoints(this);
+
     this._removeIntersections();
 
-    intersectionsSet.forEach((intersections, index) => {
+    intersectionsArray.forEach((intersections, index) => {
       if (intersections) {
         intersections.forEach((intersection) => {
           intersection.connection.addInterceptor(this);
@@ -249,7 +251,7 @@ class Connection extends Component {
 
     const intersections = ConnectionIntersectionResolver.getIntersectionPoints(this);
 
-    this._setIntersections(intersections);
+    this._updateIntersectionPoints(intersections);
     this._draw();
   }
 
