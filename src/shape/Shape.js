@@ -10,17 +10,7 @@ const DEFAULTS = {
   },
 };
 
-const EVENT = Object.freeze({
-  DRAG_START: 'dragstart',
-  DRAG: 'drag',
-  DRAG_END: 'dragend',
-});
-
 class Shape extends Component {
-  static get EVENT() {
-    return EVENT;
-  }
-
   constructor(settings) {
     super(settings);
     this._width = null;

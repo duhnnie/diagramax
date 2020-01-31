@@ -7,6 +7,12 @@ const DEFAULTS = Object.freeze({
   onEnd: _.noop,
 });
 
+export const EVENT = Object.freeze({
+  START: 'dragstart',
+  DRAG: 'drag',
+  END: 'dragend',
+});
+
 class DragAndDropBehavior extends Behavior {
   constructor(target, settings) {
     if (!(target instanceof Shape)) {
@@ -34,17 +40,17 @@ class DragAndDropBehavior extends Behavior {
   _onStart(point) {
     // TODO: When Element inherits from EventTarget, the method
     // should trigger the event from itself.
-    this._target.getCanvas().dispatchEvent(Shape.EVENT.DRAG_START, this._target);
+    this._target.getCanvas().dispatchEvent(EVENT.START, this._target);
     this._options.onStart(point);
   }
 
   _onDrag(point) {
-    this._target.getCanvas().dispatchEvent(Shape.EVENT.DRAG);
+    this._target.getCanvas().dispatchEvent(EVENT.DRAG);
     this._options.onDrag(point);
   }
 
   _onEnd(point) {
-    this._target.getCanvas().dispatchEvent(Shape.EVENT.END);
+    this._target.getCanvas().dispatchEvent(EVENT.END);
     this._options.onEnd(point);
   }
 

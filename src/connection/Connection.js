@@ -5,6 +5,7 @@ import ConnectionManager from './ConnectionManager';
 import Port from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
+import { EVENT as DRAG_EVENT } from '../behavior/DragNDropBehavior';
 
 const DEFAULTS = {
   origShape: null,
@@ -256,16 +257,16 @@ class Connection extends Component {
   }
 
   _addDragListeners(shape) {
-    this._canvas.addEventListener(BPMNShape.EVENT.DRAG_START, shape, this._onShapeDragStart, this);
-    this._canvas.addEventListener(BPMNShape.EVENT.DRAG_END, shape, this._onShapeDragEnd, this);
+    this._canvas.addEventListener(DRAG_EVENT.START, shape, this._onShapeDragStart, this);
+    this._canvas.addEventListener(DRAG_EVENT.END, shape, this._onShapeDragEnd, this);
 
     return this;
   }
 
   _removeDragListeners(shape) {
-    this._canvas.removeEventListener(BPMNShape.EVENT.DRAG_START, shape, this._onShapeDragStart,
+    this._canvas.removeEventListener(DRAG_EVENT.START, shape, this._onShapeDragStart,
       this);
-    this._canvas.removeEventListener(BPMNShape.EVENT.DRAG_END, shape, this._onShapeDragEnd,
+    this._canvas.removeEventListener(DRAG_EVENT.END, shape, this._onShapeDragEnd,
       this);
 
     return this;

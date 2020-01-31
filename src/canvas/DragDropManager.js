@@ -1,6 +1,6 @@
 import Element from '../core/Element';
 import BPMNShape from '../shape/Shape';
-
+// Deprecated
 class DragAndDropManager {
   constructor(canvas) {
     this._canvas = canvas;
