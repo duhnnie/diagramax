@@ -1,5 +1,6 @@
 import Element from '../core/Element';
 import EventBus from './EventBus';
+import FluidDraggingAreaBehavior from '../behavior/FluidDraggingAreaBehavior';
 import DragAndDropManager from './DragDropManager';
 import BPMNShape from '../shape/Shape';
 import Connection from '../connection/Connection';
@@ -14,7 +15,8 @@ class Canvas extends Element {
     this._dom = {};
     this._eventBus = new EventBus();
     this._onSelectShapeHandler = null;
-    this._dragAndDropManager = null;
+    this._draggingAreaBehavior = new FluidDraggingAreaBehavior(this);
+    // this._dragAndDropManager = null;
 
     settings = $.extend({
       width: 800,
@@ -28,7 +30,7 @@ class Canvas extends Element {
       .setHeight(settings.height)
       .setOnSelectShapeCallback(settings.onSelectShape);
 
-    this._dragAndDropManager = new DragAndDropManager(this);
+    // this._dragAndDropManager = new DragAndDropManager(this);
 
     this.setElements(settings.elements);
   }
@@ -83,7 +85,7 @@ class Canvas extends Element {
       }
 
       element.setCanvas(this);
-      this._dragAndDropManager.registerShape(element);
+      // this._dragAndDropManager.registerShape(element);
 
       if (this._html) {
         this._dom.container.appendChild(element.getHTML());
@@ -100,7 +102,7 @@ class Canvas extends Element {
   removeElement(element) {
     if (this.hasElement(element)) {
       this._shapes.delete(element) || this._connections.delete(element);
-      this._dragAndDropManager.unregisterShape(element);
+      // this._dragAndDropManager.unregisterShape(element);
       element.removeFromCanvas();
     }
 
@@ -177,6 +179,10 @@ class Canvas extends Element {
     return this;
   }
 
+  setDraggableShape(dragBehavior, initDragPoint) {
+    this._draggingAreaBehavior.setDraggableShape(dragBehavior, initDragPoint);
+  }
+
   _createHTML() {
     let svg;
     let g;
@@ -201,7 +207,11 @@ class Canvas extends Element {
     this._html = svg;
 
     this.setWidth(this._width)
-      .setHeight(this._height);
+      .setHeight(this._height)
+      ._draggingAreaBehavior.attachBehavior();
+    // TODO: When migrate to EventTarget dispatch and event an make the attachment on
+    // the behavior itself.
+    // TODO: When migrate to WebComponents attach behavior on connecting.
 
     return this.setElements([...this._shapes].slice(0))
       .setID(this._id);

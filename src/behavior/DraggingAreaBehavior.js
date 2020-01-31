@@ -9,7 +9,9 @@ class DraggingAreaBehavior extends Behavior {
     this._onMouseMove = this._onMouseMove.bind(this);
   }
 
-  setDraggableShape(dragBehavior, { x, y }) {
+  setDraggableShape(dragBehavior, initDragPoint) {
+    const { x = null, y = null} = initDragPoint || {};
+
     this._dragBehavior = dragBehavior;
     this._lastPosition = { x, y };
   }
@@ -22,12 +24,14 @@ class DraggingAreaBehavior extends Behavior {
 
       if (diffs) {
         this._dragBehavior.updatePosition(diffs);
+        this._lastPosition.x = event.clientX;
+        this._lastPosition.y = event.clientY;
       }
     }
   }
 
-  applyBehavior() {
-    this._target.addEventListener('mousemove', this._onMouseMove, false);
+  attachBehavior() {
+    this._target.getHTML().addEventListener('mousemove', this._onMouseMove, false);
 
     return this;
   }

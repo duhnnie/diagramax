@@ -1,6 +1,7 @@
 import Component from '../component/Component';
 import Port from '../connection/Port';
 import Connection from '../connection/Connection';
+import RegularDragNDropBehavior from '../behavior/RegularDragNDropBehavior';
 
 const DEFAULTS = {
   position: {
@@ -28,6 +29,7 @@ class Shape extends Component {
     this._y = null;
     this._connections = new Set();
     this._ports = [];
+    this._dragAndDropBehavior = new RegularDragNDropBehavior(this);
     this.__bulkAction = false;
 
     settings = {
@@ -320,6 +322,8 @@ class Shape extends Component {
     super._createHTML();
     this._html.setAttribute('class', 'shape');
     this._html.setAttribute('transform', `translate(${this._x}, ${this._y})`);
+
+    this._dragAndDropBehavior.attachBehavior();
 
     return this;
   }
