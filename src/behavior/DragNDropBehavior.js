@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import Behavior from './Behavior';
 import Shape from '../shape/Shape';
 
@@ -96,8 +97,10 @@ class DragAndDropBehavior extends Behavior {
 
       canvas.setDraggableShape(null);
       this._grabbed = false;
-      this._dragging = false;
-      this._onEnd(this._target.getPosition());
+      if (this._dragging) {
+        this._dragging = false;
+        this._onEnd(this._target.getPosition());
+      }
     }
   }
 
