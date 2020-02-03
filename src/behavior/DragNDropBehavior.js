@@ -45,12 +45,12 @@ class DragAndDropBehavior extends Behavior {
   }
 
   _onDrag(point) {
-    this._target.getCanvas().dispatchEvent(EVENT.DRAG);
+    this._target.getCanvas().dispatchEvent(EVENT.DRAG, this._target);
     this._options.onDrag(point);
   }
 
   _onEnd(point) {
-    this._target.getCanvas().dispatchEvent(EVENT.END);
+    this._target.getCanvas().dispatchEvent(EVENT.END, this._target);
     this._options.onEnd(point);
   }
 
@@ -99,6 +99,10 @@ class DragAndDropBehavior extends Behavior {
       this._dragging = false;
       this._onEnd(this._target.getPosition());
     }
+  }
+
+  isDragging() {
+    return this._dragging;
   }
 
   attachBehavior() {

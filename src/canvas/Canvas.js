@@ -1,7 +1,7 @@
 import Element from '../core/Element';
 import EventBus from './EventBus';
 import FluidDraggingAreaBehavior from '../behavior/FluidDraggingAreaBehavior';
-import DragAndDropManager from './DragDropManager';
+import ConnectivityAreaBehavior from '../behavior/ConnectivityAreaBehavior';
 import BPMNShape from '../shape/Shape';
 import Connection from '../connection/Connection';
 
@@ -16,9 +16,9 @@ class Canvas extends Element {
     this._eventBus = new EventBus();
     this._onSelectShapeHandler = null;
     this._draggingAreaBehavior = new FluidDraggingAreaBehavior(this);
-    // this._dragAndDropManager = null;
+    this._connectivityAreaBehavior = new ConnectivityAreaBehavior(this);
 
-    settings = $.extend({
+    settings = _.merge({
       width: 800,
       height: 600,
       onSelectShape: null,
@@ -29,8 +29,6 @@ class Canvas extends Element {
     this.setWidth(settings.width)
       .setHeight(settings.height)
       .setOnSelectShapeCallback(settings.onSelectShape);
-
-    // this._dragAndDropManager = new DragAndDropManager(this);
 
     this.setElements(settings.elements);
   }
@@ -102,7 +100,6 @@ class Canvas extends Element {
   removeElement(element) {
     if (this.hasElement(element)) {
       this._shapes.delete(element) || this._connections.delete(element);
-      // this._dragAndDropManager.unregisterShape(element);
       element.removeFromCanvas();
     }
 
@@ -147,7 +144,7 @@ class Canvas extends Element {
     return this;
   }
 
-  connect(origin, destination, connection_id) {
+  connect(origin, destination, connection_id = null) {
     let connection;
     origin = origin instanceof BPMNShape ? origin : this.getElementById(origin);
     destination = destination instanceof BPMNShape ? destination : this.getElementById(destination);
@@ -183,6 +180,14 @@ class Canvas extends Element {
     this._draggingAreaBehavior.setDraggableShape(dragBehavior, initDragPoint);
   }
 
+  getConnectivityAreaBehavior() {
+    return this._connectivityAreaBehavior;
+  }
+
+  getContainer() {
+    return this._dom.container;
+  }
+
   _createHTML() {
     let svg;
     let g;
@@ -207,8 +212,10 @@ class Canvas extends Element {
     this._html = svg;
 
     this.setWidth(this._width)
-      .setHeight(this._height)
-      ._draggingAreaBehavior.attachBehavior();
+      .setHeight(this._height);
+
+    this._connectivityAreaBehavior.attachBehavior();
+    this._draggingAreaBehavior.attachBehavior();
     // TODO: When migrate to EventTarget dispatch and event an make the attachment on
     // the behavior itself.
     // TODO: When migrate to WebComponents attach behavior on connecting.

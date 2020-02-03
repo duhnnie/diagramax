@@ -2,6 +2,7 @@ import Component from '../component/Component';
 import Port from '../connection/Port';
 import Connection from '../connection/Connection';
 import RegularDragNDropBehavior from '../behavior/RegularDragNDropBehavior';
+import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
 
 const DEFAULTS = {
   position: {
@@ -20,6 +21,7 @@ class Shape extends Component {
     this._connections = new Set();
     this._ports = [];
     this._dragAndDropBehavior = new RegularDragNDropBehavior(this);
+    this._connectivityBehavior = new ConnectivityBehavior(this);
     this.__bulkAction = false;
 
     settings = {
@@ -257,6 +259,10 @@ class Shape extends Component {
     return this._connections.has(connection);
   }
 
+  isBeingDragged() {
+    return this._dragAndDropBehavior.isDragging();
+  }
+
   removeFromCanvas() {
     const oldCanvas = this._canvas;
 
@@ -313,6 +319,7 @@ class Shape extends Component {
     this._html.setAttribute('class', 'shape');
     this._html.setAttribute('transform', `translate(${this._x}, ${this._y})`);
 
+    this._connectivityBehavior.attachBehavior();
     this._dragAndDropBehavior.attachBehavior();
 
     return this;

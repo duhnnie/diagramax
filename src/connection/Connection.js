@@ -343,7 +343,7 @@ class Connection extends Component {
       top: bbox.y || 0,
       right: (bbox.x + bbox.width) || 0,
       bottom: (bbox.y + bbox.height) || 0,
-      left: bbox.y || 0,
+      left: bbox.x || 0,
     };
   }
 
