@@ -1,7 +1,8 @@
-import Geometry from '../utils/Geometry';
 import Component from '../component/Component';
 import Port from '../connection/Port';
 import Connection from '../connection/Connection';
+import RegularDragNDropBehavior from '../behavior/RegularDragNDropBehavior';
+import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
 
 const DEFAULTS = {
   position: {
@@ -11,40 +12,6 @@ const DEFAULTS = {
 };
 
 class Shape extends Component {
-  static get EVENT() {
-    return {
-      DRAG_START: 'dragstart',
-      DRAG: 'drag',
-      DRAG_END: 'dragend',
-    };
-  }
-
-  // static getIntersectionBounds(shapeA, shapeB) {
-  //   const aBounds = shapeA.getBounds();
-  //   const bBounds = shapeB.getBounds();
-  //   const bounds = {};
-  //   const diffX = shapeB.getPosition().x - shapeA.getPosition().x;
-  //   const diffY = shapeB.getPosition().y - shapeA.getPosition().y;
-
-
-
-  //   if (Geometry.isInBetween(bBounds.left, aBounds.left, aBounds.right)) {
-  //     bounds.left = bBounds.left;
-  //   } else if (Geometry.isInBetween(aBounds.left, bBounds.left, bBounds.right)) {
-  //     bounds.left = aBounds.left;
-  //   } else {
-  //     bounds.left = null;
-  //   }
-
-  //   if (aBounds.left < bBounds.right && aBounds.right > bBounds.right) {
-  //     bounds.right = aBounds.right;
-  //   } else if () {
-
-  //   }
-
-
-  // }
-
   constructor(settings) {
     super(settings);
     this._width = null;
@@ -53,6 +20,8 @@ class Shape extends Component {
     this._y = null;
     this._connections = new Set();
     this._ports = [];
+    this._dragAndDropBehavior = new RegularDragNDropBehavior(this);
+    this._connectivityBehavior = new ConnectivityBehavior(this);
     this.__bulkAction = false;
 
     settings = {
@@ -290,6 +259,10 @@ class Shape extends Component {
     return this._connections.has(connection);
   }
 
+  isBeingDragged() {
+    return this._dragAndDropBehavior.isDragging();
+  }
+
   removeFromCanvas() {
     const oldCanvas = this._canvas;
 
@@ -345,6 +318,9 @@ class Shape extends Component {
     super._createHTML();
     this._html.setAttribute('class', 'shape');
     this._html.setAttribute('transform', `translate(${this._x}, ${this._y})`);
+
+    this._connectivityBehavior.attachBehavior();
+    this._dragAndDropBehavior.attachBehavior();
 
     return this;
   }
