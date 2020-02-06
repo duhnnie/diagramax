@@ -158,12 +158,22 @@ class Connection extends Component {
       ...settings,
     };
 
-    this.setOrigShape(settings.origShape)
-      .setDestShape(settings.destShape);
+    this
+      .setCanvas(settings.canvas)
+      .setOrigShape(settings.origShape)
+      .setDestShape(settings.destShape)
   }
 
   addInterceptor(connection) {
     this._interceptors.add(connection);
+  }
+
+  setCanvas(...params) {
+    if (this._intersections) {
+      return super.setCanvas(...params);
+    }
+
+    return this;
   }
 
   /**
@@ -249,11 +259,7 @@ class Connection extends Component {
 
   _onShapeDragEnd() {
     this._html.setAttribute('opacity', 1);
-
-    const intersections = ConnectionIntersectionResolver.getIntersectionPoints(this);
-
-    this._updateIntersectionPoints(intersections);
-    this._draw();
+    this.connect();
   }
 
   _addDragListeners(shape) {
@@ -337,14 +343,23 @@ class Connection extends Component {
   }
 
   getBounds() {
-    const bbox = this._dom.path.getBBox();
+    return this._points.reduce((bounds, { x, y }) => {
+      if (_.isEmpty(bounds)) {
+        return {
+          top: y,
+          right: x,
+          bottom: y,
+          left: x,
+        };
+      }
 
-    return {
-      top: bbox.y || 0,
-      right: (bbox.x + bbox.width) || 0,
-      bottom: (bbox.y + bbox.height) || 0,
-      left: bbox.x || 0,
-    };
+      bounds.top = y < bounds.top ? y : bounds.top;
+      bounds.right = x > bounds.right ? x : bounds.right;
+      bounds.bottom = y > bounds.bottom ? y : bounds.bottom;
+      bounds.left = x < bounds.left ? x : bounds.left;
+
+      return bounds;
+    }, {});
   }
 
   getSegments() {
@@ -410,35 +425,46 @@ class Connection extends Component {
     return this;
   }
 
-  connect() {
-    if (this._html && this._origShape && this._destShape && this._origShape !== this.destShape) {
-      let waypoints;
-      const portIndexes = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
-      const origPortDescriptor = this._origShape.getPortDescriptor(portIndexes.orig);
-      const destPortDescriptor = this._destShape.getPortDescriptor(portIndexes.dest);
+  _calculatePoints() {
+    if (!this._origShape || !this._destShape) return this;
 
-      if (origPortDescriptor) {
-        this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex);
-        this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex);
+    const portIndexes = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
+    const origPortDescriptor = this._origShape.getPortDescriptor(portIndexes.orig);
+    const destPortDescriptor = this._destShape.getPortDescriptor(portIndexes.dest);
 
-        waypoints = ConnectionManager.getWaypoints(origPortDescriptor, destPortDescriptor);
+    if (origPortDescriptor) {
+      this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex);
+      this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex);
 
-        waypoints.push({
-          x: destPortDescriptor.point.x,
-          y: destPortDescriptor.point.y,
-        });
+      const waypoints = ConnectionManager.getWaypoints(origPortDescriptor, destPortDescriptor);
 
-        waypoints.unshift({
-          x: origPortDescriptor.point.x,
-          y: origPortDescriptor.point.y,
-        });
-      }
+      waypoints.push({
+        x: destPortDescriptor.point.x,
+        y: destPortDescriptor.point.y,
+      });
+
+      waypoints.unshift({
+        x: origPortDescriptor.point.x,
+        y: origPortDescriptor.point.y,
+      });
 
       this._points = waypoints || [];
-      this._draw();
     }
 
     return this;
+  }
+
+  connect() {
+    if (!this._points.length) {
+      this._calculatePoints();
+      this._updateIntersectionPoints();
+    } else if (this._origShape.isBeingDragged() || this._destShape.isBeingDragged()) {
+      this._calculatePoints();
+    } else {
+      this._updateIntersectionPoints();
+    }
+
+    return this._draw();
   }
 
   removeFromCanvas() {
@@ -492,7 +518,7 @@ class Connection extends Component {
     this._dom.arrow = arrowWrapper;
     this._dom.arrowRotateContainer = arrowWrapper2;
 
-    return this.connect();
+    return this;
   }
 }
 
