@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import Element from '../core/Element';
+import EditableTextBehavior from '../behavior/EditableTextBehavior';
 
 const DEFAULTS = {
   text: '',
@@ -10,6 +11,7 @@ class ShapeText extends Element {
     super(settings);
 
     this._text = '';
+    this._editableBehavior = new EditableTextBehavior(this);
     this._dom = {};
 
     settings = _.merge({}, DEFAULTS, settings);
@@ -41,19 +43,22 @@ class ShapeText extends Element {
    * @inheritdoc
    */
   _createHTML() {
+    const wrapper = Element.createSVG('g');
     const text = Element.createSVG('text');
     const tspan = Element.createSVG('tspan');
 
     // TODO: move to CSS file
-    tspan.style.pointerEvents = 'none';
+    tspan.style.userSelect = 'none';
     text.setAttribute('text-anchor', 'middle');
     text.setAttribute('y', '0.5em');
+    wrapper.appendChild(text);
     text.appendChild(tspan);
 
     this._dom.textContainer = tspan;
     this.setText(this._text);
 
-    this._html = text;
+    this._html = wrapper;
+    this._editableBehavior.attachBehavior();
 
     return this;
   }
