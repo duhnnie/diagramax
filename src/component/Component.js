@@ -1,11 +1,12 @@
 import Element from '../core/Element';
 import Canvas from '../canvas/Canvas';
+import ShapeText from '../shape/ShapeText';
 
 class Component extends Element {
   constructor(settings) {
     super(settings);
     this._canvas = null;
-    this._text = null;
+    this._text = new ShapeText();
     this._dom = {};
 
     settings = jQuery.extend({
@@ -53,18 +54,17 @@ class Component extends Element {
   }
 
   setText(text) {
-    this._text = text.toString();
+    this._text.setText(text);
 
-    if (this._html) {
-      this._dom.text.textContent = text;
-      this._dom.title.textContent = text;
+    if (this._dom.title) {
+      this._dom.title.text = text;
     }
 
     return this;
   }
 
-  getText(text) {
-    return this._text;
+  getText() {
+    return this._text.getText();
   }
 
   trigger(eventName, ...args) {
@@ -80,32 +80,18 @@ class Component extends Element {
   getBounds() { throw new Error('getBounds() should be implemented.'); }
 
   _createHTML() {
-    let wrapper;
-    let title;
-    let text;
-    let tspan;
-
     if (this._html) {
       return this;
     }
 
-    wrapper = Element.createSVG('g');
+    const wrapper = Element.createSVG('g');
+    const title = Element.create('title');
 
-    title = Element.create('title');
-    text = Element.createSVG('text');
-    tspan = Element.createSVG('tspan');
-    tspan.style.pointerEvents = 'none';
-
-    text.setAttribute('text-anchor', 'middle');
-    text.setAttribute('y', '0.5em');
-
-    text.appendChild(tspan);
+    title.textContent = this._text.getText();
     wrapper.appendChild(title);
-    wrapper.appendChild(text);
+    wrapper.appendChild(this._text.getHTML());
 
     this._dom.title = title;
-    this._dom.text = tspan;
-    this._dom.textContent = text;
 
     this._html = wrapper;
 
@@ -113,8 +99,7 @@ class Component extends Element {
       this._dom.shapeElement.setAttribute('cursor', 'pointer');
     }
 
-    return this.setText(this._text)
-      .setID(this._id);
+    return this.setID(this._id);
   }
 }
 
