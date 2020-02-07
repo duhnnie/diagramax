@@ -38,6 +38,10 @@ class ConnectivityAreaBehavior extends Behavior {
 
   _connect() {
     this._target.connect(this._origin, this._destiny);
+    this.reset();
+  }
+
+  reset() {
     this._origin = null;
     this._destiny = null;
     this._dom.line.setAttribute('stroke', '');
