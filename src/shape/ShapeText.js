@@ -24,7 +24,7 @@ class ShapeText extends Element {
    * @param {String} text The text to set.
    */
   setText(text) {
-    this._text = text.toString();
+    this._text = text.toString().trim();
 
     if (this._dom.textContainer) {
       this._dom.textContainer.textContent = text;

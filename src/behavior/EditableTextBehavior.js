@@ -30,18 +30,42 @@ wrapper.setAttribute('height', 30);
 wrapper.appendChild(inputText);
 
 /**
- * @protected
+ * @private
  * Updates the text in the ShapeText that currently has in edition mode.
  * @param {Event} A change event comming from the input.
  */
 const updateText = (event) => {
-  const { value } = event.target;
-
-  currentShapeText.setText(value);
+  currentShapeText.setText(event.target.value);
   wrapper.remove();
 };
 
+ /**
+  * @private
+  * Handles the keyboard events on the input text element.
+  * @param {KeyboardEvent} event
+  */
+const onKeyDown = (event) => {
+  let code;
+
+  if (event.code !== undefined) {
+    code = event.code;
+  } else if (event.keyCode !== undefined) {
+    code = event.keyCode === 27 ? 'Escape' : '';
+  }
+
+  if (code === undefined) return;
+
+  switch (code) {
+    case 'Escape':
+      inputText.value = currentShapeText.getText();
+      wrapper.remove();
+      break;
+    default:
+  }
+};
+
 inputText.addEventListener('change', updateText, false);
+inputText.addEventListener('keydown', onKeyDown, false);
 
 /**
  * Class that contains the beahvior for edit a ShapeText.
