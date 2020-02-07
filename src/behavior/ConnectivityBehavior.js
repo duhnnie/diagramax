@@ -21,7 +21,7 @@ class ConnectivityBehavior extends Behavior {
     if (!target.isBeingDragged()) {
       const canvas = target.getCanvas();
 
-      canvas.getConnectivityAreaBehavior().connectionClick(target, {
+      canvas.getConnectivityAreaBehavior().addShape(target, {
         x: event.clientX,
         y: event.clientY,
       });
