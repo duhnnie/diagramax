@@ -32,10 +32,7 @@ class Box extends Shape {
 
       super._createHTML();
 
-      this._dom.textContent.setAttribute('y', '0.3em');
-      this._dom.text.setAttribute('transform', 'translate(0, 0)');
       this._dom.shapeElement = rect;
-
       this._html.insertBefore(rect, this._dom.title);
     }
 
