@@ -3,6 +3,7 @@ import Port from '../connection/Port';
 import Connection from '../connection/Connection';
 import RegularDragNDropBehavior from '../behavior/RegularDragNDropBehavior';
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
+import SelectBehavior from '../behavior/SelectBehavior';
 
 const DEFAULTS = {
   position: {
@@ -22,6 +23,7 @@ class Shape extends Component {
     this._ports = [];
     this._dragAndDropBehavior = new RegularDragNDropBehavior(this);
     this._connectivityBehavior = new ConnectivityBehavior(this);
+    this._selectBehavior = new SelectBehavior(this);
     this.__bulkAction = false;
 
     settings = {
@@ -321,6 +323,7 @@ class Shape extends Component {
 
     this._connectivityBehavior.attachBehavior();
     this._dragAndDropBehavior.attachBehavior();
+    this._selectBehavior.attachBehavior();
 
     return this;
   }
