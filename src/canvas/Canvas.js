@@ -4,6 +4,7 @@ import FluidDraggingAreaBehavior from '../behavior/FluidDraggingAreaBehavior';
 import ConnectivityAreaBehavior from '../behavior/ConnectivityAreaBehavior';
 import BPMNShape from '../shape/Shape';
 import Connection from '../connection/Connection';
+import { EVENT as SELECT_EVENT } from '../behavior/SelectBehavior';
 
 class Canvas extends Element {
   constructor(settings) {
@@ -14,6 +15,7 @@ class Canvas extends Element {
     this._connections = new Set();
     this._dom = {};
     this._eventBus = new EventBus();
+    this._selectedItems = new Set();
     this._onSelectShapeHandler = null;
     this._draggingAreaBehavior = new FluidDraggingAreaBehavior(this);
     this._connectivityAreaBehavior = new ConnectivityAreaBehavior(this);
@@ -83,7 +85,7 @@ class Canvas extends Element {
       }
 
       element.setCanvas(this);
-      // this._dragAndDropManager.registerShape(element);
+      this.addEventListener(SELECT_EVENT.SELECT, element, this._onSelectShape, this);
 
       if (this._html) {
         this._dom.container.appendChild(element.getHTML());
@@ -168,7 +170,16 @@ class Canvas extends Element {
     return this.dispatchEvent(eventName, this, ...args);
   }
 
-  _onSelectShape() {
+  _onSelectShape(eventBusItem) {
+    const shape = eventBusItem.target;
+
+    this._selectedItems.clear();
+    this._selectedItems.add(shape);
+
+    // TODO: is this handler being used?
+    // It could be better to trigger a 'onItemSelection' from canvas
+    // and provide the elements that were added to selection
+    // Another event for item deselection would be useful too.
     if (typeof this._onSelectShapeHandler === 'function') {
       this._onSelectShapeHandler(shape);
     }

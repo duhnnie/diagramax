@@ -5,7 +5,7 @@ import Behavior from './Behavior';
  * @readonly
  * @enum {String}
  */
-const EVENTS = Object.freeze({
+export const EVENT = Object.freeze({
   /** A Shape is selected. */
   SELECT: 'select',
 });
@@ -22,7 +22,7 @@ class SelectBehavior extends Behavior {
   _onSelectAction() {
     const canvas = this._target.getCanvas();
 
-    canvas.dispatchEvent(EVENTS.SELECT, this._target);
+    canvas.dispatchEvent(EVENT.SELECT, this._target);
   }
 
   /**
