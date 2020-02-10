@@ -2,7 +2,7 @@ import Behavior from './Behavior';
 import Shape from '../shape/Shape';
 
 class ConnectivityBehavior extends Behavior {
-  constructor (target, settings) {
+  constructor(target, settings) {
     if (!(target instanceof Shape)) {
       throw new Error('DragAndDropBehavior: The settings parameter should be an instance of Shape');
     }
@@ -35,8 +35,7 @@ class ConnectivityBehavior extends Behavior {
   }
 
   attachBehavior() {
-    this._target.getHTML().addEventListener('click', this._onClick, false);
-    this._target.getHTML().addEventListener('dblclick', this._onDblClick, false);
+    this._target.getHTML().addEventListener('dblclick', this._onClick, false);
   }
 }
 
