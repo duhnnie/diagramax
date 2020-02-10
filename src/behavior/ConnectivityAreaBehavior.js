@@ -47,7 +47,14 @@ class ConnectivityAreaBehavior extends Behavior {
     this._dom.line.setAttribute('stroke', '');
   }
 
-  connectionClick(shape, point) {
+  /**
+   * Adds a shape to the connection process. If there isn't any shapes set yet it will be set as
+   * origin, otherwise the shape will be taken as destiny and the connection will be applied
+   * (if it's valid).
+   * @param {Shape} shape An instance of Shape
+   * @param {Point} point The point in which
+   */
+  addShape(shape, point) {
     if (this._origin) {
       this._destiny = shape;
       this._connect();
@@ -55,7 +62,7 @@ class ConnectivityAreaBehavior extends Behavior {
       this._origin = shape;
       this._setConnectionLinePath(shape.getPosition(), this._getDestPoint(point.x, point.y));
       this._dom.line.setAttribute('stroke', 'black');
-      this._target.getContainer().appendChild(this._dom.line);
+      if (!this._dom.line.isConnected) this._target.getContainer().appendChild(this._dom.line);
     }
   }
 
