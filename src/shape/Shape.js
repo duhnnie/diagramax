@@ -328,6 +328,8 @@ class Shape extends Component {
     this._selectBehavior.attachBehavior();
     this._resizeBehavior.attachBehavior();
 
+    this._html.insertBefore(this._dom.shapeElement, this._dom.title);
+
     return this;
   }
 }

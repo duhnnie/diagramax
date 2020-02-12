@@ -96,6 +96,7 @@ class Component extends Element {
     this._html = wrapper;
 
     if (this._dom.shapeElement) {
+      // TODO: This can be set in CSS?
       this._dom.shapeElement.setAttribute('cursor', 'pointer');
     }
 

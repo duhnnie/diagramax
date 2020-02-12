@@ -27,10 +27,9 @@ class Circle extends Shape {
       circle.setAttribute('stroke', '#000000');
       circle.setAttribute('stroke-width', '4');
 
-      super._createHTML();
-
       this._dom.shapeElement = circle;
-      this._html.insertBefore(circle, this._dom.title);
+
+      super._createHTML();
     }
 
     return this;
