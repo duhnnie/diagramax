@@ -39,6 +39,15 @@
                 }
             });
 
+            const circle = new Designer.Circle({
+              id: 'myCircle',
+              text: 'Circle',
+              position: {
+                x: 234,
+                y: 183,
+              }
+            });
+
             const canvas = new Designer.Canvas({
               width: 1440,
               height: 900,
@@ -46,7 +55,8 @@
                 ev,
                 act,
                 act2,
-                eev
+                eev,
+                circle,
               ]
             });
 
