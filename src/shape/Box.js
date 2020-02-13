@@ -29,7 +29,7 @@ class Box extends Shape {
       rect.setAttribute('stroke-width', 4);
       rect.setAttribute('stroke-dasharray', 0);
 
-      this._dom.shapeElement = rect;
+      this._dom.mainElement = rect;
 
       super._createHTML();
     }

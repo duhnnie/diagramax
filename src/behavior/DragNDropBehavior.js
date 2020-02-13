@@ -109,8 +109,8 @@ class DragAndDropBehavior extends Behavior {
   }
 
   attachBehavior() {
-    this._target.getHTML().addEventListener('mousedown', this._onMouseDown, false);
-    this._target.getHTML().addEventListener('click', this._onClick, false);
+    this._target._getMainElement().addEventListener('mousedown', this._onMouseDown, false);
+    this._target._getMainElement().addEventListener('click', this._onClick, false);
   }
 
   // eslint-disable-next-line class-methods-use-this

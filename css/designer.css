@@ -8,8 +8,12 @@
     cursor: default;
 }
 
-.shape {
-    cursor: pointer;
+.shape .controls-layer {
+  display: none;
+}
+
+.shape:hover .controls-layer {
+  display: initial;
 }
 
 .shape-text-input {

@@ -1,3 +1,4 @@
+import Element from '../core/Element';
 import Component from '../component/Component';
 import Port from '../connection/Port';
 import Connection from '../connection/Connection';
@@ -296,6 +297,10 @@ class Shape extends Component {
     return false;
   }
 
+  _getControlsLayer() {
+    return this._createHTML()._dom.controlsLayer;
+  }
+
   _resetPorts() {
     this._ports.forEach((port) => {
       port.clearConnections();
@@ -320,15 +325,23 @@ class Shape extends Component {
     }
 
     super._createHTML();
+
+    const controlsLayer = Element.createSVG('g');
+
+    controlsLayer.setAttribute('pointer-events', 'bounding-box');
+    controlsLayer.classList.add('controls-layer');
+
     this._html.setAttribute('class', 'shape');
     this._html.setAttribute('transform', `translate(${this._x}, ${this._y})`);
+    this._dom.controlsLayer = controlsLayer;
+
+    this._html.insertBefore(this._dom.mainElement, this._dom.title);
+    this._html.prepend(controlsLayer);
 
     this._connectivityBehavior.attachBehavior();
     this._dragAndDropBehavior.attachBehavior();
     this._selectBehavior.attachBehavior();
     this._resizeBehavior.attachBehavior();
-
-    this._html.insertBefore(this._dom.shapeElement, this._dom.title);
 
     return this;
   }

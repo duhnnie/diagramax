@@ -70,10 +70,12 @@ class Triangle extends Shape {
       triangle.setAttribute('stroke', '#000000');
       triangle.setAttribute('stroke-width', '4');
 
-      this._dom.shapeElement = triangle;
+      this._dom.mainElement = triangle;
 
       super._createHTML();
     }
+
+    return this;
   }
 }
 

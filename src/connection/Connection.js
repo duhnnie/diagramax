@@ -501,9 +501,6 @@ class Connection extends Component {
     const arrow = Element.createSVG('path');
     const path = Element.createSVG('path');
 
-    super._createHTML();
-    this._html.setAttribute('class', 'connection');
-
     arrowWrapper2.setAttribute('transform', 'scale(0.5,0.5) rotate(-180)');
     arrow.setAttribute('end', 'target');
     arrow.setAttribute('d', 'M 0 0 L -13 -26 L 13 -26 z');
@@ -513,6 +510,10 @@ class Connection extends Component {
 
     arrowWrapper2.appendChild(arrow);
     arrowWrapper.appendChild(arrowWrapper2);
+
+    super._createHTML();
+
+    this._html.setAttribute('class', 'connection');
     this._html.appendChild(path);
     this._dom.path = path;
     this._dom.arrow = arrowWrapper;
