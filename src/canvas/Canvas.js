@@ -88,7 +88,11 @@ class Canvas extends Element {
       this.addEventListener(SELECT_EVENT.SELECT, element, this._onSelectShape, this);
 
       if (this._html) {
-        this._dom.container.appendChild(element.getHTML());
+        if (element instanceof Connection) {
+          this._dom.container.prepend(element.getHTML());
+        } else {
+          this._dom.container.appendChild(element.getHTML());
+        }
       }
     }
 
@@ -147,20 +151,16 @@ class Canvas extends Element {
   }
 
   connect(origin, destination, connection_id = null) {
-    let connection;
     origin = origin instanceof BPMNShape ? origin : this.getElementById(origin);
     destination = destination instanceof BPMNShape ? destination : this.getElementById(destination);
 
     if (origin && destination && origin !== destination) {
-      connection = new Connection({
+      const connection = new Connection({
         id: connection_id,
         canvas: this,
         origShape: origin,
         destShape: destination,
       });
-      if (this._html) {
-        this._dom.container.appendChild(connection.getHTML());
-      }
     }
 
     return this;
