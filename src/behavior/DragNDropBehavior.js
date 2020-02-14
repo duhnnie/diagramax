@@ -91,16 +91,20 @@ class DragAndDropBehavior extends Behavior {
     }
   }
 
+  endDrag() {
+    const canvas = this._target.getCanvas();
+
+    canvas.setDraggableShape(null);
+    this._grabbed = false;
+    if (this._dragging) {
+      this._dragging = false;
+      this._onEnd(this._target.getPosition());
+    }
+  }
+
   _onClick() {
     if (this._grabbed || this._dragging) {
-      const canvas = this._target.getCanvas();
-
-      canvas.setDraggableShape(null);
-      this._grabbed = false;
-      if (this._dragging) {
-        this._dragging = false;
-        this._onEnd(this._target.getPosition());
-      }
+      this.endDrag();
     }
   }
 
