@@ -6,6 +6,7 @@ import RegularDragNDropBehavior from '../behavior/RegularDragNDropBehavior';
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
 import SelectBehavior from '../behavior/SelectBehavior';
 import ResizeBehavior from '../behavior/ResizeBehavior';
+import ShapeControlsLayer from './components/ShapeControlsLayer';
 
 const DEFAULTS = {
   position: {
@@ -23,6 +24,7 @@ class Shape extends Component {
     this._y = null;
     this._connections = new Set();
     this._ports = [];
+    this._controlLayer = new ShapeControlsLayer();
     this._dragAndDropBehavior = new RegularDragNDropBehavior(this);
     this._connectivityBehavior = new ConnectivityBehavior(this);
     this._selectBehavior = new SelectBehavior(this);
@@ -297,8 +299,14 @@ class Shape extends Component {
     return false;
   }
 
-  _getControlsLayer() {
-    return this._createHTML()._dom.controlsLayer;
+  /**
+   * Add a graphic control for manipulating the Shape.
+   * @param {SVGElement} svgElement An SVG element to be the graphic control for the Shape.
+   * @param {Object} events An object in which the key is an event name and its value is a function or an array
+   * in which each element is a function to be executed when that event occurs.
+   */
+  _addControl(svgElement, events) {
+    this._controlLayer.addControl(svgElement, events);
   }
 
   _resetPorts() {
@@ -326,17 +334,11 @@ class Shape extends Component {
 
     super._createHTML();
 
-    const controlsLayer = Element.createSVG('g');
-
-    controlsLayer.setAttribute('pointer-events', 'bounding-box');
-    controlsLayer.classList.add('controls-layer');
-
     this._html.setAttribute('class', 'shape');
     this._html.setAttribute('transform', `translate(${this._x}, ${this._y})`);
-    this._dom.controlsLayer = controlsLayer;
 
     this._html.insertBefore(this._dom.mainElement, this._dom.title);
-    this._html.prepend(controlsLayer);
+    this._html.prepend(this._controlLayer.getHTML());
 
     this._connectivityBehavior.attachBehavior();
     this._dragAndDropBehavior.attachBehavior();
