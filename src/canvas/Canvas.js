@@ -187,8 +187,8 @@ class Canvas extends Element {
     return this;
   }
 
-  setDraggableShape(dragBehavior, initDragPoint) {
-    this._draggingAreaBehavior.setDraggableShape(dragBehavior, initDragPoint);
+  setDraggableShape(shape, initDragPoint) {
+    this._draggingAreaBehavior.setDraggableShape(shape, initDragPoint);
   }
 
   getConnectivityAreaBehavior() {

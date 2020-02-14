@@ -63,7 +63,7 @@ class DragAndDropBehavior extends Behavior {
     };
 
     this._grabbed = true;
-    canvas.setDraggableShape(this, initDragPoint);
+    canvas.setDraggableShape(this._target, initDragPoint);
   }
 
   updatePosition({ x, y }) {

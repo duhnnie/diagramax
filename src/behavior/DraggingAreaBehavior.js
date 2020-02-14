@@ -9,10 +9,17 @@ class DraggingAreaBehavior extends Behavior {
     this._onMouseMove = this._onMouseMove.bind(this);
   }
 
-  setDraggableShape(dragBehavior, initDragPoint) {
-    const { x = null, y = null} = initDragPoint || {};
+  setDraggableShape(shape, initDragPoint) {
+    let { x = null, y = null } = initDragPoint || {};
 
-    this._dragBehavior = dragBehavior;
+    // TODO: find a better way to access the shape behavior, it's a protected member.
+    this._dragBehavior = (shape && shape._dragAndDropBehavior) || null;
+
+    if (shape && (x === null || y === null)) {
+      x = shape.getX();
+      y = shape.getY();
+    }
+
     this._lastPosition = { x, y };
   }
 
