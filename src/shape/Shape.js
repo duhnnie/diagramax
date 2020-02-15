@@ -2,7 +2,7 @@ import Element from '../core/Element';
 import Component from '../component/Component';
 import Port from '../connection/Port';
 import Connection from '../connection/Connection';
-import RegularDragNDropBehavior from '../behavior/RegularDragNDropBehavior';
+import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
 import SelectBehavior from '../behavior/SelectBehavior';
 import ResizeBehavior from '../behavior/ResizeBehavior';
@@ -25,7 +25,7 @@ class Shape extends Component {
     this._connections = new Set();
     this._ports = [];
     this._controlLayer = new ShapeControlsLayer();
-    this._dragAndDropBehavior = new RegularDragNDropBehavior(this);
+    this._dragAndDropBehavior = new RegularDraggableShapeBehavior(this);
     this._connectivityBehavior = new ConnectivityBehavior(this);
     this._selectBehavior = new SelectBehavior(this);
     this._resizeBehavior = new ResizeBehavior(this);

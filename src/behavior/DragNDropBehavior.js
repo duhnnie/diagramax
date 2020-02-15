@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import Behavior from './Behavior';
-import Shape from '../shape/Shape';
 
 const DEFAULTS = Object.freeze({
   onStart: _.noop,
@@ -16,10 +15,6 @@ export const EVENT = Object.freeze({
 
 class DragAndDropBehavior extends Behavior {
   constructor(target, settings) {
-    if (!(target instanceof Shape)) {
-      throw new Error('DragAndDropBehavior: The settings parameter should be an instance of Shape');
-    }
-
     super(target, settings);
 
     this._dragging = false;
@@ -39,19 +34,14 @@ class DragAndDropBehavior extends Behavior {
   }
 
   _onStart(point) {
-    // TODO: When Element inherits from EventTarget, the method
-    // should trigger the event from itself.
-    this._target.getCanvas().dispatchEvent(EVENT.START, this._target);
     this._options.onStart(point);
   }
 
   _onDrag(point) {
-    this._target.getCanvas().dispatchEvent(EVENT.DRAG, this._target);
     this._options.onDrag(point);
   }
 
   _onEnd(point) {
-    this._target.getCanvas().dispatchEvent(EVENT.END, this._target);
     this._options.onEnd(point);
   }
 
@@ -73,8 +63,8 @@ class DragAndDropBehavior extends Behavior {
     const diff = this._evaluate(this._diff.x, this._diff.y);
 
     if (diff) {
-      const shape = this._target;
-      let { x: posX, y: posY } = shape.getPosition();
+      const target = this._target;
+      let { x: posX, y: posY } = target.getPosition();
 
       posX += this._diff.x;
       posY += this._diff.y;
