@@ -1,7 +1,12 @@
 import _ from 'lodash';
-import DragNDropBehavior, { EVENT } from './DragNDropBehavior';
+import DragNDropBehavior from './DragNDropBehavior';
 import Shape from '../shape/Shape';
 
+export const EVENT = Object.freeze({
+  START: 'dragstart',
+  DRAG: 'drag',
+  END: 'dragend',
+});
 class DraggableShapeBehavior extends DragNDropBehavior {
   constructor(target, settings) {
     if (!(target instanceof Shape)) {
@@ -31,6 +36,11 @@ class DraggableShapeBehavior extends DragNDropBehavior {
   // eslint-disable-next-line class-methods-use-this
   _evaluate() {
     throw new Error('evaluate(): This method should be implemented.');
+  }
+
+  attachBehavior() {
+    this._target._getMainElement().addEventListener('mousedown', this._onMouseDown, false);
+    this._target._getMainElement().addEventListener('click', this._onClick, false);
   }
 }
 

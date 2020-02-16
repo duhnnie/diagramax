@@ -5,7 +5,7 @@ import ConnectionManager from './ConnectionManager';
 import Port from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
-import { EVENT as DRAG_EVENT } from '../behavior/DragNDropBehavior';
+import { EVENT as DRAG_EVENT } from '../behavior/DraggableShapeBehavior';
 
 const DEFAULTS = {
   origShape: null,

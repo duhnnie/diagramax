@@ -7,12 +7,6 @@ const DEFAULTS = Object.freeze({
   onEnd: _.noop,
 });
 
-export const EVENT = Object.freeze({
-  START: 'dragstart',
-  DRAG: 'drag',
-  END: 'dragend',
-});
-
 class DragAndDropBehavior extends Behavior {
   constructor(target, settings) {
     super(target, settings);
@@ -100,11 +94,6 @@ class DragAndDropBehavior extends Behavior {
 
   isDragging() {
     return this._dragging;
-  }
-
-  attachBehavior() {
-    this._target._getMainElement().addEventListener('mousedown', this._onMouseDown, false);
-    this._target._getMainElement().addEventListener('click', this._onClick, false);
   }
 
   // eslint-disable-next-line class-methods-use-this
