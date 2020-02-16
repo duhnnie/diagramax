@@ -47,7 +47,7 @@ class DragAndDropBehavior extends Behavior {
     };
 
     this._grabbed = true;
-    canvas.setDraggableShape(this._target, initDragPoint);
+    canvas.setDraggingShape(this, initDragPoint);
   }
 
   updatePosition({ x, y }) {
@@ -78,7 +78,7 @@ class DragAndDropBehavior extends Behavior {
   endDrag() {
     const canvas = this._target.getCanvas();
 
-    canvas.setDraggableShape(null);
+    canvas.setDraggingShape(null);
     this._grabbed = false;
     if (this._dragging) {
       this._dragging = false;
