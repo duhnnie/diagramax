@@ -197,7 +197,8 @@ class Canvas extends Element {
         x = shape.getX();
         y = shape.getY();
       }
-      this._draggingAreaBehavior.setDragBehavior(shape, { x, y });
+      // TODO: find a better way to do this, _dragBehavior is protected
+      this._draggingAreaBehavior.setDragBehavior(shape._dragBehavior, { x, y });
     }
 
     return this;

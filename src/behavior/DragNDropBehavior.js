@@ -23,8 +23,8 @@ class DragAndDropBehavior extends Behavior {
       ...settings,
     };
 
-    this._onMouseDown = this._onMouseDown.bind(this);
-    this._onClick = this._onClick.bind(this);
+    this._onGrab = this._onGrab.bind(this);
+    this._onRelease = this._onRelease.bind(this);
   }
 
   _onStart(point) {
@@ -39,15 +39,8 @@ class DragAndDropBehavior extends Behavior {
     this._options.onEnd(point);
   }
 
-  _onMouseDown(event) {
-    const canvas = this._target.getCanvas();
-    const initDragPoint = {
-      x: event.clientX,
-      y: event.clientY,
-    };
-
+  _onGrab() {
     this._grabbed = true;
-    canvas.setDraggingShape(this, initDragPoint);
   }
 
   updatePosition({ x, y }) {
@@ -86,7 +79,7 @@ class DragAndDropBehavior extends Behavior {
     }
   }
 
-  _onClick() {
+  _onRelease() {
     if (this._grabbed || this._dragging) {
       this.endDrag();
     }

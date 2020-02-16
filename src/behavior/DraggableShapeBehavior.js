@@ -14,6 +14,20 @@ class DraggableShapeBehavior extends DragNDropBehavior {
     }
 
     super(target, settings);
+
+    this._onGrab = this._onGrab.bind(this);
+  }
+
+  _onGrab(event) {
+    const canvas = this._target.getCanvas();
+    const initDragPoint = {
+      x: event.clientX,
+      y: event.clientY,
+    };
+
+    super._onGrab(event);
+
+    canvas.setDraggingShape(this._target, initDragPoint);
   }
 
   _onStart(point) {
@@ -39,8 +53,8 @@ class DraggableShapeBehavior extends DragNDropBehavior {
   }
 
   attachBehavior() {
-    this._target._getMainElement().addEventListener('mousedown', this._onMouseDown, false);
-    this._target._getMainElement().addEventListener('click', this._onClick, false);
+    this._target._getMainElement().addEventListener('mousedown', this._onGrab, false);
+    this._target._getMainElement().addEventListener('click', this._onRelease, false);
   }
 }
 

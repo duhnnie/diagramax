@@ -25,7 +25,7 @@ class Shape extends Component {
     this._connections = new Set();
     this._ports = [];
     this._controlLayer = new ShapeControlsLayer();
-    this._dragAndDropBehavior = new RegularDraggableShapeBehavior(this);
+    this._dragBehavior = new RegularDraggableShapeBehavior(this);
     this._connectivityBehavior = new ConnectivityBehavior(this);
     this._selectBehavior = new SelectBehavior(this);
     this._resizeBehavior = new ResizeBehavior(this);
@@ -267,7 +267,7 @@ class Shape extends Component {
   }
 
   isBeingDragged() {
-    return this._dragAndDropBehavior.isDragging();
+    return this._dragBehavior.isDragging();
   }
 
   removeFromCanvas() {
@@ -341,7 +341,7 @@ class Shape extends Component {
     this._html.prepend(this._controlLayer.getHTML());
 
     this._connectivityBehavior.attachBehavior();
-    this._dragAndDropBehavior.attachBehavior();
+    this._dragBehavior.attachBehavior();
     this._selectBehavior.attachBehavior();
     this._resizeBehavior.attachBehavior();
 
