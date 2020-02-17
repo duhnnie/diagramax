@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import DragNDropBehavior from './DragNDropBehavior';
+import DragBehavior from './DragBehavior';
 import Shape from '../shape/Shape';
 
 export const EVENT = Object.freeze({
@@ -7,7 +7,7 @@ export const EVENT = Object.freeze({
   DRAG: 'drag',
   END: 'dragend',
 });
-class DraggableShapeBehavior extends DragNDropBehavior {
+class DraggableShapeBehavior extends DragBehavior {
   constructor(target, settings) {
     if (!(target instanceof Shape)) {
       throw new Error('DraggableShapeBehavior: The settings parameter should be an instance of Shape');

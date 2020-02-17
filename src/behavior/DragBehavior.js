@@ -7,7 +7,7 @@ const DEFAULTS = Object.freeze({
   onEnd: _.noop,
 });
 
-class DragAndDropBehavior extends Behavior {
+class DragBehavior extends Behavior {
   constructor(target, settings) {
     super(target, settings);
 
@@ -103,4 +103,4 @@ class DragAndDropBehavior extends Behavior {
   }
 }
 
-export default DragAndDropBehavior;
+export default DragBehavior;

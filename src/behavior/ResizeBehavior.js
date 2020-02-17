@@ -1,63 +1,121 @@
 import _ from 'lodash';
-import Behavior from './Behavior';
 import Element from '../core/Element';
+import DragBehavior from './DragBehavior';
 
-const DEFAULTS = Object.freeze({
-  controlOffset: 0.58,
-});
+export const DIRECTION = {
+  N: 'n',
+  NE: 'ne',
+  E: 'e',
+  SE: 'se',
+  S: 's',
+  SW: 'sw',
+  W: 'w',
+  NW: 'nw',
+};
 
-class ResizeBehavior extends Behavior {
-  constructor(target, options) {
-    super(target, options);
+const resizeHandlerDefs = [
+  {
+    className: 'nwse',
+    direction: DIRECTION.NW,
+  },
+  {
+    className: 'ns',
+    direction: DIRECTION.N,
+  },
+  {
+    className: 'nesw',
+    direction: DIRECTION.NE,
+  },
+  {
+    className: 'ew',
+    direction: DIRECTION.W,
+  },
+  {
+    className: 'ew',
+    direction: DIRECTION.E,
+  },
+  {
+    className: 'nesw',
+    direction: DIRECTION.SW,
+  },
+  {
+    className: 'ns',
+    direction: DIRECTION.S,
+  },
+  {
+    className: 'nwse',
+    direction: DIRECTION.SE,
+  },
+];
 
-    options = _.merge({}, DEFAULTS, options);
+const resizeHandlerRadius = 4;
+let resizeHandler;
 
-    this._controlsContainer = null;
-    this._controlOffset = options.controlOffset;
+class ResizeBehavior extends DragBehavior {
+  static getResizeHandler(x, y) {
+    if (!resizeHandler) {
+      resizeHandler = Element.createSVG('circle');
+      resizeHandler.setAttribute('r', resizeHandlerRadius);
+      resizeHandler.setAttribute('fill', '#f44336');
+    }
+
+    const handlerClone = resizeHandler.cloneNode(true);
+
+    handlerClone.setAttribute('cx', x);
+    handlerClone.setAttribute('cy', y);
+
+    return handlerClone;
+  }
+
+  constructor(target, settings) {
+    super(target, settings);
+
+    this._currentHandler = null;
+    this._onGrab = this._onGrab.bind(this);
+  }
+
+  _onGrab(event) {
+    const { target: handler } = event;
+
+    super._onGrab(event);
+
+    this._currentHandler = handler.dataset.direction;
+    this._target.getCanvas().setResizingShape(this._target, 'asd', {});
   }
 
   _createControls() {
-    const controlsContainer = Element.createSVG('g');
-    const resizeControl = Element.createSVG('circle');
     const { width: targetWidth, height: targetHeight } = this._target.getSize();
-    const horizontalOffset = targetWidth * this._controlOffset;
-    const verticalOffset = targetHeight * this._controlOffset;
+    const horizontalOffset = (targetWidth * 0.5) + (resizeHandlerRadius * 1.5);
+    const verticalOffset = (targetHeight * 0.5) + (resizeHandlerRadius * 1.5);
     const horizontalPositions = [-horizontalOffset, 0, horizontalOffset];
+    let index = 0;
 
-    resizeControl.setAttribute('r', 4);
-    resizeControl.setAttribute('fill', 'green');
+    [-verticalOffset, 0, verticalOffset].forEach((y) => {
+      horizontalPositions.forEach((x) => {
+        if (y === 0 && x === 0) return;
 
-    [-verticalOffset, 0, verticalOffset].forEach((verticalPosition) => {
-      horizontalPositions.forEach((horizontalPosition) => {
-        if (verticalPosition === 0 && horizontalPosition === 0) return;
-        const control = resizeControl.cloneNode(true);
+        const control = ResizeBehavior.getResizeHandler(x, y);
+        const { className, direction } = resizeHandlerDefs[index];
 
-        control.setAttribute('cx', horizontalPosition);
-        control.setAttribute('cy', verticalPosition);
-        controlsContainer.appendChild(control);
+
+        control.classList.add(`handler-resize-${className}`);
+        control.dataset.direction = direction;
+        this._target._addControl(control, {
+          mousedown: this._onGrab,
+        });
+        index += 1;
       });
     });
-
-    this._controlsContainer = controlsContainer;
   }
 
-  showControls() {
-    if (!this._controlsContainer) this._createControls();
+  updatePosition(diff, options) {
+    const direction = this._currentHandler || options.direction;
 
-    this._target.getHTML().appendChild(this._controlsContainer);
-  }
-
-  hideControls() {
-    this._controlsContainer.remove();
+    console.log(direction);
   }
 
   attachBehavior() {
-    this._target.getHTML().addEventListener('mouseenter', () => {
-      this.showControls();
-    }, false);
-    this._target.getHTML().addEventListener('mouseleave', () => {
-      this.hideControls();
-    }, false);
+    this._createControls();
   }
 }
 
