@@ -124,7 +124,16 @@ class Shape extends Component {
     if (typeof width !== 'number') {
       throw new Error('setWidth(): invalid parameter.');
     }
+
+    const { mainElement } = this._dom;
+
     this._width = width;
+
+    if (mainElement) {
+      mainElement.setAttribute('width', width);
+      mainElement.setAttribute('x', this._width * -0.5);
+    }
+
     return this;
   }
 
@@ -136,7 +145,16 @@ class Shape extends Component {
     if (typeof height !== 'number') {
       throw new Error('setHeight(): invalid parameter.');
     }
+
+    const { mainElement } = this._dom;
     this._height = height;
+
+    if (mainElement) {
+      mainElement.setAttribute('height', height);
+      mainElement.setAttribute('y', this._height * -0.5);
+    }
+
+    return this;
   }
 
   getHeight() {
