@@ -29,7 +29,8 @@ class DraggingAreaBehavior extends Behavior {
 
   _onMouseMove(event) {
     if (!this._disabled && this._dragBehavior) {
-      const { clientX: x, clientY: y } = event;
+      const { clientX, clientY } = event;
+      const { x, y } = this._target.clientToCanvas({ x: clientX, y: clientY });
       const position = this.evaluate(x, y);
 
       if (position) {

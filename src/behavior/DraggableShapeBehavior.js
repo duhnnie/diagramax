@@ -53,8 +53,6 @@ class DraggableShapeBehavior extends DragBehavior {
       this._lastPosition = this._target.getPosition();
     }
 
-    console.log(this._grabbed, this._dragging);
-
     super.updatePosition(position);
   }
 

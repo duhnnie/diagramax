@@ -41,12 +41,11 @@ class DragBehavior extends Behavior {
   }
 
   _onGrab(event) {
+    const { clientX: x, clientY: y } = event;
+
     this._grabbed = true;
 
-    this._lastPosition = {
-      x: event.clientX,
-      y: event.clientY,
-    };
+    this._lastPosition = this._target.getCanvas().clientToCanvas({ x, y });
   }
 
   updatePosition({ x, y }) {

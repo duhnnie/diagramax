@@ -200,6 +200,22 @@ class Canvas extends Element {
     return this;
   }
 
+  clientToCanvas(clientPosition) {
+    const html = this._html;
+
+    if (html) {
+      const rect = html.getBoundingClientRect();
+      const { x: clientX, y: clientY } = clientPosition;
+
+      return {
+        x: clientX - rect.x,
+        y: clientY - rect.y,
+      };
+    }
+
+    return { x: 0, y: 0 };
+  }
+
   setResizingShape(shape, direction) {
     // TODO: find a better way to do this, _dragBehavior is protected
     const behavior = shape && shape._resizeBehavior;
