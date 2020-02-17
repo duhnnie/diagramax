@@ -5,7 +5,7 @@ class DraggingAreaBehavior extends Behavior {
     super(target, settings);
 
     this._dragBehavior = null;
-    this._lastPosition = null;
+    this._behaviorOptions = null;
     this._onMouseMove = this._onMouseMove.bind(this);
   }
 
@@ -13,31 +13,28 @@ class DraggingAreaBehavior extends Behavior {
     const dragBehavior = this._dragBehavior;
 
     this._dragBehavior = null;
+    this._behaviorOptions = null;
 
     if (dragBehavior) dragBehavior.endDrag();
   }
 
-  setDragBehavior(behavior, initDragPoint) {
-    const { x = null, y = null } = initDragPoint || {};
-
-    // TODO: find a better way to access the shape behavior, it's a protected member.
-    this.removeDragBehavior();
-    this._dragBehavior = behavior;
-
-    this._lastPosition = { x, y };
+  setDragBehavior(behavior, options = {}) {
+    if (behavior !== this._dragBehavior) {
+      // TODO: find a better way to access the shape behavior, it's a protected member.
+      this.removeDragBehavior();
+      this._dragBehavior = behavior;
+      this._behaviorOptions = { ...options };
+    }
   }
 
   _onMouseMove(event) {
     if (!this._disabled && this._dragBehavior) {
-      const diffX = event.clientX - this._lastPosition.x;
-      const diffY = event.clientY - this._lastPosition.y;
-      const diffs = this.evaluate(diffX, diffY);
+      const { clientX: x, clientY: y } = event;
+      const position = this.evaluate(x, y);
 
-      if (diffs) {
+      if (position) {
         // TODO: consider to update this method to send the actual position instead of the diff.
-        this._dragBehavior.updatePosition(diffs);
-        this._lastPosition.x = event.clientX;
-        this._lastPosition.y = event.clientY;
+        this._dragBehavior.updatePosition(position, this._behaviorOptions);
       }
     }
   }

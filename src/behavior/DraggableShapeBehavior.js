@@ -20,14 +20,10 @@ class DraggableShapeBehavior extends DragNDropBehavior {
 
   _onGrab(event) {
     const canvas = this._target.getCanvas();
-    const initDragPoint = {
-      x: event.clientX,
-      y: event.clientY,
-    };
 
     super._onGrab(event);
 
-    canvas.setDraggingShape(this._target, initDragPoint);
+    canvas.setDraggingShape(this._target);
   }
 
   _onStart(point) {
@@ -50,6 +46,16 @@ class DraggableShapeBehavior extends DragNDropBehavior {
   // eslint-disable-next-line class-methods-use-this
   _evaluate() {
     throw new Error('evaluate(): This method should be implemented.');
+  }
+
+  updatePosition(position) {
+    if (!this._lastPosition) {
+      this._lastPosition = this._target.getPosition();
+    }
+
+    console.log(this._grabbed, this._dragging);
+
+    super.updatePosition(position);
   }
 
   attachBehavior() {

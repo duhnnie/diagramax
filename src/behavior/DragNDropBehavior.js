@@ -23,6 +23,7 @@ class DragAndDropBehavior extends Behavior {
       ...settings,
     };
 
+    this._lastPosition = null;
     this._onGrab = this._onGrab.bind(this);
     this._onRelease = this._onRelease.bind(this);
   }
@@ -39,13 +40,18 @@ class DragAndDropBehavior extends Behavior {
     this._options.onEnd(point);
   }
 
-  _onGrab() {
+  _onGrab(event) {
     this._grabbed = true;
+
+    this._lastPosition = {
+      x: event.clientX,
+      y: event.clientY,
+    };
   }
 
   updatePosition({ x, y }) {
-    this._diff.x += x;
-    this._diff.y += y;
+    this._diff.x += x - this._lastPosition.x;
+    this._diff.y += y - this._lastPosition.y;
 
     const diff = this._evaluate(this._diff.x, this._diff.y);
 
@@ -61,10 +67,12 @@ class DragAndDropBehavior extends Behavior {
         this._onStart(posX, posY);
       }
 
-      this._onDrag({ posX, posY });
-      this._target.setPosition(posX, posY);
+      this._lastPosition = { x, y };
       this._diff.x = 0;
       this._diff.y = 0;
+
+      this._target.setPosition(posX, posY);
+      this._onDrag({ posX, posY });
     }
   }
 

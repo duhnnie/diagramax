@@ -187,21 +187,32 @@ class Canvas extends Element {
     return this;
   }
 
-  setDraggingShape(shape, initDragPoint = {}) {
-    let { x = null, y = null } = initDragPoint;
-
-    if (!shape) {
-      this._draggingAreaBehavior.removeDragBehavior();
-    } else if (shape) {
-      if (x === null || y === null) {
-        x = shape.getX();
-        y = shape.getY();
+  _connectToDragAreaBehavior(behavior, initDragPoint, options = {}) {
+    if (this._draggingAreaBehavior) {
+      if (!behavior) {
+        this._draggingAreaBehavior.removeDragBehavior();
+      } else {
+        // TODO: find a better way to do this, _dragBehavior is protected
+        this._draggingAreaBehavior.setDragBehavior(behavior, initDragPoint, options);
       }
-      // TODO: find a better way to do this, _dragBehavior is protected
-      this._draggingAreaBehavior.setDragBehavior(shape._dragBehavior, { x, y });
     }
 
     return this;
+  }
+
+  setResizingShape(shape, direction) {
+    // TODO: find a better way to do this, _dragBehavior is protected
+    const behavior = shape && shape._resizeBehavior;
+    const options = { direction };
+
+    return this._connectToDragAreaBehavior(behavior, options);
+  }
+
+  setDraggingShape(shape) {
+    // TODO: find a better way to do this, _dragBehavior is protected
+    const behavior = shape && shape._dragBehavior;
+
+    return this._connectToDragAreaBehavior(behavior);
   }
 
   getConnectivityAreaBehavior() {
