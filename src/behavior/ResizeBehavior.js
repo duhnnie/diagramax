@@ -3,17 +3,17 @@ import Element from '../core/Element';
 import DragBehavior from './DragBehavior';
 
 export const DIRECTION = {
-  N: 'n',
-  NE: 'ne',
-  E: 'e',
-  SE: 'se',
-  S: 's',
-  SW: 'sw',
-  W: 'w',
-  NW: 'nw',
+  NW: 0,
+  N: 1,
+  NE: 2,
+  E: 3,
+  SE: 4,
+  S: 5,
+  SW: 6,
+  W: 7,
 };
 
-const resizeHandlerDefs = [
+const handlerDefs = [
   {
     className: 'nwse',
     direction: DIRECTION.NW,
@@ -52,7 +52,7 @@ const resizeHandlerRadius = 4;
 let resizeHandler;
 
 class ResizeBehavior extends DragBehavior {
-  static getResizeHandler(x, y) {
+  static createHandler(x, y) {
     if (!resizeHandler) {
       resizeHandler = Element.createSVG('circle');
       resizeHandler.setAttribute('r', resizeHandlerRadius);
@@ -70,8 +70,50 @@ class ResizeBehavior extends DragBehavior {
   constructor(target, settings) {
     super(target, settings);
 
+    this._handlers = [];
     this._currentHandler = null;
     this._onGrab = this._onGrab.bind(this);
+    this.endDrag = this.endDrag.bind(this);
+  }
+
+  _updateHandlers(newSize) {
+    const { width: targetWidth, height: targetHeight } = newSize || this._target.getSize();
+    const xPoints = [-1, 0, 1];
+    const yPoints = [-1, 0, 1];
+    const hOffset = (targetWidth * 0.5) + (resizeHandlerRadius * 1.5);
+    const vOffset = (targetHeight * 0.5) + (resizeHandlerRadius * 1.5);
+    let index = 0;
+
+    yPoints.forEach((y) => {
+      xPoints.forEach((x) => {
+        // If x and y are 0
+        if (!x && !y) return;
+
+        const handler = this._handlers[index];
+        const xPos = hOffset * x;
+        const yPos = vOffset * y;
+
+        if (handler) {
+          handler.setAttribute('cx', xPos);
+          handler.setAttribute('cy', yPos);
+        } else {
+          const newHandler = ResizeBehavior.createHandler(xPos, yPos);
+          const { className, direction } = handlerDefs[index];
+
+          newHandler.classList.add(`handler-resize-${className}`);
+          newHandler.dataset.direction = direction;
+
+          this._target._addControl(newHandler, {
+            mousedown: this._onGrab,
+            mouseup: this.endDrag,
+          });
+
+          this._handlers[index] = newHandler;
+        }
+
+        index += 1;
+      });
+    });
   }
 
   _onGrab(event) {
@@ -79,43 +121,53 @@ class ResizeBehavior extends DragBehavior {
 
     super._onGrab(event);
 
-    this._currentHandler = handler.dataset.direction;
-    this._target.getCanvas().setResizingShape(this._target, 'asd', {});
+    this._currentHandler = handler;
+    // TODO: fix this access to a protected member.
+    this._target._controlsLayer.setActive();
+    this._target.getCanvas().setResizingShape(this._target);
   }
 
-  _createControls() {
-    const { width: targetWidth, height: targetHeight } = this._target.getSize();
-    const horizontalOffset = (targetWidth * 0.5) + (resizeHandlerRadius * 1.5);
-    const verticalOffset = (targetHeight * 0.5) + (resizeHandlerRadius * 1.5);
-    const horizontalPositions = [-horizontalOffset, 0, horizontalOffset];
-    let index = 0;
-
-    [-verticalOffset, 0, verticalOffset].forEach((y) => {
-      horizontalPositions.forEach((x) => {
-        if (y === 0 && x === 0) return;
-
-        const control = ResizeBehavior.getResizeHandler(x, y);
-        const { className, direction } = resizeHandlerDefs[index];
-
-
-        control.classList.add(`handler-resize-${className}`);
-        control.dataset.direction = direction;
-        this._target._addControl(control, {
-          mousedown: this._onGrab,
-        });
-        index += 1;
-      });
-    });
+  endDrag() {
+    this._currentHandler = null;
+    this._updateHandlers();
+    // TODO fix this access to protected member.
+    this._target._controlsLayer.setActive(false);
+    super.endDrag();
   }
 
-  updatePosition(diff, options) {
-    const direction = this._currentHandler || options.direction;
+  updatePosition(position, lastPosition, options) {
+    if (!this._currentHandler) return;
 
-    console.log(direction);
+    const direction = this._currentHandler.dataset.direction || options.direction;
+    const { x, y } = position;
+
+    if (direction === '2') {
+      const bounds = this._target.getBounds();
+      const newWidth = bounds.right - bounds.left;
+      const newHeight = bounds.bottom - bounds.top;
+
+      // TODO: fix this hardcoded value
+      bounds.top = y + 6;
+      bounds.right = x - 6;
+
+      this._updateHandlers({ width: newWidth, height: newHeight });
+
+      this._target.setPosition(
+        bounds.left + (newWidth / 2),
+        bounds.top + (newHeight / 2),
+      );
+
+      this._target.setSize(
+        (bounds.right - bounds.left),
+        (bounds.bottom - bounds.top),
+      );
+    }
+
+    super.updatePosition(position);
   }
 
   attachBehavior() {
-    this._createControls();
+    this._updateHandlers();
   }
 }
 

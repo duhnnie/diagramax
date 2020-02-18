@@ -12,8 +12,41 @@
   display: none;
 }
 
+.shape .controls-layer.active,
 .shape:hover .controls-layer {
   display: initial;
+}
+
+.shape .controls-layer .handler-resize-nwse {
+  cursor: nwse-resize;
+}
+
+.shape .controls-layer .handler-resize-ns {
+  cursor: ns-resize;
+}
+
+.shape .controls-layer .handler-resize-nesw {
+  cursor: nesw-resize;
+}
+
+.shape .controls-layer .handler-resize-ew {
+  cursor: ew-resize;
+}
+
+.shape .controls-layer .handler-resize-ew {
+  cursor: ew-resize;
+}
+
+.shape .controls-layer .handler-resize-nesw {
+  cursor: nesw-resize;
+}
+
+.shape .controls-layer .handler-resize-ns {
+  cursor: ns-resize;
+}
+
+.shape .controls-layer .handler-resize-nwse {
+  cursor: nwse-resize;
 }
 
 .shape-text-input {

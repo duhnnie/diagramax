@@ -24,7 +24,7 @@ class Shape extends Component {
     this._y = null;
     this._connections = new Set();
     this._ports = [];
-    this._controlLayer = new ShapeControlsLayer();
+    this._controlsLayer = new ShapeControlsLayer();
     this._dragBehavior = new RegularDraggableShapeBehavior(this);
     this._connectivityBehavior = new ConnectivityBehavior(this);
     this._selectBehavior = new SelectBehavior(this);
@@ -334,7 +334,7 @@ class Shape extends Component {
    * in which each element is a function to be executed when that event occurs.
    */
   _addControl(svgElement, events) {
-    this._controlLayer.addControl(svgElement, events);
+    this._controlsLayer.addControl(svgElement, events);
   }
 
   _resetPorts() {
@@ -366,7 +366,7 @@ class Shape extends Component {
     this._html.setAttribute('transform', `translate(${this._x}, ${this._y})`);
 
     this._html.insertBefore(this._dom.mainElement, this._dom.title);
-    this._html.prepend(this._controlLayer.getHTML());
+    this._html.prepend(this._controlsLayer.getHTML());
 
     this._connectivityBehavior.attachBehavior();
     this._dragBehavior.attachBehavior();
