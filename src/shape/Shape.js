@@ -18,8 +18,6 @@ const DEFAULTS = {
 class Shape extends Component {
   constructor(settings) {
     super(settings);
-    this._width = null;
-    this._height = null;
     this._x = null;
     this._y = null;
     this._connections = new Set();
@@ -37,8 +35,7 @@ class Shape extends Component {
     };
 
     this._initPorts()
-      .setPosition(settings.position.x, settings.position.y)
-      .setSize(settings.width, settings.height);
+      .setPosition(settings.position.x, settings.position.y);
   }
 
   _initPorts() {
@@ -120,45 +117,14 @@ class Shape extends Component {
     };
   }
 
+  // eslint-disable-next-line no-unused-vars, class-methods-use-this
   setWidth(width) {
-    if (typeof width !== 'number') {
-      throw new Error('setWidth(): invalid parameter.');
-    }
-
-    const { mainElement } = this._dom;
-
-    this._width = width;
-
-    if (mainElement) {
-      mainElement.setAttribute('width', width);
-      mainElement.setAttribute('x', this._width * -0.5);
-    }
-
-    return this;
+    throw new Error('setWidth(): This method should be implemented.');
   }
 
-  getWidth() {
-    return this._width;
-  }
-
+  // eslint-disable-next-line no-unused-vars, class-methods-use-this
   setHeight(height) {
-    if (typeof height !== 'number') {
-      throw new Error('setHeight(): invalid parameter.');
-    }
-
-    const { mainElement } = this._dom;
-    this._height = height;
-
-    if (mainElement) {
-      mainElement.setAttribute('height', height);
-      mainElement.setAttribute('y', this._height * -0.5);
-    }
-
-    return this;
-  }
-
-  getHeight() {
-    return this._height;
+    throw new Error('setHeight(): This method should be implemented.');
   }
 
   setSize(width, height) {
@@ -172,11 +138,22 @@ class Shape extends Component {
     return this._drawConnections();
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  getBounds() {
+    throw new Error('getBounds(): This method should be implemented.');
+  }
+
   getSize() {
-    return {
-      width: this._width,
-      height: this._height,
-    };
+    const {
+      top,
+      right,
+      bottom,
+      left,
+    } = this.getBounds();
+    const width = right - left;
+    const height = bottom - top;
+
+    return { width, height };
   }
 
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
@@ -277,18 +254,6 @@ class Shape extends Component {
     this._ports[portIndex].addConnection(connection);
 
     return this;
-  }
-
-  getBounds() {
-    const halfWidth = this._width / 2;
-    const halfHeight = this._height / 2;
-
-    return {
-      top: this._y - halfHeight,
-      right: this._x + halfWidth,
-      bottom: this._y + halfHeight,
-      left: this._x - halfWidth,
-    };
   }
 
   isUsingConnection(connection) {

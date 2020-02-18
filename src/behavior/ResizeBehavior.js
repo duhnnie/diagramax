@@ -141,8 +141,6 @@ class ResizeBehavior extends DragBehavior {
     const direction = this._currentHandler.dataset.direction || options.direction;
     const { x, y } = position;
     const bounds = this._target.getBounds();
-    const newWidth = bounds.right - bounds.left;
-    const newHeight = bounds.bottom - bounds.top;
 
     switch (direction) {
       case DIRECTION.NW:
@@ -184,8 +182,8 @@ class ResizeBehavior extends DragBehavior {
       default:
     }
 
-    this._updateHandlers({ width: newWidth, height: newHeight });
     this._target.adjustSize(bounds);
+    this._updateHandlers(this._target.getSize());
 
     super.updatePosition(position);
   }
