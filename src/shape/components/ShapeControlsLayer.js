@@ -16,9 +16,7 @@ class ShapeControlsLayer extends Element {
 
     event.stopPropagation();
 
-    listeners.forEach((listener) => {
-      listener();
-    });
+    listeners.forEach((listener) => listener(event));
   }
 
   _createEventMap(event) {

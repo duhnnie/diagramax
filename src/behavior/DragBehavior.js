@@ -48,31 +48,15 @@ class DragBehavior extends Behavior {
     this._lastPosition = this._target.getCanvas().clientToCanvas({ x, y });
   }
 
-  updatePosition({ x, y }) {
-    this._diff.x += x - this._lastPosition.x;
-    this._diff.y += y - this._lastPosition.y;
-
-    const diff = this._evaluate(this._diff.x, this._diff.y);
-
-    if (diff) {
-      const target = this._target;
-      let { x: posX, y: posY } = target.getPosition();
-
-      posX += this._diff.x;
-      posY += this._diff.y;
-
-      if (!this._dragging) {
-        this._dragging = true;
-        this._onStart(posX, posY);
-      }
-
-      this._lastPosition = { x, y };
-      this._diff.x = 0;
-      this._diff.y = 0;
-
-      this._target.setPosition(posX, posY);
-      this._onDrag({ posX, posY });
+  startDrag(position) {
+    if (!this._dragging) {
+      this._dragging = true;
+      this._onStart(position);
     }
+  }
+
+  updatePosition({ x, y }) {
+    this._onDrag({ x, y });
   }
 
   endDrag() {

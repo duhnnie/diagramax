@@ -162,8 +162,14 @@ class Shape extends Component {
   }
 
   setSize(width, height) {
-    return this.setWidth(width)
+    this.__bulkAction = true;
+
+    this.setWidth(width)
       .setHeight(height);
+
+    this.__bulkAction = false;
+
+    return this._drawConnections();
   }
 
   getSize() {
@@ -286,6 +292,10 @@ class Shape extends Component {
 
   isBeingDragged() {
     return this._dragBehavior.isDragging();
+  }
+
+  isBeingResized() {
+    return this._resizeBehavior.isDragging();
   }
 
   removeFromCanvas() {

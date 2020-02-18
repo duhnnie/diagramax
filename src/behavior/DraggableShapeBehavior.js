@@ -48,12 +48,31 @@ class DraggableShapeBehavior extends DragBehavior {
     throw new Error('evaluate(): This method should be implemented.');
   }
 
-  updatePosition(position) {
+  updatePosition({ x, y }) {
     if (!this._lastPosition) {
       this._lastPosition = this._target.getPosition();
     }
 
-    super.updatePosition(position);
+    this._diff.x += x - this._lastPosition.x;
+    this._diff.y += y - this._lastPosition.y;
+
+    const diff = this._evaluate(this._diff.x, this._diff.y);
+
+    if (diff) {
+      const target = this._target;
+      let { x: posX, y: posY } = target.getPosition();
+
+      posX += this._diff.x;
+      posY += this._diff.y;
+
+      this._lastPosition = { x, y };
+      this._diff.x = 0;
+      this._diff.y = 0;
+
+      this._target.setPosition(posX, posY);
+    }
+
+    super.updatePosition({ x, y });
   }
 
   attachBehavior() {

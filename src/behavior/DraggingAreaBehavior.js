@@ -4,8 +4,7 @@ class DraggingAreaBehavior extends Behavior {
   constructor(target, settings) {
     super(target, settings);
 
-    this._dragBehavior = null;
-    this._behaviorOptions = null;
+    this.removeDragBehavior();
     this._onMouseMove = this._onMouseMove.bind(this);
   }
 
@@ -14,6 +13,7 @@ class DraggingAreaBehavior extends Behavior {
 
     this._dragBehavior = null;
     this._behaviorOptions = null;
+    this._started = false;
 
     if (dragBehavior) dragBehavior.endDrag();
   }
@@ -32,6 +32,11 @@ class DraggingAreaBehavior extends Behavior {
       const { clientX, clientY } = event;
       const { x, y } = this._target.clientToCanvas({ x: clientX, y: clientY });
       const position = this.evaluate(x, y);
+
+      if (!this._started) {
+        this._started = true;
+        this._dragBehavior.startDrag(position, this._behaviorOptions);
+      }
 
       if (position) {
         // TODO: consider to update this method to send the actual position instead of the diff.

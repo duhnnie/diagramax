@@ -20,16 +20,13 @@ class Box extends Shape {
     if (!this._html) {
       const rect = Element.createSVG('rect');
 
+      this._dom.mainElement = rect;
+
       rect.setAttribute('fill', '#ffffff');
       rect.setAttribute('stroke', '#000000');
-      rect.setAttribute('x', this._width * -0.5);
-      rect.setAttribute('y', this._height * -0.5);
-      rect.setAttribute('width', this._width);
-      rect.setAttribute('height', this._height);
+      this.setSize(this._width, this._height);
       rect.setAttribute('stroke-width', 4);
       rect.setAttribute('stroke-dasharray', 0);
-
-      this._dom.mainElement = rect;
 
       super._createHTML();
     }

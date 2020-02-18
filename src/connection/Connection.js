@@ -458,7 +458,8 @@ class Connection extends Component {
     if (!this._points.length) {
       this._calculatePoints();
       this._updateIntersectionPoints();
-    } else if (this._origShape.isBeingDragged() || this._destShape.isBeingDragged()) {
+    } else if (this._origShape.isBeingDragged() || this._destShape.isBeingDragged()
+      || this._origShape.isBeingResized() || this._destShape.isBeingResized()) {
       this._calculatePoints();
     } else {
       this._updateIntersectionPoints();
