@@ -56,6 +56,20 @@ class ShapeControlsLayer extends Element {
     this.getHTML().appendChild(svgElement);
   }
 
+  /**
+   * By default this element is only visible on hovering on it's parent Shape. This method will
+   * allow to make it permanently visible until it's called again with a 'false' parameter.
+   * @param {Boolean} [active = true] If the layer will be permanently visible.
+   */
+  setActive(active = true) {
+    const activeClass = 'active';
+
+    if (active) {
+      this._html.classList.add(activeClass);
+    } else {
+      this._html.classList.remove(activeClass);
+    }
+  }
 
   _createHTML() {
     const layer = Element.createSVG('g');
