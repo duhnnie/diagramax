@@ -3,14 +3,14 @@ import Element from '../core/Element';
 import DragBehavior from './DragBehavior';
 
 export const DIRECTION = {
-  NW: 0,
-  N: 1,
-  NE: 2,
-  E: 3,
-  SE: 4,
-  S: 5,
-  SW: 6,
-  W: 7,
+  NW: 'nw',
+  N: 'n',
+  NE: 'ne',
+  E: 'e',
+  SE: 'se',
+  S: 's',
+  SW: 'sw',
+  W: 'w',
 };
 
 const handlerDefs = [
@@ -140,28 +140,61 @@ class ResizeBehavior extends DragBehavior {
 
     const direction = this._currentHandler.dataset.direction || options.direction;
     const { x, y } = position;
+    const bounds = this._target.getBounds();
+    const newWidth = bounds.right - bounds.left;
+    const newHeight = bounds.bottom - bounds.top;
 
-    if (direction === '2') {
-      const bounds = this._target.getBounds();
-      const newWidth = bounds.right - bounds.left;
-      const newHeight = bounds.bottom - bounds.top;
-
-      // TODO: fix this hardcoded value
-      bounds.top = y + 6;
-      bounds.right = x - 6;
-
-      this._updateHandlers({ width: newWidth, height: newHeight });
-
-      this._target.setPosition(
-        bounds.left + (newWidth / 2),
-        bounds.top + (newHeight / 2),
-      );
-
-      this._target.setSize(
-        (bounds.right - bounds.left),
-        (bounds.bottom - bounds.top),
-      );
+    switch (direction) {
+      case DIRECTION.NW:
+        // TODO: fix this hardcoded value
+        bounds.left = x + 6;
+        bounds.top = y + 6;
+        break;
+      case DIRECTION.NE:
+        // TODO: fix this hardcoded value
+        bounds.right = x - 6;
+        bounds.top = y + 6;
+        break;
+      case DIRECTION.N:
+        // TODO: fix this hardcoded value
+        bounds.top = y + 6;
+        break;
+      case DIRECTION.E:
+        // TODO fix this hardcoded value
+        bounds.right = x - 6;
+        break;
+      case DIRECTION.SE:
+        // TODO fix this hardcoded value
+        bounds.right = x - 6;
+        bounds.bottom = y - 6;
+        break;
+      case DIRECTION.S:
+        // TODO fix this hardcoded value
+        bounds.bottom = y - 6;
+        break;
+      case DIRECTION.SW:
+        // TODO fix this hardcoded value
+        bounds.left = x + 6;
+        bounds.bottom = y - 6;
+        break;
+      case DIRECTION.W:
+        // TODO fix this hardcoded value
+        bounds.left = x + 6;
+        break;
+      default:
     }
+
+    this._updateHandlers({ width: newWidth, height: newHeight });
+
+    this._target.setPosition(
+      bounds.left + (newWidth / 2),
+      bounds.top + (newHeight / 2),
+    );
+
+    this._target.setSize(
+      (bounds.right - bounds.left),
+      (bounds.bottom - bounds.top),
+    );
 
     super.updatePosition(position);
   }
