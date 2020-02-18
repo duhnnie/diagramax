@@ -179,6 +179,11 @@ class Shape extends Component {
     };
   }
 
+  // eslint-disable-next-line no-unused-vars, class-methods-use-this
+  adjustSize(boundingBox) {
+    throw new Error('adjustSize(): This method should be implemented.');
+  }
+
   getPortDescriptor(index) {
     const port = this._ports[index];
 

@@ -6,7 +6,7 @@ const DEFAULTS = {
   height: 80,
 };
 
-class Box extends Shape {
+class Rectangle extends Shape {
   constructor(settings) {
     settings = {
       ...DEFAULTS,
@@ -14,6 +14,24 @@ class Box extends Shape {
     };
 
     super(settings);
+  }
+
+  adjustSize(boundingBox) {
+    const {
+      top, right, bottom, left,
+    } = boundingBox;
+    const newWidth = right - left;
+    const newHeight = bottom - top;
+
+    this.setPosition(
+      left + (newWidth / 2),
+      top + (newHeight / 2),
+    );
+
+    this.setSize(
+      (right - left),
+      (bottom - top),
+    );
   }
 
   _createHTML() {
@@ -34,4 +52,4 @@ class Box extends Shape {
     return this;
   }
 }
-export default Box;
+export default Rectangle;
