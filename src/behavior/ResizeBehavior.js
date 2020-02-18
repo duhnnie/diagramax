@@ -185,16 +185,7 @@ class ResizeBehavior extends DragBehavior {
     }
 
     this._updateHandlers({ width: newWidth, height: newHeight });
-
-    this._target.setPosition(
-      bounds.left + (newWidth / 2),
-      bounds.top + (newHeight / 2),
-    );
-
-    this._target.setSize(
-      (bounds.right - bounds.left),
-      (bounds.bottom - bounds.top),
-    );
+    this._target.adjustSize(bounds);
 
     super.updatePosition(position);
   }
