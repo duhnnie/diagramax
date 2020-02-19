@@ -2,6 +2,12 @@ import _ from 'lodash';
 import Element from '../core/Element';
 import DragBehavior from './DragBehavior';
 
+export const EVENT = Object.freeze({
+  START: 'resizestart',
+  RESIZE: 'resize',
+  END: 'resizeend',
+});
+
 export const DIRECTION = {
   NW: 'nw',
   N: 'n',
@@ -85,6 +91,29 @@ class ResizeBehavior extends DragBehavior {
     // TODO: fix this access to a protected member.
     this._target._controlsLayer.setActive();
     this._target.getCanvas().setResizingShape(this._target);
+  }
+
+  _onStart() {
+    const { _target } = this;
+    // TODO: When Element inherits from EventTarget, the method
+    // should trigger the event from itself.
+    _target.getCanvas().dispatchEvent(EVENT.START, _target);
+    super._onStart();
+  }
+
+  _onDrag() {
+    const { _target } = this;
+
+    // INFO: keep in mind this event is fired only when size of a shape is changing by dragging.
+    _target.getCanvas().dispatchEvent(EVENT.RESIZE, _target);
+    super._onDrag();
+  }
+
+  _onEnd() {
+    const { _target } = this;
+
+    _target.getCanvas().dispatchEvent(EVENT.END, _target);
+    super._onEnd();
   }
 
   endDrag(event) {
