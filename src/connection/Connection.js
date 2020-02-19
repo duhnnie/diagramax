@@ -6,6 +6,7 @@ import Port from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
 import { EVENT as DRAG_EVENT } from '../behavior/DraggableShapeBehavior';
+import { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
 
 const DEFAULTS = {
   origShape: null,
@@ -265,6 +266,8 @@ class Connection extends Component {
   _addDragListeners(shape) {
     this._canvas.addEventListener(DRAG_EVENT.START, shape, this._onShapeDragStart, this);
     this._canvas.addEventListener(DRAG_EVENT.END, shape, this._onShapeDragEnd, this);
+    this._canvas.addEventListener(RESIZE_EVENT.START, shape, this._onShapeDragStart, this);
+    this._canvas.addEventListener(RESIZE_EVENT.END, shape, this._onShapeDragEnd, this);
 
     return this;
   }
