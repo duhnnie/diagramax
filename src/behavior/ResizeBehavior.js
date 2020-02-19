@@ -88,8 +88,6 @@ class ResizeBehavior extends DragBehavior {
     super._onGrab(event);
 
     this._currentHandler = handler;
-    // TODO: fix this access to a protected member.
-    this._target._controlsLayer.setActive();
     this._target.getCanvas().setResizingShape(this._target);
   }
 
@@ -114,6 +112,17 @@ class ResizeBehavior extends DragBehavior {
 
     _target.getCanvas().dispatchEvent(EVENT.END, _target);
     super._onEnd();
+  }
+
+  startDrag(position, options) {
+    if (!this._currentHandler) {
+      this._currentHandler = this._handlers.find((handler) => handler.dataset.direction === options.direction);
+    }
+
+    // TODO: fix this access to a protected member.
+    this._target._controlsLayer.setActive();
+
+    super.startDrag(position, options);
   }
 
   endDrag(event) {
@@ -165,7 +174,7 @@ class ResizeBehavior extends DragBehavior {
   }
 
 
-  updatePosition(position, lastPosition, options) {
+  updatePosition(position, options) {
     if (!this._currentHandler) return;
 
     const direction = this._currentHandler.dataset.direction || options.direction;

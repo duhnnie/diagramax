@@ -187,13 +187,13 @@ class Canvas extends Element {
     return this;
   }
 
-  _connectToDragAreaBehavior(behavior, initDragPoint, options = {}) {
+  _connectToDragAreaBehavior(behavior, options = {}) {
     if (this._draggingAreaBehavior) {
       if (!behavior) {
         this._draggingAreaBehavior.removeDragBehavior();
       } else {
         // TODO: find a better way to do this, _dragBehavior is protected
-        this._draggingAreaBehavior.setDragBehavior(behavior, initDragPoint, options);
+        this._draggingAreaBehavior.setDragBehavior(behavior, options);
       }
     }
 
