@@ -59,8 +59,10 @@ class DragBehavior extends Behavior {
     this._onDrag({ x, y });
   }
 
-  endDrag() {
+  endDrag(event) {
     const canvas = this._target.getCanvas();
+
+    if (event) event.stopPropagation();
 
     canvas.setDraggingShape(null);
     this._grabbed = false;

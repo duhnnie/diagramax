@@ -6,6 +6,7 @@ class DraggingAreaBehavior extends Behavior {
 
     this.removeDragBehavior();
     this._onMouseMove = this._onMouseMove.bind(this);
+    this._onClick = this._onClick.bind(this);
   }
 
   removeDragBehavior() {
@@ -45,8 +46,13 @@ class DraggingAreaBehavior extends Behavior {
     }
   }
 
+  _onClick() {
+    this.removeDragBehavior();
+  }
+
   attachBehavior() {
     this._target.getHTML().addEventListener('mousemove', this._onMouseMove, false);
+    this._target.getHTML().addEventListener('click', this._onClick, false);
 
     return this;
   }

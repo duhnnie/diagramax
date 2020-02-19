@@ -76,6 +76,25 @@ class ResizeBehavior extends DragBehavior {
     this.endDrag = this.endDrag.bind(this);
   }
 
+  _onGrab(event) {
+    const { target: handler } = event;
+
+    super._onGrab(event);
+
+    this._currentHandler = handler;
+    // TODO: fix this access to a protected member.
+    this._target._controlsLayer.setActive();
+    this._target.getCanvas().setResizingShape(this._target);
+  }
+
+  endDrag(event) {
+    this._currentHandler = null;
+    this._updateHandlers();
+    // TODO fix this access to protected member.
+    this._target._controlsLayer.setActive(false);
+    super.endDrag(event);
+  }
+
   _updateHandlers(newSize) {
     const { width: targetWidth, height: targetHeight } = newSize || this._target.getSize();
     const xPoints = [-1, 0, 1];
@@ -116,24 +135,6 @@ class ResizeBehavior extends DragBehavior {
     });
   }
 
-  _onGrab(event) {
-    const { target: handler } = event;
-
-    super._onGrab(event);
-
-    this._currentHandler = handler;
-    // TODO: fix this access to a protected member.
-    this._target._controlsLayer.setActive();
-    this._target.getCanvas().setResizingShape(this._target);
-  }
-
-  endDrag() {
-    this._currentHandler = null;
-    this._updateHandlers();
-    // TODO fix this access to protected member.
-    this._target._controlsLayer.setActive(false);
-    super.endDrag();
-  }
 
   updatePosition(position, lastPosition, options) {
     if (!this._currentHandler) return;
