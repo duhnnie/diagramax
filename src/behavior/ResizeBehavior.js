@@ -178,7 +178,7 @@ class ResizeBehavior extends DragBehavior {
     if (!this._currentHandler) return;
 
     const direction = this._currentHandler.dataset.direction || options.direction;
-    const { x, y } = position;
+    const { x, y } = this._evaluate(position);
     const bounds = this._target.getBounds();
 
     switch (direction) {
@@ -229,6 +229,12 @@ class ResizeBehavior extends DragBehavior {
 
   getCurrentDirection() {
     return this._currentHandler && this._currentHandler.dataset.direction;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _evaluate(point) {
+    // INFO: This could be removed when implementing snap resizing.
+    return point;
   }
 
   attachBehavior() {
