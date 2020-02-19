@@ -9,6 +9,7 @@ class ConnectivityAreaBehavior extends Behavior {
     this._destiny = null;
     this._dom = {};
     this._canvasOffset = null;
+    this._onClick = this._onClick.bind(this);
     this._onMouseMove = this._onMouseMove.bind(this);
     this._updateCanvasOffset = this._updateCanvasOffset.bind(this);
   }
@@ -18,6 +19,10 @@ class ConnectivityAreaBehavior extends Behavior {
       x: x - this._canvasOffset.left - 1,
       y: y - this._canvasOffset.top - 1,
     };
+  }
+
+  _onClick() {
+    this.reset();
   }
 
   _onMouseMove(event) {
@@ -75,6 +80,7 @@ class ConnectivityAreaBehavior extends Behavior {
     // its _html property.
     // TODO: make sure to call this method only once
     this._dom.line = Element.createSVG('line');
+    this._target.getHTML().addEventListener('click', this._onClick, false);
     this._target.getHTML().addEventListener('mousemove', this._onMouseMove, false);
     this._updateCanvasOffset();
 

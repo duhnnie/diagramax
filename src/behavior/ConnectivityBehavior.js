@@ -13,7 +13,7 @@ class ConnectivityBehavior extends Behavior {
     this._onDblClick = this._onDblClick.bind(this);
   }
 
-  _onClick(event) {
+  _onDblClick(event) {
     const target = this._target;
 
     event.stopPropagation();
@@ -28,14 +28,14 @@ class ConnectivityBehavior extends Behavior {
     }
   }
 
-  _onDblClick() {
-    const canvas = this._target.getCanvas();
-
-    canvas.getConnectivityAreaBehavior().reset();
+  _onClick(event) {
+    event.stopPropagation();
   }
 
   attachBehavior() {
-    this._target.getHTML().addEventListener('dblclick', this._onClick, false);
+    // TODO: _getMainElement() is protected, fix it.
+    this._target._getMainElement().addEventListener('click', this._onClick, false);
+    this._target.getHTML().addEventListener('dblclick', this._onDblClick, false);
   }
 }
 
