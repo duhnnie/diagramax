@@ -188,6 +188,8 @@ class Canvas extends Element {
   }
 
   _connectToDragAreaBehavior(behavior, options = {}) {
+    this._connectivityAreaBehavior.reset();
+
     if (this._draggingAreaBehavior) {
       if (!behavior) {
         this._draggingAreaBehavior.removeDragBehavior();
