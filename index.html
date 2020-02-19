@@ -6,7 +6,7 @@
         <script src="./lib/lodash.js"></script>
         <script src="./designer.js"></script>
         <script type="text/javascript">
-            const ev = new Designer.Box({
+            const ev = new Designer.Rectangle({
                 id: 'ev',
                 text: "Start",
                 position: {
@@ -14,7 +14,7 @@
                     y: 50
                 }
             });
-            const act = new Designer.Box({
+            const act = new Designer.Rectangle({
                 id: 'act1',
                 text: "Activity #1",
                 position: {
@@ -22,7 +22,7 @@
                     y: 180
                 }
             });
-            const act2 = new Designer.Box({
+            const act2 = new Designer.Rectangle({
                 id: 'act2',
                 text: "Activity #2",
                 position: {
@@ -30,13 +30,29 @@
                     y: 300
                 }
             });
-            const eev = new Designer.Box({
+            const eev = new Designer.Rectangle({
                 id: 'eev',
                 text: "End Event",
                 position: {
                     x: 700,
                     y: 80
                 }
+            });
+
+            const circle = new Designer.Circle({
+              id: 'myCircle',
+              text: 'Circle',
+              position: {
+                x: 234,
+                y: 183,
+              }
+            });
+
+            const triangle = new Designer.Triangle({
+              position: {
+                x: 300,
+                y: 400,
+              }
             });
 
             const canvas = new Designer.Canvas({
@@ -46,7 +62,9 @@
                 ev,
                 act,
                 act2,
-                eev
+                eev,
+                circle,
+                triangle,
               ]
             });
 
@@ -59,7 +77,7 @@
                 // canvas.connect('act2', 'eev');
                 document.body.appendChild(canvas.getHTML());
 
-                act3 = new Designer.Box({
+                act3 = new Designer.Rectangle({
                     text: "Another Activity",
                     position: {
                         x: 550,

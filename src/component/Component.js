@@ -77,6 +77,10 @@ class Component extends Element {
     return this;
   }
 
+  _getMainElement() {
+    return this._createHTML()._dom.mainElement;
+  }
+
   getBounds() { throw new Error('getBounds() should be implemented.'); }
 
   _createHTML() {
@@ -95,8 +99,9 @@ class Component extends Element {
 
     this._html = wrapper;
 
-    if (this._dom.shapeElement) {
-      this._dom.shapeElement.setAttribute('cursor', 'pointer');
+    if (this._dom.mainElement) {
+      // TODO: This can be set in CSS?
+      this._dom.mainElement.setAttribute('cursor', 'pointer');
     }
 
     return this.setID(this._id);

@@ -24,6 +24,11 @@ class Behavior {
   enable() {
     this._disabled = false;
   }
+
+  // eslint-disable-next-line class-methods-use-this
+  attachBehavior() {
+    throw new Error('attachBehavior(): This method should be implemented');
+  }
 }
 
 export default Behavior;

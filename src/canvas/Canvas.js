@@ -88,7 +88,11 @@ class Canvas extends Element {
       this.addEventListener(SELECT_EVENT.SELECT, element, this._onSelectShape, this);
 
       if (this._html) {
-        this._dom.container.appendChild(element.getHTML());
+        if (element instanceof Connection) {
+          this._dom.container.prepend(element.getHTML());
+        } else {
+          this._dom.container.appendChild(element.getHTML());
+        }
       }
     }
 
@@ -147,20 +151,16 @@ class Canvas extends Element {
   }
 
   connect(origin, destination, connection_id = null) {
-    let connection;
     origin = origin instanceof BPMNShape ? origin : this.getElementById(origin);
     destination = destination instanceof BPMNShape ? destination : this.getElementById(destination);
 
     if (origin && destination && origin !== destination) {
-      connection = new Connection({
+      const connection = new Connection({
         id: connection_id,
         canvas: this,
         origShape: origin,
         destShape: destination,
       });
-      if (this._html) {
-        this._dom.container.appendChild(connection.getHTML());
-      }
     }
 
     return this;
@@ -187,8 +187,48 @@ class Canvas extends Element {
     return this;
   }
 
-  setDraggableShape(dragBehavior, initDragPoint) {
-    this._draggingAreaBehavior.setDraggableShape(dragBehavior, initDragPoint);
+  _connectToDragAreaBehavior(behavior, options = {}) {
+    if (this._draggingAreaBehavior) {
+      if (!behavior) {
+        this._draggingAreaBehavior.removeDragBehavior();
+      } else {
+        // TODO: find a better way to do this, _dragBehavior is protected
+        this._draggingAreaBehavior.setDragBehavior(behavior, options);
+      }
+    }
+
+    return this;
+  }
+
+  clientToCanvas(clientPosition) {
+    const html = this._html;
+
+    if (html) {
+      const rect = html.getBoundingClientRect();
+      const { x: clientX, y: clientY } = clientPosition;
+
+      return {
+        x: clientX - rect.x,
+        y: clientY - rect.y,
+      };
+    }
+
+    return { x: 0, y: 0 };
+  }
+
+  setResizingShape(shape, direction) {
+    // TODO: find a better way to do this, _dragBehavior is protected
+    const behavior = shape && shape._resizeBehavior;
+    const options = { direction };
+
+    return this._connectToDragAreaBehavior(behavior, options);
+  }
+
+  setDraggingShape(shape) {
+    // TODO: find a better way to do this, _dragBehavior is protected
+    const behavior = shape && shape._dragBehavior;
+
+    return this._connectToDragAreaBehavior(behavior);
   }
 
   getConnectivityAreaBehavior() {

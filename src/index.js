@@ -1,5 +1,9 @@
 import Canvas from './canvas/Canvas';
-import Box from './shape/Box';
+import Rectangle from './shape/Rectangle';
+import Circle from './shape/Circle';
+import Triangle from './shape/Triangle';
 
 export { Canvas };
-export { Box };
+export { Rectangle };
+export { Circle };
+export { Triangle };

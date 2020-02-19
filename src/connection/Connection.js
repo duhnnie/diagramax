@@ -5,7 +5,8 @@ import ConnectionManager from './ConnectionManager';
 import Port from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
-import { EVENT as DRAG_EVENT } from '../behavior/DragNDropBehavior';
+import { EVENT as DRAG_EVENT } from '../behavior/DraggableShapeBehavior';
+import { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
 
 const DEFAULTS = {
   origShape: null,
@@ -265,6 +266,8 @@ class Connection extends Component {
   _addDragListeners(shape) {
     this._canvas.addEventListener(DRAG_EVENT.START, shape, this._onShapeDragStart, this);
     this._canvas.addEventListener(DRAG_EVENT.END, shape, this._onShapeDragEnd, this);
+    this._canvas.addEventListener(RESIZE_EVENT.START, shape, this._onShapeDragStart, this);
+    this._canvas.addEventListener(RESIZE_EVENT.END, shape, this._onShapeDragEnd, this);
 
     return this;
   }
@@ -458,7 +461,8 @@ class Connection extends Component {
     if (!this._points.length) {
       this._calculatePoints();
       this._updateIntersectionPoints();
-    } else if (this._origShape.isBeingDragged() || this._destShape.isBeingDragged()) {
+    } else if (this._origShape.isBeingDragged() || this._destShape.isBeingDragged()
+      || this._origShape.isBeingResized() || this._destShape.isBeingResized()) {
       this._calculatePoints();
     } else {
       this._updateIntersectionPoints();
@@ -501,9 +505,6 @@ class Connection extends Component {
     const arrow = Element.createSVG('path');
     const path = Element.createSVG('path');
 
-    super._createHTML();
-    this._html.setAttribute('class', 'connection');
-
     arrowWrapper2.setAttribute('transform', 'scale(0.5,0.5) rotate(-180)');
     arrow.setAttribute('end', 'target');
     arrow.setAttribute('d', 'M 0 0 L -13 -26 L 13 -26 z');
@@ -513,6 +514,10 @@ class Connection extends Component {
 
     arrowWrapper2.appendChild(arrow);
     arrowWrapper.appendChild(arrowWrapper2);
+
+    super._createHTML();
+
+    this._html.setAttribute('class', 'connection');
     this._html.appendChild(path);
     this._dom.path = path;
     this._dom.arrow = arrowWrapper;

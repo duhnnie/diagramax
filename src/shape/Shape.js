@@ -1,9 +1,12 @@
+import Element from '../core/Element';
 import Component from '../component/Component';
 import Port from '../connection/Port';
 import Connection from '../connection/Connection';
-import RegularDragNDropBehavior from '../behavior/RegularDragNDropBehavior';
+import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
 import SelectBehavior from '../behavior/SelectBehavior';
+import ResizeBehavior from '../behavior/ResizeBehavior';
+import ShapeControlsLayer from './components/ShapeControlsLayer';
 
 const DEFAULTS = {
   position: {
@@ -15,15 +18,15 @@ const DEFAULTS = {
 class Shape extends Component {
   constructor(settings) {
     super(settings);
-    this._width = null;
-    this._height = null;
     this._x = null;
     this._y = null;
     this._connections = new Set();
     this._ports = [];
-    this._dragAndDropBehavior = new RegularDragNDropBehavior(this);
+    this._controlsLayer = new ShapeControlsLayer();
+    this._dragBehavior = new RegularDraggableShapeBehavior(this);
     this._connectivityBehavior = new ConnectivityBehavior(this);
     this._selectBehavior = new SelectBehavior(this);
+    this._resizeBehavior = new ResizeBehavior(this);
     this.__bulkAction = false;
 
     settings = {
@@ -32,8 +35,7 @@ class Shape extends Component {
     };
 
     this._initPorts()
-      .setPosition(settings.position.x, settings.position.y)
-      .setSize(settings.width, settings.height);
+      .setPosition(settings.position.x, settings.position.y);
   }
 
   _initPorts() {
@@ -115,39 +117,56 @@ class Shape extends Component {
     };
   }
 
+  // eslint-disable-next-line no-unused-vars, class-methods-use-this
   setWidth(width) {
-    if (typeof width !== 'number') {
-      throw new Error('setWidth(): invalid parameter.');
-    }
-    this._width = width;
-    return this;
+    throw new Error('setWidth(): This method should be implemented.');
   }
 
   getWidth() {
-    return this._width;
+    return this.getSize().width;
   }
 
+  // eslint-disable-next-line no-unused-vars, class-methods-use-this
   setHeight(height) {
-    if (typeof height !== 'number') {
-      throw new Error('setHeight(): invalid parameter.');
-    }
-    this._height = height;
+    throw new Error('setHeight(): This method should be implemented.');
   }
 
   getHeight() {
-    return this._height;
+    return this.getSize().height;
   }
 
   setSize(width, height) {
-    return this.setWidth(width)
+    this.__bulkAction = true;
+
+    this.setWidth(width)
       .setHeight(height);
+
+    this.__bulkAction = false;
+
+    return this._drawConnections();
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getBounds() {
+    throw new Error('getBounds(): This method should be implemented.');
   }
 
   getSize() {
-    return {
-      width: this._width,
-      height: this._height,
-    };
+    const {
+      top,
+      right,
+      bottom,
+      left,
+    } = this.getBounds();
+    const width = right - left;
+    const height = bottom - top;
+
+    return { width, height };
+  }
+
+  // eslint-disable-next-line no-unused-vars, class-methods-use-this
+  adjustSize(boundingBox) {
+    throw new Error('adjustSize(): This method should be implemented.');
   }
 
   getPortDescriptor(index) {
@@ -245,24 +264,16 @@ class Shape extends Component {
     return this;
   }
 
-  getBounds() {
-    const halfWidth = this._width / 2;
-    const halfHeight = this._height / 2;
-
-    return {
-      top: this._y - halfHeight,
-      right: this._x + halfWidth,
-      bottom: this._y + halfHeight,
-      left: this._x - halfWidth,
-    };
-  }
-
   isUsingConnection(connection) {
     return this._connections.has(connection);
   }
 
   isBeingDragged() {
-    return this._dragAndDropBehavior.isDragging();
+    return this._dragBehavior.isDragging();
+  }
+
+  isBeingResized() {
+    return this._resizeBehavior.isDragging();
   }
 
   removeFromCanvas() {
@@ -294,6 +305,16 @@ class Shape extends Component {
     return false;
   }
 
+  /**
+   * Add a graphic control for manipulating the Shape.
+   * @param {SVGElement} svgElement An SVG element to be the graphic control for the Shape.
+   * @param {Object} events An object in which the key is an event name and its value is a function or an array
+   * in which each element is a function to be executed when that event occurs.
+   */
+  _addControl(svgElement, events) {
+    this._controlsLayer.addControl(svgElement, events);
+  }
+
   _resetPorts() {
     this._ports.forEach((port) => {
       port.clearConnections();
@@ -318,12 +339,17 @@ class Shape extends Component {
     }
 
     super._createHTML();
+
     this._html.setAttribute('class', 'shape');
     this._html.setAttribute('transform', `translate(${this._x}, ${this._y})`);
 
+    this._html.insertBefore(this._dom.mainElement, this._dom.title);
+    this._html.prepend(this._controlsLayer.getHTML());
+
     this._connectivityBehavior.attachBehavior();
-    this._dragAndDropBehavior.attachBehavior();
+    this._dragBehavior.attachBehavior();
     this._selectBehavior.attachBehavior();
+    this._resizeBehavior.attachBehavior();
 
     return this;
   }
