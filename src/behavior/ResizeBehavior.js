@@ -73,6 +73,14 @@ class ResizeBehavior extends DragBehavior {
     return handlerClone;
   }
 
+  // eslint-disable-next-line object-curly-newline
+  static isValidSize({ top, right, bottom, left }) {
+    const width = right - left;
+    const height = bottom - top;
+
+    return width >= 1 && height >= 1;
+  }
+
   constructor(target, settings) {
     super(target, settings);
 
@@ -173,7 +181,6 @@ class ResizeBehavior extends DragBehavior {
     });
   }
 
-
   updatePosition(position, options) {
     if (!this._currentHandler) return;
 
@@ -220,6 +227,8 @@ class ResizeBehavior extends DragBehavior {
         break;
       default:
     }
+
+    if (!ResizeBehavior.isValidSize(bounds)) return;
 
     this._target.adjustSize(bounds);
     this._updateHandlers(this._target.getSize());
