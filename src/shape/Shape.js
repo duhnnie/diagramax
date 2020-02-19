@@ -122,9 +122,17 @@ class Shape extends Component {
     throw new Error('setWidth(): This method should be implemented.');
   }
 
+  getWidth() {
+    return this.getSize().width;
+  }
+
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
   setHeight(height) {
     throw new Error('setHeight(): This method should be implemented.');
+  }
+
+  getHeight() {
+    return this.getSize().height;
   }
 
   setSize(width, height) {
