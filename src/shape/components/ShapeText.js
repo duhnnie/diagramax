@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import Element from '../core/Element';
-import EditableTextBehavior from '../behavior/EditableTextBehavior';
+import Element from '../../core/Element';
+import EditableTextBehavior from '../../behavior/EditableTextBehavior';
 
 const DEFAULTS = {
   text: '',

@@ -1,6 +1,6 @@
 import Element from '../core/Element';
 import Canvas from '../canvas/Canvas';
-import ShapeText from '../shape/ShapeText';
+import ShapeText from '../shape/components/ShapeText';
 
 class Component extends Element {
   constructor(settings) {
