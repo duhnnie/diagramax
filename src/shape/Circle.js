@@ -1,5 +1,6 @@
 import Element from '../core/Element';
 import Shape from './Shape';
+import { DIRECTION as RESIZE_DIRECTION } from '../behavior/ResizeBehavior';
 
 const DEFAULTS = Object.freeze({
   radius: 30,
@@ -36,13 +37,50 @@ class Circle extends Shape {
   }
 
   setSize(width, height) {
-    this.setRadius(Math.max(width, height));
+    this.setRadius((width + height) / 4);
   }
 
   adjustSize(boundingBox) {
+    console.log(boundingBox, this._resizeBehavior.getCurrentDirection());
     const { top, right, bottom, left } = boundingBox;
-    const width = (right - left) / 2;
-    const height = (bottom - top) / 2;
+    const width = (right - left);
+    const height = (bottom - top);
+    const radius = (width + height) / 4;
+    const direction = this._resizeBehavior.getCurrentDirection();
+    let x;
+    let y;
+
+    switch (direction) {
+      case RESIZE_DIRECTION.NW:
+      case RESIZE_DIRECTION.W:
+      case RESIZE_DIRECTION.SW:
+        x = right - radius;
+        break;
+      case RESIZE_DIRECTION.NE:
+      case RESIZE_DIRECTION.E:
+      case RESIZE_DIRECTION.SE:
+        x = left + radius;
+        break;
+      default:
+        x = this._x;
+    }
+
+    switch (direction) {
+      case RESIZE_DIRECTION.NW:
+      case RESIZE_DIRECTION.N:
+      case RESIZE_DIRECTION.NE:
+        y = bottom - radius;
+        break;
+      case RESIZE_DIRECTION.SW:
+      case RESIZE_DIRECTION.S:
+      case RESIZE_DIRECTION.SE:
+        y = top + radius;
+        break;
+      default:
+        y = this._y;
+    }
+
+    this.setPosition(x, y);
 
     this.setSize(width, height);
   }

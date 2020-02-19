@@ -188,6 +188,10 @@ class ResizeBehavior extends DragBehavior {
     super.updatePosition(position);
   }
 
+  getCurrentDirection() {
+    return this._currentHandler && this._currentHandler.dataset.direction;
+  }
+
   attachBehavior() {
     this._updateHandlers();
   }
