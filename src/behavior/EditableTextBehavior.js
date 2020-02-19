@@ -39,11 +39,17 @@ const updateText = (event) => {
   wrapper.remove();
 };
 
- /**
-  * @private
-  * Handles the keyboard events on the input text element.
-  * @param {KeyboardEvent} event
-  */
+/**
+ * @private
+ * Hides the text input.
+ */
+const removeInput = () => wrapper.remove();
+
+/**
+ * @private
+ * Handles the keyboard events on the input text element.
+ * @param {KeyboardEvent} event
+ */
 const onKeyDown = (event) => {
   let code;
 
@@ -58,7 +64,7 @@ const onKeyDown = (event) => {
   switch (code) {
     case 'Escape':
       inputText.value = currentShapeText.getText();
-      wrapper.remove();
+      removeInput();
       break;
     default:
   }
@@ -66,6 +72,7 @@ const onKeyDown = (event) => {
 
 inputText.addEventListener('change', updateText, false);
 inputText.addEventListener('keydown', onKeyDown, false);
+inputText.addEventListener('blur', removeInput, false);
 
 /**
  * Class that contains the beahvior for edit a ShapeText.
