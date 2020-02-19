@@ -39,11 +39,17 @@ const updateText = (event) => {
   wrapper.remove();
 };
 
- /**
-  * @private
-  * Handles the keyboard events on the input text element.
-  * @param {KeyboardEvent} event
-  */
+/**
+ * @private
+ * Hides the text input.
+ */
+const removeInput = () => wrapper.remove();
+
+/**
+ * @private
+ * Handles the keyboard events on the input text element.
+ * @param {KeyboardEvent} event
+ */
 const onKeyDown = (event) => {
   let code;
 
@@ -58,7 +64,7 @@ const onKeyDown = (event) => {
   switch (code) {
     case 'Escape':
       inputText.value = currentShapeText.getText();
-      wrapper.remove();
+      removeInput();
       break;
     default:
   }
@@ -66,24 +72,37 @@ const onKeyDown = (event) => {
 
 inputText.addEventListener('change', updateText, false);
 inputText.addEventListener('keydown', onKeyDown, false);
+inputText.addEventListener('blur', removeInput, false);
 
 /**
  * Class that contains the beahvior for edit a ShapeText.
  * @extends Behavior
  */
 class EditableTextBehavior extends Behavior {
+  constructor(target, settings) {
+    super(target, settings);
+
+    this._onEnterEditAction = this._onEnterEditAction.bind(this);
+  }
+
+  _onEnterEditAction(event) {
+    const { _target } = this;
+
+    event.stopPropagation();
+
+    currentShapeText = _target;
+    inputText.value = _target.getText();
+    _target.getHTML().appendChild(wrapper);
+    inputText.select();
+  }
+
   /**
    * @inheritdoc
    */
   attachBehavior() {
     const { _target: target } = this;
 
-    target.getHTML().addEventListener('dblclick', () => {
-      currentShapeText = target;
-      inputText.value = target.getText();
-      target.getHTML().appendChild(wrapper);
-      inputText.select();
-    }, false);
+    target.getHTML().addEventListener('dblclick', this._onEnterEditAction, false);
   }
 }
 
