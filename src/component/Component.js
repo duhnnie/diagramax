@@ -1,6 +1,7 @@
 import Element from '../core/Element';
 import Canvas from '../canvas/Canvas';
 import ShapeText from '../shape/components/ShapeText';
+import { stopPropagation } from '../canvas/EventBus';
 
 class Component extends Element {
   constructor(settings) {
@@ -83,6 +84,11 @@ class Component extends Element {
 
   getBounds() { throw new Error('getBounds() should be implemented.'); }
 
+  _setEventWall() {
+    this._html.addEventListener('click', stopPropagation, false);
+    this._html.addEventListener('dblClick', stopPropagation, false);
+  }
+
   _createHTML() {
     if (this._html) {
       return this;
@@ -103,6 +109,8 @@ class Component extends Element {
       // TODO: This can be set in CSS?
       this._dom.mainElement.setAttribute('cursor', 'pointer');
     }
+
+    this._setEventWall();
 
     return this.setID(this._id);
   }
