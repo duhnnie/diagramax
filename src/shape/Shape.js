@@ -322,10 +322,10 @@ class Shape extends Component {
   }
 
   /**
-   * Deselects the shape.
+   * Unselects the shape.
    */
-  deselect() {
-    this._selectBehavior.deselect();
+  unselect() {
+    this._selectBehavior.unselect();
   }
 
   /**
