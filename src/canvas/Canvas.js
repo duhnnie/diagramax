@@ -2,7 +2,7 @@ import Element from '../core/Element';
 import EventBus from './EventBus';
 import FluidDraggingAreaBehavior from '../behavior/FluidDraggingAreaBehavior';
 import ConnectivityAreaBehavior from '../behavior/ConnectivityAreaBehavior';
-import BPMNShape from '../shape/Shape';
+import Shape from '../shape/Shape';
 import Connection from '../connection/Connection';
 import { EVENT as SELECT_EVENT } from '../behavior/SelectBehavior';
 
@@ -76,7 +76,7 @@ class Canvas extends Element {
 
   addElement(element) {
     if (!this.hasElement(element)) {
-      if (element instanceof BPMNShape) {
+      if (element instanceof Shape) {
         this._shapes.add(element);
       } else if (element instanceof Connection) {
         this._connections.add(element);
@@ -151,8 +151,8 @@ class Canvas extends Element {
   }
 
   connect(origin, destination, connection_id = null) {
-    origin = origin instanceof BPMNShape ? origin : this.getElementById(origin);
-    destination = destination instanceof BPMNShape ? destination : this.getElementById(destination);
+    origin = origin instanceof Shape ? origin : this.getElementById(origin);
+    destination = destination instanceof Shape ? destination : this.getElementById(destination);
 
     if (origin && destination && origin !== destination) {
       const connection = new Connection({
