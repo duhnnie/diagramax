@@ -22,6 +22,8 @@ class SelectBehavior extends Behavior {
   _onSelectAction() {
     const canvas = this._target.getCanvas();
 
+    // TODO: fix this access to a protected member.
+    this._target._controlsLayer.setActive();
     canvas.dispatchEvent(EVENT.SELECT, this._target);
   }
 
