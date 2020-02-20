@@ -8,6 +8,7 @@ import Behavior from './Behavior';
 export const EVENT = Object.freeze({
   /** A Shape is selected. */
   SELECT: 'select',
+  DESELECT: 'deselect',
 });
 
 /**
@@ -30,15 +31,30 @@ class SelectBehavior extends Behavior {
   }
 
   /**
-   * Method that defines what to do when the action for select the shape is performed.
+   * Selects the behavior target element.
    */
   select() {
     if (!this._isSelected) {
       const canvas = this._target.getCanvas();
 
+      this._isSelected = true;
       // TODO: fix this access to a protected member.
       this._target._controlsLayer.setActive();
       canvas.dispatchEvent(EVENT.SELECT, this._target);
+    }
+  }
+
+  /**
+   * Deselects the behavior target element.
+   */
+  deselect() {
+    if (this._isSelected) {
+      const canvas = this._target.getCanvas();
+
+      this._isSelecte = false;
+      // TODO: fix this access to a protected member.
+      this._target._controlsLayer.setActive(false);
+      canvas.dispatchEvent(EVENT.DESELECT, this._target);
     }
   }
 
