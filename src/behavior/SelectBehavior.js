@@ -15,16 +15,31 @@ export const EVENT = Object.freeze({
  * @extends Behavior
  */
 class SelectBehavior extends Behavior {
+  constructor(target, options) {
+    super(target, options);
+
+    this._isSelected = false;
+  }
+
   /**
-   * @protected
+   * Determines if the current target is selected.
+   * @returns {Boolean}
+   */
+  isSelected() {
+    return this._isSelected;
+  }
+
+  /**
    * Method that defines what to do when the action for select the shape is performed.
    */
-  _onSelectAction() {
-    const canvas = this._target.getCanvas();
+  select() {
+    if (!this._isSelected) {
+      const canvas = this._target.getCanvas();
 
-    // TODO: fix this access to a protected member.
-    this._target._controlsLayer.setActive();
-    canvas.dispatchEvent(EVENT.SELECT, this._target);
+      // TODO: fix this access to a protected member.
+      this._target._controlsLayer.setActive();
+      canvas.dispatchEvent(EVENT.SELECT, this._target);
+    }
   }
 
   /**
@@ -32,7 +47,7 @@ class SelectBehavior extends Behavior {
    */
   attachBehavior() {
     this._target.getHTML().addEventListener('click', () => {
-      this._onSelectAction();
+      this.select();
     }, false);
   }
 }
