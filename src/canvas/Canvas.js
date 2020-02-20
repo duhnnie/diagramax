@@ -188,8 +188,6 @@ class Canvas extends Element {
   }
 
   _connectToDragAreaBehavior(behavior, options = {}) {
-    this._connectivityAreaBehavior.reset();
-
     if (this._draggingAreaBehavior) {
       if (!behavior) {
         this._draggingAreaBehavior.removeDragBehavior();
@@ -233,6 +231,7 @@ class Canvas extends Element {
     return this._connectToDragAreaBehavior(behavior);
   }
 
+  // TODO: Does make sense to have this method?
   getConnectivityAreaBehavior() {
     return this._connectivityAreaBehavior;
   }

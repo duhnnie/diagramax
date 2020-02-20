@@ -1,5 +1,6 @@
 import Behavior from './Behavior';
 import Shape from '../shape/Shape';
+import { EVENT as DRAG_EVENT } from './DraggableShapeBehavior';
 
 class ConnectivityBehavior extends Behavior {
   constructor(target, settings) {
@@ -33,9 +34,15 @@ class ConnectivityBehavior extends Behavior {
   }
 
   attachBehavior() {
+    const { _target } = this;
+    const canvas = _target.getCanvas();
+
     // TODO: _getMainElement() is protected, fix it.
     this._target._getMainElement().addEventListener('click', this._onClick, false);
     this._target.getHTML().addEventListener('dblclick', this._onDblClick, false);
+    canvas.addEventListener(DRAG_EVENT.START, _target, () => {
+      canvas.getConnectivityAreaBehavior().reset();
+    });
   }
 }
 
