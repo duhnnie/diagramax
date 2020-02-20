@@ -240,11 +240,12 @@ class Shape extends Component {
   }
 
   removeConnection(connection) {
-    if (this._connections.delete(connection)) {
+    if (this._connections.has(connection)) {
       this._removeFromPorts(connection);
       if (connection.isConnectedWith(this)) {
         connection.disconnect();
       }
+      this._connections.delete(connection);
     }
     return this;
   }
