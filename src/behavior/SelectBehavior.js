@@ -8,6 +8,7 @@ import Behavior from './Behavior';
 export const EVENT = Object.freeze({
   /** A Shape is selected. */
   SELECT: 'select',
+  UNSELECT: 'unselect',
 });
 
 /**
@@ -15,22 +16,55 @@ export const EVENT = Object.freeze({
  * @extends Behavior
  */
 class SelectBehavior extends Behavior {
-  /**
-   * @protected
-   * Method that defines what to do when the action for select the shape is performed.
-   */
-  _onSelectAction() {
-    const canvas = this._target.getCanvas();
+  constructor(target, options) {
+    super(target, options);
 
-    canvas.dispatchEvent(EVENT.SELECT, this._target);
+    this._isSelected = false;
+  }
+
+  /**
+   * Determines if the current target is selected.
+   * @returns {Boolean}
+   */
+  isSelected() {
+    return this._isSelected;
+  }
+
+  /**
+   * Selects the behavior target element.
+   */
+  select() {
+    if (!this._isSelected) {
+      const canvas = this._target.getCanvas();
+
+      this._isSelected = true;
+      // TODO: fix this access to a protected member.
+      canvas.selectItem(this._target);
+      this._target._controlsLayer.setActive();
+      canvas.dispatchEvent(EVENT.SELECT, this._target);
+    }
+  }
+
+  /**
+   * Unselects the behavior target element.
+   */
+  unselect() {
+    if (this._isSelected) {
+      const canvas = this._target.getCanvas();
+
+      this._isSelected = false;
+      // TODO: fix this access to a protected member.
+      this._target._controlsLayer.setActive(false);
+      canvas.dispatchEvent(EVENT.UNSELECT, this._target);
+    }
   }
 
   /**
    * @inheritdoc
    */
   attachBehavior() {
-    this._target.getHTML().addEventListener('click', () => {
-      this._onSelectAction();
+    this._target.getHTML().addEventListener('mousedown', () => {
+      this.select();
     }, false);
   }
 }

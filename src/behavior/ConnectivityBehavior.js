@@ -10,7 +10,6 @@ class ConnectivityBehavior extends Behavior {
 
     super(target, settings);
 
-    this._onClick = this._onClick.bind(this);
     this._onDblClick = this._onDblClick.bind(this);
   }
 
@@ -29,16 +28,10 @@ class ConnectivityBehavior extends Behavior {
     }
   }
 
-  _onClick(event) {
-    event.stopPropagation();
-  }
-
   attachBehavior() {
     const { _target } = this;
     const canvas = _target.getCanvas();
 
-    // TODO: _getMainElement() is protected, fix it.
-    this._target._getMainElement().addEventListener('click', this._onClick, false);
     this._target.getHTML().addEventListener('dblclick', this._onDblClick, false);
     canvas.addEventListener(DRAG_EVENT.START, _target, () => {
       canvas.getConnectivityAreaBehavior().reset();

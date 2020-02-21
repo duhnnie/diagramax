@@ -307,6 +307,28 @@ class Shape extends Component {
   }
 
   /**
+   * If the shape is selected.
+   * @returns {Boolean}
+   */
+  isSelected() {
+    return this._selectBehavior.isSelected();
+  }
+
+  /**
+   * Selects the shape.
+   */
+  select() {
+    this._selectBehavior.select();
+  }
+
+  /**
+   * Unselects the shape.
+   */
+  unselect() {
+    this._selectBehavior.unselect();
+  }
+
+  /**
    * Add a graphic control for manipulating the Shape.
    * @param {SVGElement} svgElement An SVG element to be the graphic control for the Shape.
    * @param {Object} events An object in which the key is an event name and its value is a function or an array

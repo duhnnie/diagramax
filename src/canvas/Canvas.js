@@ -4,7 +4,8 @@ import FluidDraggingAreaBehavior from '../behavior/FluidDraggingAreaBehavior';
 import ConnectivityAreaBehavior from '../behavior/ConnectivityAreaBehavior';
 import Shape from '../shape/Shape';
 import Connection from '../connection/Connection';
-import { EVENT as SELECT_EVENT } from '../behavior/SelectBehavior';
+import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
+// import { EVENT as SELECT_EVENT } from '../behavior/SelectBehavior';
 
 class Canvas extends Element {
   constructor(settings) {
@@ -16,21 +17,19 @@ class Canvas extends Element {
     this._dom = {};
     this._eventBus = new EventBus();
     this._selectedItems = new Set();
-    this._onSelectShapeHandler = null;
+    this._selectionBehavior = new SelectionAreaBehavior(this);
     this._draggingAreaBehavior = new FluidDraggingAreaBehavior(this);
     this._connectivityAreaBehavior = new ConnectivityAreaBehavior(this);
 
     settings = _.merge({
       width: 800,
       height: 600,
-      onSelectShape: null,
       onReady: null,
       elements: [],
     }, settings);
 
     this.setWidth(settings.width)
       .setHeight(settings.height)
-      .setOnSelectShapeCallback(settings.onSelectShape);
 
     this.setElements(settings.elements);
   }
@@ -69,11 +68,6 @@ class Canvas extends Element {
     return this._height;
   }
 
-  setOnSelectShapeCallback(callback) {
-    this._onSelectShapeHandler = callback;
-    return this;
-  }
-
   addElement(element) {
     if (!this.hasElement(element)) {
       if (element instanceof Shape) {
@@ -85,7 +79,6 @@ class Canvas extends Element {
       }
 
       element.setCanvas(this);
-      this.addEventListener(SELECT_EVENT.SELECT, element, this._onSelectShape, this);
 
       if (this._html) {
         if (element instanceof Connection) {
@@ -170,23 +163,6 @@ class Canvas extends Element {
     return this.dispatchEvent(eventName, this, ...args);
   }
 
-  _onSelectShape(eventBusItem) {
-    const shape = eventBusItem.target;
-
-    this._selectedItems.clear();
-    this._selectedItems.add(shape);
-
-    // TODO: is this handler being used?
-    // It could be better to trigger a 'onItemSelection' from canvas
-    // and provide the elements that were added to selection
-    // Another event for item deselection would be useful too.
-    if (typeof this._onSelectShapeHandler === 'function') {
-      this._onSelectShapeHandler(shape);
-    }
-
-    return this;
-  }
-
   _connectToDragAreaBehavior(behavior, options = {}) {
     if (this._draggingAreaBehavior) {
       if (!behavior) {
@@ -240,6 +216,11 @@ class Canvas extends Element {
     return this._dom.container;
   }
 
+  selectItem(item) {
+    this._selectionBehavior.clear()
+      .add(item);
+  }
+
   _createHTML() {
     let svg;
     let g;
@@ -266,6 +247,7 @@ class Canvas extends Element {
     this.setWidth(this._width)
       .setHeight(this._height);
 
+    this._selectionBehavior.attachBehavior();
     this._connectivityAreaBehavior.attachBehavior();
     this._draggingAreaBehavior.attachBehavior();
     // TODO: When migrate to EventTarget dispatch and event an make the attachment on
