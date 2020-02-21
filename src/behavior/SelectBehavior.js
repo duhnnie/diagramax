@@ -39,6 +39,7 @@ class SelectBehavior extends Behavior {
 
       this._isSelected = true;
       // TODO: fix this access to a protected member.
+      canvas.selectItem(this._target);
       this._target._controlsLayer.setActive();
       canvas.dispatchEvent(EVENT.SELECT, this._target);
     }
@@ -62,7 +63,7 @@ class SelectBehavior extends Behavior {
    * @inheritdoc
    */
   attachBehavior() {
-    this._target.getHTML().addEventListener('click', () => {
+    this._target.getHTML().addEventListener('mousedown', () => {
       this.select();
     }, false);
   }

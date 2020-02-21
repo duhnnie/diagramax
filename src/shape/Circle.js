@@ -41,7 +41,6 @@ class Circle extends Shape {
   }
 
   adjustSize(boundingBox) {
-    console.log(boundingBox, this._resizeBehavior.getCurrentDirection());
     const { top, right, bottom, left } = boundingBox;
     const width = (right - left);
     const height = (bottom - top);
