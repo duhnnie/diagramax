@@ -5,6 +5,10 @@ const DEFAULTS = Object.freeze({
   disabled: false,
 });
 
+const canExecuteBehavior = function() {
+  return !this._disabled && this._target;
+};
+
 class Behavior {
   constructor(target, settings) {
     this._target = target;
@@ -18,10 +22,6 @@ class Behavior {
     }
   }
 
-  _enabledEvaluator() {
-    return !this._disabled;
-  }
-
   /**
    * Proxies a function to execute it or not depending on the state of the behavior
    * (enabled/disabled). Bind the necessary methods to avoid the behavior to be executed.
@@ -32,7 +32,7 @@ class Behavior {
    * @returns {Function} The proxied funciton.
    */
   _bind(handler) {
-    return FunctionProxy.get(handler, '_enabledEvaluator', this);
+    return FunctionProxy.get(handler, canExecuteBehavior, this);
   }
 
   disable() {
@@ -43,14 +43,17 @@ class Behavior {
     this._disabled = false;
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  attachBehavior() {
-    throw new Error('attachBehavior(): This method should be implemented');
+  isDisabled() {
+    return this._disabled;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  attachBehavior() {
+    this.enable();
+  }
+
   detachBehavior() {
-    throw new Error('attachBehavior(): This method should be implemented');
+    this._disable();
+    this._target = null;
   }
 }
 

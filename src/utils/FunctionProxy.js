@@ -4,21 +4,17 @@
  * specific configuration for a certain call.
  * @param  {...any} params An spreaded object with params.
  */
+// eslint-disable-next-line consistent-return
 function proxyFunction(...params) {
-  const { target, evaluator, fn } = this;
-  const targetEval = target[evaluator];
+  const { context, evaluator, fn } = this;
   let isOK;
 
   if (typeof evaluator === 'function') {
-    isOK = evaluator();
-  } else if (typeof targetEval === 'function') {
-    isOK = targetEval();
-  } else {
-    isOK = targetEval;
+    isOK = evaluator.call(context);
   }
 
   if (isOK) {
-    return fn.apply(target, params);
+    return fn.apply(context, params);
   }
 }
 
@@ -34,18 +30,16 @@ export default {
    * @param {Function} fn The function to be proxied. If last param (target) is supplied, the it
    * will be executed in that context, so in that case it won't be necessary to bind it to another
    * target.
-   * @param {String|Function} evaluator The evaluator for determine if the fn function will be
-   * executed. It can be a String or a Function. If it's a String so target param should be
-   * supplied since the string will be the target property to be evaluated for determining if the
-   * proxied function will be executed. If it's a Function it will be executed and the value that
-   * it returns will determine the execution of the proxied function.
-   * @param {Object} [target] It can have 2 uses: if fn function param is not binded to other
-   * object, it will be called in the target context. If evaluator param is a string then it will
-   * be assume to be a property of target and it will be evaluated.
+   * @param {Function} evaluator The evaluator for determine if the fn function will be
+   * executed. It will be executed and the value that it returns will determine the execution of
+   * the proxied function.
+   * @param {Object} [context] The context to be called the function to be proxied, and the context
+   * in which the evaluator will be called. Remember that if any of the functions (fn, evaluator)
+   * are binded to any other object, providing a context will be useful.
    */
-  get: (fn, evaluator, target = null) => proxyFunction.bind({
+  get: (fn, evaluator, context = null) => proxyFunction.bind({
     fn,
     evaluator,
-    target,
+    context,
   }),
 };
