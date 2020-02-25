@@ -318,7 +318,7 @@ class Shape extends Component {
    * Selects the shape.
    */
   select() {
-    this._selectBehavior.select();
+    this._selectBehavior.start();
   }
 
   /**

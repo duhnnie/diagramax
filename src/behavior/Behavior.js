@@ -35,8 +35,14 @@ class Behavior {
     return FunctionProxy.get(handler, canExecuteBehavior, this);
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  end() {
+    throw new Error('end(): This method should be implemented.');
+  }
+
   disable() {
     this._disabled = true;
+    this.end();
   }
 
   enable() {
@@ -52,7 +58,7 @@ class Behavior {
   }
 
   detachBehavior() {
-    this._disable();
+    this.disable();
     this._target = null;
   }
 }

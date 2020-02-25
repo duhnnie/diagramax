@@ -217,8 +217,10 @@ class Canvas extends Element {
   }
 
   selectItem(item) {
-    this._selectionBehavior.clear()
-      .add(item);
+    // TODO: maybe selection behavior should have the methods to set a selection and to add an item
+    // to a current selection set.
+    this._selectionBehavior.clear();
+    this._selectionBehavior.select(item);
   }
 
   _createHTML() {
