@@ -1,5 +1,7 @@
 import Behavior from './Behavior';
 import Element from '../core/Element';
+import Shape from '../shape/Shape';
+import Connection from '../connection/Connection';
 
 class ConnectivityAreaBehavior extends Behavior {
   constructor(target, settings) {
@@ -10,7 +12,9 @@ class ConnectivityAreaBehavior extends Behavior {
     this._dom = {};
     this._canvasOffset = null;
     this._onClick = this._onClick.bind(this);
-    this._onMouseMove = this._onMouseMove.bind(this);
+    this.addShape = this._bind(this.addShape);
+    this._onMouseMove = this._bind(this._onMouseMove);
+    this.connect = this._bind(this.connect);
     this._updateCanvasOffset = this._updateCanvasOffset.bind(this);
   }
 
@@ -22,7 +26,7 @@ class ConnectivityAreaBehavior extends Behavior {
   }
 
   _onClick() {
-    this.reset();
+    this.end();
   }
 
   _onMouseMove(event) {
@@ -41,12 +45,7 @@ class ConnectivityAreaBehavior extends Behavior {
     this._dom.line.setAttribute('y2', y2);
   }
 
-  _connect() {
-    this._target.connect(this._origin, this._destiny);
-    this.reset();
-  }
-
-  reset() {
+  end() {
     this._origin = null;
     this._destiny = null;
     this._dom.line.setAttribute('stroke', '');
@@ -62,7 +61,7 @@ class ConnectivityAreaBehavior extends Behavior {
   addShape(shape, point) {
     if (this._origin) {
       this._destiny = shape;
-      this._connect();
+      this.connect(this._origin, shape);
     } else {
       this._origin = shape;
       this._setConnectionLinePath(shape.getPosition(), this._getDestPoint(point.x, point.y));
@@ -75,6 +74,25 @@ class ConnectivityAreaBehavior extends Behavior {
     this._canvasOffset = this._target.getHTML().getBoundingClientRect();
   }
 
+  connect(origin, destination) {
+    const target = this._target;
+
+    origin = origin instanceof Shape ? origin : target.getElementById(origin);
+    destination = destination instanceof Shape ? destination : target.getElementById(destination);
+
+    if (origin && destination && origin !== destination) {
+      const connection = new Connection({
+        canvas: target,
+        origShape: origin,
+        destShape: destination,
+      });
+    }
+
+    this.end();
+
+    return this;
+  }
+
   attachBehavior() {
     // This method should be called after the Canvas' HTML has been created and set to
     // its _html property.
@@ -84,6 +102,8 @@ class ConnectivityAreaBehavior extends Behavior {
     this._target.getHTML().addEventListener('mousemove', this._onMouseMove, false);
     this._updateCanvasOffset();
 
+    // Canvas should provide a way to return a position relative to it and this method should be
+    // removed from this class.
     window.addEventListener('scroll', this._updateCanvasOffset, false);
   }
 }

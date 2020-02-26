@@ -143,18 +143,8 @@ class Canvas extends Element {
     return this;
   }
 
-  connect(origin, destination, connection_id = null) {
-    origin = origin instanceof Shape ? origin : this.getElementById(origin);
-    destination = destination instanceof Shape ? destination : this.getElementById(destination);
-
-    if (origin && destination && origin !== destination) {
-      const connection = new Connection({
-        id: connection_id,
-        canvas: this,
-        origShape: origin,
-        destShape: destination,
-      });
-    }
+  connect(origin, destination) {
+    this._connectivityAreaBehavior.connect(origin, destination);
 
     return this;
   }

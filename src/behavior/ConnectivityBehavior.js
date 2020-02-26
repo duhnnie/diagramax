@@ -10,7 +10,7 @@ class ConnectivityBehavior extends Behavior {
 
     super(target, settings);
 
-    this._onDblClick = this._onDblClick.bind(this);
+    this._onDblClick = this._bind(this._onDblClick);
   }
 
   _onDblClick(event) {
@@ -28,13 +28,17 @@ class ConnectivityBehavior extends Behavior {
     }
   }
 
+  end() {
+    this._target.getCanvas().getConnectivityAreaBehavior().end();
+  }
+
   attachBehavior() {
     const { _target } = this;
     const canvas = _target.getCanvas();
 
     this._target.getHTML().addEventListener('dblclick', this._onDblClick, false);
     canvas.addEventListener(DRAG_EVENT.START, _target, () => {
-      canvas.getConnectivityAreaBehavior().reset();
+      this.end();
     });
   }
 }
