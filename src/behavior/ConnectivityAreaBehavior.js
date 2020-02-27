@@ -97,17 +97,28 @@ class ConnectivityAreaBehavior extends Behavior {
   }
 
   attachBehavior() {
+    const { _target } = this;
     // This method should be called after the Canvas' HTML has been created and set to
     // its _html property.
     // TODO: make sure to call this method only once
     this._dom.line = Element.createSVG('line');
-    this._target.getHTML().addEventListener('click', this._onClick, false);
-    this._target.getHTML().addEventListener('mousemove', this._onMouseMove, false);
+    _target.getHTML().addEventListener('click', this._onClick, false);
+    _target.getHTML().addEventListener('mousemove', this._onMouseMove, false);
     this._updateCanvasOffset();
 
-    // Canvas should provide a way to return a position relative to it and this method should be
+    // TODO: Canvas should provide a way to return a position relative to it and this method should be
     // removed from this class.
     window.addEventListener('scroll', this._updateCanvasOffset, false);
+  }
+
+  detachBehavior() {
+    const { _target } = this;
+
+    _target.getHTML().removeEventListener('click', this._onClick, false);
+    _target.getHTML().removeEventListener('mousemove', this._onMouseMove, false);
+    window.removeEventListener('scroll', this._updateCanvasOffset, false);
+
+    super.detachBehavior();
   }
 }
 
