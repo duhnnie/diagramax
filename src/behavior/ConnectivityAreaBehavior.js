@@ -80,7 +80,10 @@ class ConnectivityAreaBehavior extends Behavior {
     origin = origin instanceof Shape ? origin : target.getElementById(origin);
     destination = destination instanceof Shape ? destination : target.getElementById(destination);
 
-    if (origin && destination && origin !== destination) {
+    // TODO: This is hot fix, this shoudl be handled by proxied functions
+    // a ticket for that was created #73
+    if (origin && destination && origin !== destination
+      && !origin._connectivityBehavior._disabled && !destination._connectivityBehavior._disabled) {
       const connection = new Connection({
         canvas: target,
         origShape: origin,
