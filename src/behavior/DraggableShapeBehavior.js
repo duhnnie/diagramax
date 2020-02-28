@@ -15,7 +15,9 @@ class DraggableShapeBehavior extends DragBehavior {
 
     super(target, settings);
 
-    this._onGrab = this._onGrab.bind(this);
+    this._onGrab = this._bind(this._onGrab);
+    this.startDrag = this._bind(this.startDrag);
+    this.updatePosition = this._bind(this.updatePosition);
   }
 
   _onGrab(event) {
@@ -26,21 +28,20 @@ class DraggableShapeBehavior extends DragBehavior {
     canvas.setDraggingShape(this._target);
   }
 
-  _onStart(point) {
-    // TODO: When Element inherits from EventTarget, the method
-    // should trigger the event from itself.
-    this._target.getCanvas().dispatchEvent(EVENT.START, this._target);
-    super._onStart(point);
+  startDrag(point) {
+    if (!this._dragging) {
+      super.startDrag(point);
+      // TODO: When Element inherits from EventTarget, the method
+      // should trigger the event from itself.
+      this._target.getCanvas().dispatchEvent(EVENT.START, this._target);
+    }
   }
 
-  _onDrag(point) {
-    this._target.getCanvas().dispatchEvent(EVENT.DRAG, this._target);
-    super._onDrag(point);
-  }
-
-  _onEnd(point) {
-    this._target.getCanvas().dispatchEvent(EVENT.END, this._target);
-    super._onEnd(point);
+  endDrag(event) {
+    if (this._dragging) {
+      super.endDrag(event);
+      this._target.getCanvas().dispatchEvent(EVENT.END, this._target);
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -73,11 +74,25 @@ class DraggableShapeBehavior extends DragBehavior {
     }
 
     super.updatePosition({ x, y });
+    this._target.getCanvas().dispatchEvent(EVENT.DRAG, this._target);
+  }
+
+  end() {
+    this.endDrag();
   }
 
   attachBehavior() {
-    this._target._getMainElement().addEventListener('mousedown', this._onGrab, false);
-    this._target._getMainElement().addEventListener('click', this._onRelease, false);
+    const { _target } = this;
+
+    _target._getMainElement().addEventListener('mousedown', this._onGrab, false);
+    _target._getMainElement().addEventListener('click', this._onRelease, false);
+  }
+
+  detachBehavior() {
+    const { _target } = this;
+
+    _target._getMainElement().removeEventListener('mousedown', this._onGrab, false);
+    _target._getMainElement().removeEventListener('click', this._onRelease, false);
   }
 }
 
