@@ -5,7 +5,7 @@ class DraggingAreaBehavior extends Behavior {
     super(target, settings);
 
     this.removeDragBehavior();
-    this._onMouseMove = this._onMouseMove.bind(this);
+    this._onMouseMove = this._bind(this._onMouseMove);
     this._onClick = this._onClick.bind(this);
   }
 
@@ -29,7 +29,7 @@ class DraggingAreaBehavior extends Behavior {
   }
 
   _onMouseMove(event) {
-    if (!this._disabled && this._dragBehavior) {
+    if (this._dragBehavior) {
       const { clientX, clientY } = event;
       const { x, y } = this._target.clientToCanvas({ x: clientX, y: clientY });
       const position = this.evaluate(x, y);
@@ -50,11 +50,26 @@ class DraggingAreaBehavior extends Behavior {
     this.removeDragBehavior();
   }
 
+  end() {
+    this.removeDragBehavior();
+  }
+
   attachBehavior() {
-    this._target.getHTML().addEventListener('mousemove', this._onMouseMove, false);
-    this._target.getHTML().addEventListener('click', this._onClick, false);
+    const { _target } = this;
+
+    _target.getHTML().addEventListener('mousemove', this._onMouseMove, false);
+    _target.getHTML().addEventListener('click', this._onClick, false);
 
     return this;
+  }
+
+  detachBehavior() {
+    const { _target } = this;
+
+    _target.getHTML().removeEventListener('mousemove', this._onMouseMove, false);
+    _target.getHTML().removeEventListener('click', this._onClick, false);
+
+    super.detachBehavior();
   }
 
   // eslint-disable-next-line class-methods-use-this, no-unused-vars
