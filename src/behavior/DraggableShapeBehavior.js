@@ -38,10 +38,11 @@ class DraggableShapeBehavior extends DragBehavior {
   }
 
   endDrag(event) {
-    if (this._dragging) {
-      super.endDrag(event);
-      this._target.getCanvas().dispatchEvent(EVENT.END, this._target);
-    }
+    const { _dragging } = this;
+
+    super.endDrag(event);
+
+    if (_dragging) this._target.getCanvas().dispatchEvent(EVENT.END, this._target);
   }
 
   // eslint-disable-next-line class-methods-use-this
