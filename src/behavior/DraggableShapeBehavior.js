@@ -43,7 +43,7 @@ class DraggableShapeBehavior extends DragBehavior {
   }
 
   endDrag(event) {
-    if (this._dragging) {
+    if (this._grabbed || this._dragging) {
       const { _target } = this;
       const canvas = _target.getCanvas();
 
