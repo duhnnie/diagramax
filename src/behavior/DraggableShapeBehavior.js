@@ -15,8 +15,13 @@ class DraggableShapeBehavior extends DragBehavior {
 
     super(target, settings);
 
-    this._onGrab = this._bind(this._onGrab);
-    this.startDrag = this._bind(this.startDrag);
+    // TODO: A way to get rid of _diff approach would be to get relative canvas pos.
+    this._diff = {
+      x: 0,
+      y: 0,
+    };
+    this._lastPosition = null;
+
     this.updatePosition = this._bind(this.updatePosition);
   }
 
@@ -38,11 +43,14 @@ class DraggableShapeBehavior extends DragBehavior {
   }
 
   endDrag(event) {
-    const { _dragging } = this;
+    if (this._dragging) {
+      const { _target } = this;
+      const canvas = _target.getCanvas();
 
-    super.endDrag(event);
-
-    if (_dragging) this._target.getCanvas().dispatchEvent(EVENT.END, this._target);
+      super.endDrag(event);
+      canvas.setDraggingShape(null);
+      canvas.dispatchEvent(EVENT.END, _target);
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -76,10 +84,6 @@ class DraggableShapeBehavior extends DragBehavior {
 
     super.updatePosition({ x, y });
     this._target.getCanvas().dispatchEvent(EVENT.DRAG, this._target);
-  }
-
-  end() {
-    this.endDrag();
   }
 
   attachBehavior() {

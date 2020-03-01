@@ -1,43 +1,16 @@
 import _ from 'lodash';
 import Behavior from './Behavior';
 
-const DEFAULTS = Object.freeze({
-  onStart: _.noop,
-  onDrag: _.noop,
-  onEnd: _.noop,
-});
-
 class DragBehavior extends Behavior {
   constructor(target, settings) {
     super(target, settings);
 
     this._dragging = false;
     this._grabbed = false;
-    this._diff = {
-      x: 0,
-      y: 0,
-    };
 
-    this._options = {
-      ...DEFAULTS,
-      ...settings,
-    };
-
-    this._lastPosition = null;
-    this._onGrab = this._onGrab.bind(this);
+    this._onGrab = this._bind(this._onGrab);
+    this.startDrag = this._bind(this.startDrag);
     this._onRelease = this._onRelease.bind(this);
-  }
-
-  _onStart(point) {
-    this._options.onStart(point);
-  }
-
-  _onDrag(point) {
-    this._options.onDrag(point);
-  }
-
-  _onEnd(point) {
-    this._options.onEnd(point);
   }
 
   _onGrab(event) {
@@ -48,28 +21,25 @@ class DragBehavior extends Behavior {
     this._lastPosition = this._target.getCanvas().clientToCanvas({ x, y });
   }
 
+  // eslint-disable-next-line no-unused-vars
   startDrag(position) {
     if (!this._dragging) {
       this._dragging = true;
-      this._onStart(position);
     }
   }
 
-  updatePosition({ x, y }) {
-    this._onDrag({ x, y });
-  }
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars
+  updatePosition({ x, y }) {}
 
   endDrag(event) {
-    const canvas = this._target.getCanvas();
-
     if (event) event.stopPropagation();
 
-    canvas.setDraggingShape(null);
     this._grabbed = false;
-    if (this._dragging) {
-      this._dragging = false;
-      this._onEnd(this._target.getPosition());
-    }
+    this._dragging = false;
+  }
+
+  end() {
+    this.endDrag();
   }
 
   _onRelease() {

@@ -86,7 +86,6 @@ class ResizeBehavior extends DragBehavior {
 
     this._handlers = [];
     this._currentHandler = null;
-    this._onGrab = this._onGrab.bind(this);
     this.endDrag = this.endDrag.bind(this);
   }
 
@@ -99,46 +98,36 @@ class ResizeBehavior extends DragBehavior {
     this._target.getCanvas().setResizingShape(this._target);
   }
 
-  _onStart() {
-    const { _target } = this;
-    // TODO: When Element inherits from EventTarget, the method
-    // should trigger the event from itself.
-    _target.getCanvas().dispatchEvent(EVENT.START, _target);
-    super._onStart();
-  }
-
-  _onDrag() {
-    const { _target } = this;
-
-    // INFO: keep in mind this event is fired only when size of a shape is changing by dragging.
-    _target.getCanvas().dispatchEvent(EVENT.RESIZE, _target);
-    super._onDrag();
-  }
-
-  _onEnd() {
-    const { _target } = this;
-
-    _target.getCanvas().dispatchEvent(EVENT.END, _target);
-    super._onEnd();
-  }
-
   startDrag(position, options) {
+    const { _target } = this;
+
     if (!this._currentHandler) {
       this._currentHandler = this._handlers.find((handler) => handler.dataset.direction === options.direction);
     }
 
     // TODO: fix this access to a protected member.
-    this._target._controlsLayer.setActive();
+    _target._controlsLayer.setActive();
 
     super.startDrag(position, options);
+    // TODO: When Element inherits from EventTarget, the method
+    // should trigger the event from itself.
+    _target.getCanvas().dispatchEvent(EVENT.START, _target);
   }
 
   endDrag(event) {
     this._currentHandler = null;
-    this._updateHandlers();
-    // TODO fix this access to protected member.
-    this._target._controlsLayer.setActive(false);
-    super.endDrag(event);
+
+    if (this._dragging) {
+      const { _target } = this;
+      const canvas = _target.getCanvas();
+
+      this._updateHandlers();
+      // TODO fix this access to protected member.
+      _target._controlsLayer.setActive(false);
+      super.endDrag(event);
+      canvas.setResizingShape(null);
+      canvas.dispatchEvent(EVENT.END, _target);
+    }
   }
 
   _updateHandlers(newSize) {
@@ -184,9 +173,10 @@ class ResizeBehavior extends DragBehavior {
   updatePosition(position, options) {
     if (!this._currentHandler) return;
 
+    const { _target } = this;
     const direction = this._currentHandler.dataset.direction || options.direction;
     const { x, y } = this._evaluate(position);
-    const bounds = this._target.getBounds();
+    const bounds = _target.getBounds();
 
     switch (direction) {
       case DIRECTION.NW:
@@ -230,10 +220,12 @@ class ResizeBehavior extends DragBehavior {
 
     if (!ResizeBehavior.isValidSize(bounds)) return;
 
-    this._target.adjustSize(bounds);
-    this._updateHandlers(this._target.getSize());
+    _target.adjustSize(bounds);
+    this._updateHandlers(_target.getSize());
 
     super.updatePosition(position);
+    // INFO: keep in mind this event is fired only when size of a shape is changing by dragging.
+    _target.getCanvas().dispatchEvent(EVENT.RESIZE, _target);
   }
 
   getCurrentDirection() {
