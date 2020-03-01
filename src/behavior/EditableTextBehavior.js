@@ -31,19 +31,19 @@ wrapper.appendChild(inputText);
 
 /**
  * @private
+ * Hides the text input.
+ */
+const removeInput = () => wrapper.remove();
+
+/**
+ * @private
  * Updates the text in the ShapeText that currently has in edition mode.
  * @param {Event} A change event comming from the input.
  */
 const updateText = (event) => {
   currentShapeText.setText(event.target.value);
-  wrapper.remove();
+  removeInput();
 };
-
-/**
- * @private
- * Hides the text input.
- */
-const removeInput = () => wrapper.remove();
 
 /**
  * @private
@@ -82,7 +82,7 @@ class EditableTextBehavior extends Behavior {
   constructor(target, settings) {
     super(target, settings);
 
-    this._onEnterEditAction = this._onEnterEditAction.bind(this);
+    this._onEnterEditAction = this._bind(this._onEnterEditAction);
   }
 
   _onEnterEditAction(event) {
@@ -96,13 +96,25 @@ class EditableTextBehavior extends Behavior {
     inputText.select();
   }
 
+  end() {
+    if (currentShapeText === this._target) {
+      removeInput();
+    }
+  }
+
   /**
    * @inheritdoc
    */
   attachBehavior() {
-    const { _target: target } = this;
+    this._target.getHTML().addEventListener('dblclick', this._onEnterEditAction, false);
+  }
 
-    target.getHTML().addEventListener('dblclick', this._onEnterEditAction, false);
+  /**
+   * @inheritdoc
+   */
+  detachBehavior() {
+    this._target.getHTML().removeEventListener('dblclick', this._onEnterEditAction, false);
+    super.detachBehavior();
   }
 }
 
