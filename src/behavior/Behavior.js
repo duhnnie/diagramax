@@ -1,8 +1,13 @@
 import _ from 'lodash';
+import FunctionProxy from '../utils/FunctionProxy';
 
 const DEFAULTS = Object.freeze({
   disabled: false,
 });
+
+const canExecuteBehavior = function() {
+  return !this._disabled && this._target;
+};
 
 class Behavior {
   constructor(target, settings) {
@@ -17,17 +22,44 @@ class Behavior {
     }
   }
 
+  /**
+   * Proxies a function to execute it or not depending on the state of the behavior
+   * (enabled/disabled). Bind the necessary methods to avoid the behavior to be executed.
+   * Even if a Behavior has more than one method that make the behavior to perform, the majority of
+   * times it will be enough by proxy just one method.
+   * @protected
+   * @param {Function} handler The function to be proxied.
+   * @returns {Function} The proxied funciton.
+   */
+  _bind(handler) {
+    return FunctionProxy.get(handler, canExecuteBehavior, this);
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  end() {
+    throw new Error('end(): This method should be implemented.');
+  }
+
   disable() {
     this._disabled = true;
+    this.end();
   }
 
   enable() {
     this._disabled = false;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  isDisabled() {
+    return this._disabled;
+  }
+
   attachBehavior() {
-    throw new Error('attachBehavior(): This method should be implemented');
+    this.enable();
+  }
+
+  detachBehavior() {
+    this.disable();
+    this._target = null;
   }
 }
 

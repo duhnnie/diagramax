@@ -143,18 +143,8 @@ class Canvas extends Element {
     return this;
   }
 
-  connect(origin, destination, connection_id = null) {
-    origin = origin instanceof Shape ? origin : this.getElementById(origin);
-    destination = destination instanceof Shape ? destination : this.getElementById(destination);
-
-    if (origin && destination && origin !== destination) {
-      const connection = new Connection({
-        id: connection_id,
-        canvas: this,
-        origShape: origin,
-        destShape: destination,
-      });
-    }
+  connect(origin, destination) {
+    this._connectivityAreaBehavior.connect(origin, destination);
 
     return this;
   }
@@ -217,8 +207,10 @@ class Canvas extends Element {
   }
 
   selectItem(item) {
-    this._selectionBehavior.clear()
-      .add(item);
+    // TODO: maybe selection behavior should have the methods to set a selection and to add an item
+    // to a current selection set.
+    this._selectionBehavior.clear();
+    this._selectionBehavior.select(item);
   }
 
   _createHTML() {

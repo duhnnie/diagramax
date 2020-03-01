@@ -20,6 +20,15 @@ class SelectBehavior extends Behavior {
     super(target, options);
 
     this._isSelected = false;
+    // We proxy the start() and _select() method (and not the unselect()) cause the two formers are
+    // the method that make the behavior to perform, so their execution need to be controlled based
+    // on if the behavior is enabled or not.
+    this.start = this._bind(this.start);
+    this._select = this._bind(this._select);
+  }
+
+  end() {
+    this.unselect();
   }
 
   /**
@@ -33,15 +42,17 @@ class SelectBehavior extends Behavior {
   /**
    * Selects the behavior target element.
    */
-  select() {
+  _select(addMethod) {
     if (!this._isSelected) {
-      const canvas = this._target.getCanvas();
+      const target = this._target;
 
-      this._isSelected = true;
-      // TODO: fix this access to a protected member.
-      canvas.selectItem(this._target);
-      this._target._controlsLayer.setActive();
-      canvas.dispatchEvent(EVENT.SELECT, this._target);
+      if (addMethod(target)) {
+        const canvas = target.getCanvas();
+
+        this._isSelected = true;
+        target._controlsLayer.setActive();
+        canvas.dispatchEvent(EVENT.SELECT, target);
+      }
     }
   }
 
@@ -50,12 +61,21 @@ class SelectBehavior extends Behavior {
    */
   unselect() {
     if (this._isSelected) {
-      const canvas = this._target.getCanvas();
+      const target = this._target;
+      const canvas = target.getCanvas();
 
       this._isSelected = false;
       // TODO: fix this access to a protected member.
-      this._target._controlsLayer.setActive(false);
-      canvas.dispatchEvent(EVENT.UNSELECT, this._target);
+      target._controlsLayer.setActive(false);
+      canvas.dispatchEvent(EVENT.UNSELECT, target);
+    }
+  }
+
+  start() {
+    if (!this._isSelected) {
+      const target = this._target;
+
+      target.getCanvas().selectItem(target);
     }
   }
 
@@ -63,9 +83,12 @@ class SelectBehavior extends Behavior {
    * @inheritdoc
    */
   attachBehavior() {
-    this._target.getHTML().addEventListener('mousedown', () => {
-      this.select();
-    }, false);
+    this._target.getHTML().addEventListener('mousedown', this.start, false);
+  }
+
+  detachBehavior() {
+    this._target.getHTML().removeEventListener('mousedown', this.start, false);
+    super.detachBehavior();
   }
 }
 
