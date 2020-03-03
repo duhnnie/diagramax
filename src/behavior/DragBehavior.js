@@ -29,7 +29,7 @@ class DragBehavior extends Behavior {
   }
 
   // eslint-disable-next-line class-methods-use-this, no-unused-vars
-  updatePosition({ x, y }) {}
+  updatePosition(position, options, modifiers) {}
 
   endDrag(event) {
     if (event) event.stopPropagation();

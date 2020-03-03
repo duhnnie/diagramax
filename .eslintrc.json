@@ -19,6 +19,7 @@
     "rules": {
       "no-underscore-dangle": "off",
       "no-param-reassign": "off",
+      "no-fallthrough": "off",
       "import/no-cycle": "off"
     }
 }

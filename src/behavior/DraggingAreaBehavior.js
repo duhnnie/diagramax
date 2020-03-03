@@ -40,8 +40,15 @@ class DraggingAreaBehavior extends Behavior {
       }
 
       if (position) {
+        const modifiers = {
+          altKey: event.altKey,
+          ctrlKey: event.ctrlKey,
+          metaKey: event.metaKey,
+          shiftKey: event.shiftKey,
+        };
+
         // TODO: consider to update this method to send the actual position instead of the diff.
-        this._dragBehavior.updatePosition(position, this._behaviorOptions);
+        this._dragBehavior.updatePosition(position, this._behaviorOptions, modifiers);
       }
     }
   }
