@@ -1,5 +1,6 @@
 import Element from '../core/Element';
 import Shape from './Shape';
+import Geometry from '../utils/Geometry';
 
 const DEFAULTS = {
   width: 80,
@@ -69,16 +70,12 @@ class Rectangle extends Shape {
   }
 
   adjustSize(boundingBox) {
-    const { top, right, bottom, left } = boundingBox;
-    const newWidth = right - left;
-    const newHeight = bottom - top;
+    // TODO this code is exactly the same as Rectangle.adjustSize(), fix it.
+    const { x, y, width, height } = Geometry.getBoundSizeAndPos(boundingBox);
 
-    this.setPosition(
-      left + (newWidth / 2),
-      top + (newHeight / 2),
-    );
+    this.setPosition(x, y);
 
-    this.setSize((right - left), (bottom - top));
+    this.setSize(width, height);
   }
 
   getBounds() {

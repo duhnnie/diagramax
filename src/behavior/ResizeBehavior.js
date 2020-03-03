@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Element from '../core/Element';
 import DragBehavior from './DragBehavior';
+import Geometry from '../utils/Geometry';
 
 export const EVENT = Object.freeze({
   START: 'resizestart',
@@ -303,6 +304,12 @@ class ResizeBehavior extends DragBehavior {
 
     if (!ResizeBehavior.isValidSize(modifiedBounds)) return;
 
+    const { x, y, width, height } = Geometry.getBoundSizeAndPos(modifiedBounds);
+
+    this.r.setAttribute('width', width + 12);
+    this.r.setAttribute('height', height +12);
+    this.r.setAttribute('x', x - ((width + 12) / 2));
+    this.r.setAttribute('y', y - ((height +12) / 2));
     _target.adjustSize(modifiedBounds);
     this._updateHandlers(_target.getSize());
 
@@ -323,6 +330,10 @@ class ResizeBehavior extends DragBehavior {
 
   attachBehavior() {
     this._updateHandlers();
+    this.r = Element.createSVG('rect');
+    this._target.getCanvas()._html.prepend(this.r);
+    this.r.setAttribute('fill', 'red');
+    this.r.setAttribute('opacity', 0.5);
   }
 }
 
