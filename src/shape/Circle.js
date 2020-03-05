@@ -21,16 +21,33 @@ class Circle extends Shape {
     this.setRadius(settings.radius);
   }
 
-  setRadius(radius) {
+  _updateSize() {
     const { mainElement } = this._dom;
+
+    if (mainElement) {
+      mainElement.setAttribute('r', this._radius);
+    }
+  }
+
+  setRadius(radius) {
+    const size = this.getSize();
 
     this._radius = radius;
 
-    if (mainElement) {
-      mainElement.setAttribute('r', radius);
+    if (!this.__bulkAction) {
+      this._updateSize();
+      this._sizeHasChanged(size);
     }
 
     return this;
+  }
+
+  setWidth(width) {
+    return this.setRadius(width / 2);
+  }
+
+  setHeight(height) {
+    return this.setRadius(height / 2);
   }
 
   getRadius() {
@@ -38,79 +55,7 @@ class Circle extends Shape {
   }
 
   setSize(width, height) {
-    this.setRadius(Math.min(width, height));
-  }
-
-  adjustSize(boundingBox) {
-    const { top, right, bottom, left } = boundingBox;
-    const { x: boundX, y: boundY, width, height } = Geometry.getBoundSizeAndPos(boundingBox);
-    const { x, y } = this.getPosition();
-    const radius = (width + height) / 4;
-    let newX = x;
-    let newY = y;
-
-    console.log(width, height);
-
-    if (boundX > x) {
-      newX = left + radius;
-      console.log('E');
-    } else if (boundX < x) {
-      newX = right - radius;
-      console.log('W');
-    }
-
-    if (boundY > y) {
-      console.log('S');
-      newY = top + radius;
-    } else if (boundY < y) {
-      console.log('N');
-      newY = bottom - radius;
-    }
-
-    // if (width < height) {
-    //   x =
-    // }
-
-    // const { top, right, bottom, left } = boundingBox;
-    // const width = (right - left);
-    // const height = (bottom - top);
-    // const radius = (width + height) / 4;
-    // const direction = this._resizeBehavior.getCurrentDirection();
-    // let x;
-    // let y;
-
-    // switch (direction) {
-    //   case RESIZE_DIRECTION.NW:
-    //   case RESIZE_DIRECTION.W:
-    //   case RESIZE_DIRECTION.SW:
-    //     x = right - radius;
-    //     break;
-    //   case RESIZE_DIRECTION.NE:
-    //   case RESIZE_DIRECTION.E:
-    //   case RESIZE_DIRECTION.SE:
-    //     x = left + radius;
-    //     break;
-    //   default:
-    //     x = this._x;
-    // }
-
-    // switch (direction) {
-    //   case RESIZE_DIRECTION.NW:
-    //   case RESIZE_DIRECTION.N:
-    //   case RESIZE_DIRECTION.NE:
-    //     y = bottom - radius;
-    //     break;
-    //   case RESIZE_DIRECTION.SW:
-    //   case RESIZE_DIRECTION.S:
-    //   case RESIZE_DIRECTION.SE:
-    //     y = top + radius;
-    //     break;
-    //   default:
-    //     y = this._y;
-    // }
-
-    // this.setPosition(newX, newY);
-    this.setRadius(radius);
+    this.setWidth(Math.min(width, height));
   }
 
   getBounds() {

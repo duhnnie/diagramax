@@ -90,6 +90,7 @@ class ResizeBehavior extends DragBehavior {
     this._originalRatio = null;
     this._originalBound = null;
     this.endDrag = this.endDrag.bind(this);
+    this._onTargetResize = this._bind(this._onTargetResize);
   }
 
   _onGrab(event) {
@@ -306,16 +307,22 @@ class ResizeBehavior extends DragBehavior {
 
     const { x, y, width, height } = Geometry.getBoundSizeAndPos(modifiedBounds);
 
-    this.r.setAttribute('width', width + 12);
-    this.r.setAttribute('height', height +12);
-    this.r.setAttribute('x', x - ((width + 12) / 2));
-    this.r.setAttribute('y', y - ((height +12) / 2));
-    _target.adjustSize(modifiedBounds);
-    this._updateHandlers(_target.getSize());
+    switch (direction) {
+      case DIRECTION.N:
+      case DIRECTION.S:
+        _target.setHeight(height);
+        break;
+      case DIRECTION.W:
+      case DIRECTION.E:
+        _target.setWidth(width);
+        break;
+      default:
+        _target.setSize(width, height);
+    }
+
+    _target.setPosition(x, y);
 
     super.updatePosition(position);
-    // INFO: keep in mind this event is fired only when size of a shape is changing by dragging.
-    _target.getCanvas().dispatchEvent(EVENT.RESIZE, _target);
   }
 
   getCurrentDirection() {
@@ -328,12 +335,13 @@ class ResizeBehavior extends DragBehavior {
     return point;
   }
 
-  attachBehavior() {
+  _onTargetResize() {
     this._updateHandlers();
-    this.r = Element.createSVG('rect');
-    this._target.getCanvas()._html.prepend(this.r);
-    this.r.setAttribute('fill', 'red');
-    this.r.setAttribute('opacity', 0.5);
+  }
+
+  attachBehavior() {
+    this._target.getCanvas().addEventListener(EVENT.RESIZE, this._target, this._onTargetResize);
+    this._updateHandlers();
   }
 }
 

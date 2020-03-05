@@ -5,7 +5,7 @@ import Connection from '../connection/Connection';
 import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
 import SelectBehavior from '../behavior/SelectBehavior';
-import ResizeBehavior from '../behavior/ResizeBehavior';
+import ResizeBehavior, { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
 import ShapeControlsLayer from './components/ShapeControlsLayer';
 
 const DEFAULTS = {
@@ -56,11 +56,21 @@ class Shape extends Component {
     return this;
   }
 
-  setX(x) {
-    if (typeof x !== 'number') {
-      throw new Error('setX(): invalid parameter.');
-    }
+  _sizeHasChanged(oldSize) {
+    const { oldWidth, oldHeight } = oldSize;
+    const size = this.getSize();
+    const { width, height } = size;
+    const canvas = this.getCanvas();
 
+    if (canvas && (width !== oldWidth || height !== oldHeight)) {
+      this.getCanvas().dispatchEvent(RESIZE_EVENT.RESIZE, this, {
+        previous: oldSize,
+        current: size,
+      });
+    }
+  }
+
+  setX(x) {
     this._x = x;
 
     if (this._html) {
@@ -79,9 +89,6 @@ class Shape extends Component {
   }
 
   setY(y) {
-    if (typeof y !== 'number') {
-      throw new Error('setY(): invalid parameter.');
-    }
     this._y = y;
 
     if (this._html) {
@@ -117,8 +124,10 @@ class Shape extends Component {
     };
   }
 
+  _updateSize() {}
+
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
-  setWidth(width) {
+  setWidth(width, keepProportion) {
     throw new Error('setWidth(): This method should be implemented.');
   }
 
@@ -127,7 +136,7 @@ class Shape extends Component {
   }
 
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
-  setHeight(height) {
+  setHeight(height, keepProportion) {
     throw new Error('setHeight(): This method should be implemented.');
   }
 
@@ -135,11 +144,20 @@ class Shape extends Component {
     return this.getSize().height;
   }
 
+  getRatio() {
+    return this.getWidth() / this.getHeight();
+  }
+
   setSize(width, height) {
+    const size = this.getSize();
+
     this.__bulkAction = true;
 
     this.setWidth(width)
       .setHeight(height);
+
+    this._updateSize();
+    this._sizeHasChanged(size);
 
     this.__bulkAction = false;
 
@@ -162,11 +180,6 @@ class Shape extends Component {
     const height = bottom - top;
 
     return { width, height };
-  }
-
-  // eslint-disable-next-line no-unused-vars, class-methods-use-this
-  adjustSize(boundingBox) {
-    throw new Error('adjustSize(): This method should be implemented.');
   }
 
   getPortDescriptor(index) {

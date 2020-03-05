@@ -21,18 +21,36 @@ class Rectangle extends Shape {
     this.setSize(settings.width, settings.height);
   }
 
-  setWidth(width) {
+  _updateSize() {
+    const { mainElement } = this._dom;
+    const { _width, _height } = this;
+
+    if (mainElement) {
+      mainElement.setAttribute('width', _width);
+      mainElement.setAttribute('x', _width * -0.5);
+      mainElement.setAttribute('height', _height);
+      mainElement.setAttribute('y', _height * -0.5);
+    }
+  }
+
+  setWidth(width, keepProportion) {
     if (typeof width !== 'number') {
       throw new Error('setWidth(): invalid parameter.');
     }
 
-    const { mainElement } = this._dom;
+    const size = this.getSize();
+
+    if (keepProportion) {
+      const height = width / this.getRatio();
+
+      return this.setSize(width, height);
+    }
 
     this._width = width;
 
-    if (mainElement) {
-      mainElement.setAttribute('width', width);
-      mainElement.setAttribute('x', this._width * -0.5);
+    if (!this.__bulkAction) {
+      this._updateSize();
+      this._sizeHasChanged(size);
     }
 
     return this;
@@ -42,18 +60,19 @@ class Rectangle extends Shape {
     return this._width;
   }
 
-  setHeight(height) {
+  setHeight(height, keepProportion) {
     if (typeof height !== 'number') {
       throw new Error('setHeight(): invalid parameter.');
     }
 
-    const { mainElement } = this._dom;
-    this._height = height;
+    if (keepProportion) {
+      const width = this.getRatio() * height;
 
-    if (mainElement) {
-      mainElement.setAttribute('height', height);
-      mainElement.setAttribute('y', this._height * -0.5);
+      return this.setSize(width, height);
     }
+
+    this._height = height;
+    this._updateSize();
 
     return this;
   }
@@ -67,15 +86,6 @@ class Rectangle extends Shape {
       width: this._width,
       height: this._height,
     };
-  }
-
-  adjustSize(boundingBox) {
-    // TODO this code is exactly the same as Rectangle.adjustSize(), fix it.
-    const { x, y, width, height } = Geometry.getBoundSizeAndPos(boundingBox);
-
-    this.setPosition(x, y);
-
-    this.setSize(width, height);
   }
 
   getBounds() {

@@ -8,6 +8,8 @@ const DEFAULTS = Object.freeze({
 });
 
 class Triangle extends Shape {
+  // TODO: Triangle should inherit from a new class Polygon, this method should be belong to that
+  // class.
   static toPointsString(points) {
     return points.map(({ x, y }) => `${x},${y}`).join(' ');
   }
@@ -27,10 +29,13 @@ class Triangle extends Shape {
   }
 
   setBase(base) {
+    const size = this.getSize();
+
     this._base = base;
 
     if (!this.__bulkAction) {
-      this._updateShape();
+      this._updateSize();
+      this._sizeHasChanged(size);
     }
 
     return this;
@@ -41,10 +46,13 @@ class Triangle extends Shape {
   }
 
   setHeight(height) {
+    const size = this.getSize();
+
     this._height = height;
 
     if (!this.__bulkAction) {
-      this._updateShape();
+      this._updateSize();
+      this._sizeHasChanged(size);
     }
 
     return this;
@@ -66,6 +74,10 @@ class Triangle extends Shape {
     }
 
     return this;
+  }
+
+  _updateSize() {
+    this._updateShape();
   }
 
   setSize(width, height) {
@@ -99,15 +111,6 @@ class Triangle extends Shape {
         y: yPoints[1],
       },
     ];
-  }
-
-  adjustSize(boundingBox) {
-    // TODO this code is exactly the same as Rectangle.adjustSize(), fix it.
-    const { x, y, width, height } = Geometry.getBoundSizeAndPos(boundingBox);
-
-    this.setPosition(x, y);
-
-    this.setSize(width, height);
   }
 
   getBounds() {
