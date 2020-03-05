@@ -20,6 +20,17 @@ export const DIRECTION = {
   W: 'w',
 };
 
+const OPPOSITE_DIRECTION = {
+  [DIRECTION.NW]: DIRECTION.SE,
+  [DIRECTION.N]: DIRECTION.S,
+  [DIRECTION.NE]: DIRECTION.SW,
+  [DIRECTION.E]: DIRECTION.W,
+  [DIRECTION.SE]: DIRECTION.NW,
+  [DIRECTION.S]: DIRECTION.N,
+  [DIRECTION.SW]: DIRECTION.NE,
+  [DIRECTION.W]: DIRECTION.E,
+};
+
 const handlerDefs = [
   {
     className: 'nwse',
@@ -110,7 +121,10 @@ class ResizeBehavior extends DragBehavior {
     const { _target } = this;
 
     if (!this._currentHandler) {
-      this._currentHandler = this._handlers.find((handler) => handler.dataset.direction === options.direction);
+      // eslint-disable-next-line arrow-body-style
+      this._currentHandler = this._handlers.find((handler) => {
+        return handler.dataset.direction === options.direction;
+      });
     }
 
     // TODO: fix this access to a protected member.
@@ -305,22 +319,26 @@ class ResizeBehavior extends DragBehavior {
 
     if (!ResizeBehavior.isValidSize(modifiedBounds)) return;
 
-    const { x, y, width, height } = Geometry.getBoundSizeAndPos(modifiedBounds);
+    const { width, height } = Geometry.getBoundSizeAndPos(modifiedBounds);
 
+    // NOTE: This different way to apply resizing is necessary to avoid erratic resizing for
+    // shapes that have a fixed ratio of 1:1 like Circle.
     switch (direction) {
-      case DIRECTION.N:
-      case DIRECTION.S:
-        _target.setHeight(height);
-        break;
       case DIRECTION.W:
       case DIRECTION.E:
+        _target.setHeight(height);
         _target.setWidth(width);
+        break;
+      case DIRECTION.N:
+      case DIRECTION.S:
+        _target.setWidth(width);
+        _target.setHeight(height);
         break;
       default:
         _target.setSize(width, height);
     }
 
-    _target.setPosition(x, y);
+    _target.align(modifiedBounds, OPPOSITE_DIRECTION[direction]);
 
     super.updatePosition(position);
   }
@@ -340,8 +358,8 @@ class ResizeBehavior extends DragBehavior {
   }
 
   attachBehavior() {
-    this._target.getCanvas().addEventListener(EVENT.RESIZE, this._target, this._onTargetResize);
     this._updateHandlers();
+    this._target.getCanvas().addEventListener(EVENT.RESIZE, this._target, this._onTargetResize);
   }
 }
 

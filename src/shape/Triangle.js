@@ -28,7 +28,13 @@ class Triangle extends Shape {
     this.setSize(settings.base, settings.height);
   }
 
-  setBase(base) {
+  setBase(base, keepProportion) {
+    if (keepProportion) {
+      const height = base / this.getRatio();
+
+      return this.setSize(base, height);
+    }
+
     const size = this.getSize();
 
     this._base = base;
@@ -45,7 +51,13 @@ class Triangle extends Shape {
     return this._base;
   }
 
-  setHeight(height) {
+  setHeight(height, keepProportion) {
+    if (keepProportion) {
+      const width = this.getRatio() * height;
+
+      return this.setSize(width, height);
+    }
+
     const size = this.getSize();
 
     this._height = height;
@@ -62,8 +74,8 @@ class Triangle extends Shape {
     return this._height;
   }
 
-  setWidth(width) {
-    return this.setBase(width);
+  setWidth(width, keepProportion) {
+    return this.setBase(width, keepProportion);
   }
 
   _updateShape() {

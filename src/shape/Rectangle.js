@@ -65,6 +65,8 @@ class Rectangle extends Shape {
       throw new Error('setHeight(): invalid parameter.');
     }
 
+    const size = this.getSize();
+
     if (keepProportion) {
       const width = this.getRatio() * height;
 
@@ -72,7 +74,11 @@ class Rectangle extends Shape {
     }
 
     this._height = height;
-    this._updateSize();
+
+    if (!this.__bulkAction) {
+      this._updateSize();
+      this._sizeHasChanged(size);
+    }
 
     return this;
   }
