@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import Behavior from './Behavior';
 
 class DragBehavior extends Behavior {

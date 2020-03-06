@@ -123,7 +123,7 @@ class Connection extends Component {
           ];
 
           pathPieces.push(intersectionPoints);
-          lastPoint = _.last(intersectionPoints);
+          lastPoint = intersectionPoints.slice(0).pop();
         }
       });
 
@@ -349,7 +349,7 @@ class Connection extends Component {
 
   getBounds() {
     return this._points.reduce((bounds, { x, y }) => {
-      if (_.isEmpty(bounds)) {
+      if (!bounds) {
         return {
           top: y,
           right: x,
@@ -364,7 +364,7 @@ class Connection extends Component {
       bounds.left = x < bounds.left ? x : bounds.left;
 
       return bounds;
-    }, {});
+    }, null) || {};
   }
 
   getSegments() {

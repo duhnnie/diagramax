@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import DragBehavior from './DragBehavior';
 import Shape from '../shape/Shape';
 
