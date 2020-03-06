@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import Element from '../core/Element';
 import DragBehavior from './DragBehavior';
 import Geometry from '../utils/Geometry';

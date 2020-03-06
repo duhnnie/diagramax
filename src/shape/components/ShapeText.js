@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import Element from '../../core/Element';
 import EditableTextBehavior from '../../behavior/EditableTextBehavior';
 
@@ -14,7 +13,10 @@ class ShapeText extends Element {
     this._editableBehavior = new EditableTextBehavior(this);
     this._dom = {};
 
-    settings = _.merge({}, DEFAULTS, settings);
+    settings = {
+      ...DEFAULTS,
+      ...settings,
+    };
 
     this.setText(settings.text);
   }
