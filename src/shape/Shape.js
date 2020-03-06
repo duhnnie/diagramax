@@ -1,5 +1,5 @@
 import Component from '../component/Component';
-import Port from '../connection/Port';
+import Port, { ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION } from '../connection/Port';
 import Connection from '../connection/Connection';
 import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
@@ -39,16 +39,16 @@ class Shape extends Component {
   }
 
   _initPorts() {
-    Object.values(Port.INDEX).forEach((portIndex) => {
-      let direction = portIndex % 2 ? -1 : 1;
+    Object.values(PORT_POSITION).forEach((portPosition) => {
+      let direction = portPosition % 2 ? -1 : 1;
 
-      if (portIndex < 2) {
-        direction = portIndex % 2 || -1;
+      if (portPosition < 2) {
+        direction = portPosition % 2 || -1;
       }
 
-      this._ports[portIndex] = new Port({
+      this._ports[portPosition] = new Port({
         shape: this,
-        orientation: portIndex % 2 ? Port.ORIENTATION.X : Port.ORIENTATION.Y,
+        orientation: portPosition % 2 ? PORT_ORIENTATION.X : PORT_ORIENTATION.Y,
         direction,
       });
     });

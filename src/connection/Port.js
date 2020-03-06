@@ -6,52 +6,42 @@ const DEFAULTS = {
   shape: null,
 };
 
+export const ORIENTATION = Object.freeze({
+  X: 'x',
+  Y: 'y',
+});
+
+export const DIRECTION = Object.freeze({
+  BACKWARD: -1,
+  FORWARD: 1,
+});
+
+export const MODE = Object.freeze({
+  IN: 0,
+  OUT: 1,
+});
+
+export const POSITION = Object.freeze({
+  NORTH: 0,
+  EAST: 1,
+  SOUTH: 2,
+  WEST: 3,
+});
+
+export const PRIORITY = Object.freeze({
+  [ORIENTATION.Y]: {
+    '-1': [POSITION.NORTH, POSITION.SOUTH],
+    0: [POSITION.SOUTH, POSITION.NORTH],
+    1: [POSITION.SOUTH, POSITION.NORTH],
+  },
+  [ORIENTATION.X]: {
+    '-1': [POSITION.WEST, POSITION.EAST],
+    0: [POSITION.EAST, POSITION.WEST],
+    1: [POSITION.EAST, POSITION.WEST],
+  },
+});
+
 class Port {
-  static get ORIENTATION() {
-    return {
-      X: 'x',
-      Y: 'y',
-    };
-  }
-
-  static get DIRECTION() {
-    return {
-      BACKWARD: -1,
-      FORWARD: 1,
-    };
-  }
-
-  static get MODE() {
-    return {
-      IN: 0,
-      OUT: 1,
-    };
-  }
-
-  static get INDEX() {
-    return {
-      NORTH: 0,
-      EAST: 1,
-      SOUTH: 2,
-      WEST: 3,
-    };
-  }
-
-  static get PRIORITY() {
-    return {
-      [Port.ORIENTATION.Y]: {
-        '-1': [Port.INDEX.NORTH, Port.INDEX.SOUTH],
-        0: [Port.INDEX.SOUTH, Port.INDEX.NORTH],
-        1: [Port.INDEX.SOUTH, Port.INDEX.NORTH],
-      },
-      [Port.ORIENTATION.X]: {
-        '-1': [Port.INDEX.WEST, Port.INDEX.EAST],
-        0: [Port.INDEX.EAST, Port.INDEX.WEST],
-        1: [Port.INDEX.EAST, Port.INDEX.WEST],
-      },
-    };
-  }
-
   constructor(settings) {
     this._mode = null;
     this._orientation = null;
@@ -93,7 +83,7 @@ class Port {
   }
 
   _setOrientation(orientation) {
-    if (!Object.keys(Port.ORIENTATION).find((i) => Port.ORIENTATION[i] === orientation)) {
+    if (!Object.keys(ORIENTATION).find((i) => ORIENTATION[i] === orientation)) {
       throw new Error('setOrientation(): invalid parameter.');
     }
 
@@ -102,7 +92,7 @@ class Port {
   }
 
   _setDirection(direction) {
-    if (!Object.keys(Port.DIRECTION).find((i) => Port.DIRECTION[i] === direction)) {
+    if (!Object.keys(DIRECTION).find((i) => DIRECTION[i] === direction)) {
       throw new Error('setDirection(): invalid parameter.');
     }
 
@@ -121,7 +111,7 @@ class Port {
       throw new Error('addConnection(): the supplied connection doesn\'t belong to this shape.');
     }
 
-    const newMode = connection.getOrigShape() === this._shape ? Port.MODE.OUT : Port.MODE.IN;
+    const newMode = connection.getOrigShape() === this._shape ? MODE.OUT : MODE.IN;
 
     if (newMode !== this._mode && this._mode !== null) {
       throw new Error('addConnection(): Invalid connection direction.');
@@ -170,8 +160,8 @@ class Port {
     const shapePosition = this._shape.getPosition();
     const orientation = this._orientation;
     const direction = this._direction;
-    const xOffset = orientation === Port.ORIENTATION.X ? this._shape.getWidth() / 2 : 0;
-    const yOffset = orientation === Port.ORIENTATION.Y ? this._shape.getHeight() / 2 : 0;
+    const xOffset = orientation === ORIENTATION.X ? this._shape.getWidth() / 2 : 0;
+    const yOffset = orientation === ORIENTATION.Y ? this._shape.getHeight() / 2 : 0;
 
     return {
       x: shapePosition.x + (xOffset * direction),

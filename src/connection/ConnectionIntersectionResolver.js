@@ -1,11 +1,11 @@
-import Port from './Port';
+import { ORIENTATION as PORT_ORIENTATION } from './Port';
 import Geometry from '../utils/Geometry';
 
 const getSegmentOrientation = function (segment) {
   if (segment[0].x === segment[1].x) {
-    return Port.ORIENTATION.Y;
+    return PORT_ORIENTATION.Y;
   } if (segment[0].y === segment[1].y) {
-    return Port.ORIENTATION.X;
+    return PORT_ORIENTATION.X;
   }
   throw new Error('getSegmentOrientation(): segment is diagonal.');
 };
@@ -46,12 +46,12 @@ const getIntersectedPoints = function (connectionA, connectionB) {
           let point;
 
           // TODO: move to a util function
-          if (orientationA === Port.ORIENTATION.X && segmentA[0].y > segmentB[0].y && segmentA[0].y < segmentB[1].y && segmentB[0].x > segmentA[0].x && segmentB[0].x < segmentA[1].x) {
+          if (orientationA === PORT_ORIENTATION.X && segmentA[0].y > segmentB[0].y && segmentA[0].y < segmentB[1].y && segmentB[0].x > segmentA[0].x && segmentB[0].x < segmentA[1].x) {
             point = {
               x: segmentB[0].x,
               y: segmentA[0].y,
             };
-          } else if (orientationA === Port.ORIENTATION.Y && segmentA[0].x > segmentB[0].x && segmentA[0].x < segmentB[1].x && segmentB[0].y > segmentA[0].y && segmentB[0].y < segmentA[1].y) {
+          } else if (orientationA === PORT_ORIENTATION.Y && segmentA[0].x > segmentB[0].x && segmentA[0].x < segmentB[1].x && segmentB[0].y > segmentA[0].y && segmentB[0].y < segmentA[1].y) {
             point = {
               x: segmentA[0].x,
               y: segmentB[0].y,
@@ -99,7 +99,7 @@ export default {
                 connection: otherConnection,
                 point,
               }));
-  
+
               segments[index] = segments[index] || [];
               segments[index].push(...intersectionPoints);
             }
