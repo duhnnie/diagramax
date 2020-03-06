@@ -1,4 +1,6 @@
 # SimpleDesigner
-An attempt of BPMN Process Designer
+An attempt of Diagram drawer.
 
-Currently this project is being refactored, please use the *master* branch for use the last stable version
+Currently this project is still under development, it is not a version 1.0.0 yet but it is already usable in *MASTER* branch.
+
+Documentation will be added in future upates.
