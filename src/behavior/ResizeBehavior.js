@@ -309,6 +309,16 @@ class ResizeBehavior extends DragBehavior {
     return newBounds;
   }
 
+  /**
+   * Determines if the current Shape being resized should keep its position.
+   * @param {Object} modifiers An object literal with all modifiers.
+   * @returns {Boolean}
+   */
+  // eslint-disable-next-line class-methods-use-this
+  _shouldKeepPosition(modifiers) {
+    return modifiers.altKey;
+  }
+
   updatePosition(position, options, modifiers) {
     if (!this._currentHandler) return;
 
@@ -338,7 +348,13 @@ class ResizeBehavior extends DragBehavior {
         _target.setSize(width, height);
     }
 
-    _target.align(modifiedBounds, OPPOSITE_DIRECTION[direction]);
+    if (this._shouldKeepPosition(modifiers)) {
+      const { x, y } = Geometry.getBoundSizeAndPos(this._originalBound);
+
+      _target.setPosition(x, y);
+    } else {
+      _target.align(modifiedBounds, OPPOSITE_DIRECTION[direction]);
+    }
 
     super.updatePosition(position);
   }
