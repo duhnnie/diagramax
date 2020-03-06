@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Element from '../core/Element';
 import DragBehavior from './DragBehavior';
+import Geometry from '../utils/Geometry';
 
 export const EVENT = Object.freeze({
   START: 'resizestart',
@@ -17,6 +18,17 @@ export const DIRECTION = {
   S: 's',
   SW: 'sw',
   W: 'w',
+};
+
+const OPPOSITE_DIRECTION = {
+  [DIRECTION.NW]: DIRECTION.SE,
+  [DIRECTION.N]: DIRECTION.S,
+  [DIRECTION.NE]: DIRECTION.SW,
+  [DIRECTION.E]: DIRECTION.W,
+  [DIRECTION.SE]: DIRECTION.NW,
+  [DIRECTION.S]: DIRECTION.N,
+  [DIRECTION.SW]: DIRECTION.NE,
+  [DIRECTION.W]: DIRECTION.E,
 };
 
 const handlerDefs = [
@@ -86,23 +98,33 @@ class ResizeBehavior extends DragBehavior {
 
     this._handlers = [];
     this._currentHandler = null;
+    this._originalRatio = null;
+    this._originalBound = null;
     this.endDrag = this.endDrag.bind(this);
+    this._onTargetResize = this._bind(this._onTargetResize);
   }
 
   _onGrab(event) {
     const { target: handler } = event;
+    const { _target } = this;
+    const { width, height } = _target.getSize();
 
     super._onGrab(event);
 
+    this._originalRatio = width / height;
     this._currentHandler = handler;
-    this._target.getCanvas().setResizingShape(this._target);
+    this._originalBound = _target.getBounds();
+    _target.getCanvas().setResizingShape(_target);
   }
 
   startDrag(position, options) {
     const { _target } = this;
 
     if (!this._currentHandler) {
-      this._currentHandler = this._handlers.find((handler) => handler.dataset.direction === options.direction);
+      // eslint-disable-next-line arrow-body-style
+      this._currentHandler = this._handlers.find((handler) => {
+        return handler.dataset.direction === options.direction;
+      });
     }
 
     // TODO: fix this access to a protected member.
@@ -170,62 +192,155 @@ class ResizeBehavior extends DragBehavior {
     });
   }
 
-  updatePosition(position, options) {
-    if (!this._currentHandler) return;
-
-    const { _target } = this;
-    const direction = this._currentHandler.dataset.direction || options.direction;
-    const { x, y } = this._evaluate(position);
-    const bounds = _target.getBounds();
+  _getNewBounds({ x, y }, direction) {
+    const bounds = { ...this._originalBound };
 
     switch (direction) {
+      case DIRECTION.W:
       case DIRECTION.NW:
+      case DIRECTION.SW:
         // TODO: fix this hardcoded value
         bounds.left = x + 6;
-        bounds.top = y + 6;
-        break;
-      case DIRECTION.NE:
-        // TODO: fix this hardcoded value
-        bounds.right = x - 6;
-        bounds.top = y + 6;
-        break;
-      case DIRECTION.N:
-        // TODO: fix this hardcoded value
-        bounds.top = y + 6;
         break;
       case DIRECTION.E:
-        // TODO fix this hardcoded value
-        bounds.right = x - 6;
-        break;
+      case DIRECTION.NE:
       case DIRECTION.SE:
-        // TODO fix this hardcoded value
         bounds.right = x - 6;
-        bounds.bottom = y - 6;
-        break;
-      case DIRECTION.S:
-        // TODO fix this hardcoded value
-        bounds.bottom = y - 6;
-        break;
-      case DIRECTION.SW:
-        // TODO fix this hardcoded value
-        bounds.left = x + 6;
-        bounds.bottom = y - 6;
-        break;
-      case DIRECTION.W:
-        // TODO fix this hardcoded value
-        bounds.left = x + 6;
         break;
       default:
     }
 
-    if (!ResizeBehavior.isValidSize(bounds)) return;
+    switch (direction) {
+      case DIRECTION.N:
+      case DIRECTION.NW:
+      case DIRECTION.NE:
+        // TODO: fix this hardcoded value
+        bounds.top = y + 6;
+        break;
+      case DIRECTION.S:
+      case DIRECTION.SW:
+      case DIRECTION.SE:
+        // TODO: fix this hardcoded value
+        bounds.bottom = y - 6;
+        break;
+      default:
+    }
 
-    _target.adjustSize(bounds);
-    this._updateHandlers(_target.getSize());
+    return bounds;
+  }
+
+  _getModifiedBounds(bounds, modifiers, direction) {
+    const newBounds = { ...bounds };
+
+    if (modifiers.shiftKey) {
+      const width = bounds.right - bounds.left;
+      const height = bounds.bottom - bounds.top;
+      const x = bounds.left + (width / 2);
+      const y = bounds.top + (height / 2);
+      const shapeRatio = this._originalRatio;
+      let scaledWidth = width;
+      let scaledHeight = height;
+      const xAxis = [DIRECTION.W, DIRECTION.E];
+      const yAxis = [DIRECTION.N, DIRECTION.S];
+      let halfScaledW = null;
+      let halfScaledH = null;
+
+      if (!xAxis.includes(direction) && !yAxis.includes(direction)) {
+        const boundRatio = width / height;
+
+        if ((shapeRatio > 1 && boundRatio > 1)
+          || (shapeRatio < 1 && boundRatio < 1)) {
+          if (shapeRatio > boundRatio) {
+            scaledHeight = width / shapeRatio;
+          } else {
+            scaledWidth = shapeRatio * height;
+          }
+        } else if (shapeRatio > 1) {
+          scaledHeight = width / shapeRatio;
+        } else {
+          scaledWidth = shapeRatio * height;
+        }
+      } else if (!xAxis.includes(direction)) {
+        scaledWidth = shapeRatio * height;
+      } else {
+        scaledHeight = width / shapeRatio;
+      }
+
+      halfScaledW = scaledWidth / 2;
+      halfScaledH = scaledHeight / 2;
+
+      switch (direction) {
+        case DIRECTION.N:
+          newBounds.left = x - halfScaledW;
+          newBounds.right = x + halfScaledW;
+        case DIRECTION.NW:
+        case DIRECTION.NE:
+          newBounds.top = newBounds.bottom - scaledHeight;
+          break;
+        case DIRECTION.S:
+          newBounds.left = x - halfScaledW;
+          newBounds.right = x + halfScaledW;
+        case DIRECTION.SW:
+        case DIRECTION.SE:
+          newBounds.bottom = newBounds.top + scaledHeight;
+          break;
+        default:
+      }
+
+      switch (direction) {
+        case DIRECTION.W:
+          newBounds.top = y - halfScaledH;
+          newBounds.bottom = y + halfScaledH;
+        case DIRECTION.NW:
+        case DIRECTION.SW:
+          newBounds.left = newBounds.right - scaledWidth;
+          break;
+        case DIRECTION.E:
+          newBounds.top = y - halfScaledH;
+          newBounds.bottom = y + halfScaledH;
+        case DIRECTION.NE:
+        case DIRECTION.SE:
+          newBounds.right = newBounds.left + scaledWidth;
+          break;
+        default:
+      }
+    }
+
+    return newBounds;
+  }
+
+  updatePosition(position, options, modifiers) {
+    if (!this._currentHandler) return;
+
+    const { _target } = this;
+    const direction = this._currentHandler.dataset.direction || options.direction;
+    const bounds = this._getNewBounds(position, direction);
+    const modifiedBounds = this._getModifiedBounds(bounds, modifiers, direction);
+
+    if (!ResizeBehavior.isValidSize(modifiedBounds)) return;
+
+    const { width, height } = Geometry.getBoundSizeAndPos(modifiedBounds);
+
+    // NOTE: This different way to apply resizing is necessary to avoid erratic resizing for
+    // shapes that have a fixed ratio of 1:1 like Circle.
+    switch (direction) {
+      case DIRECTION.W:
+      case DIRECTION.E:
+        _target.setHeight(height);
+        _target.setWidth(width);
+        break;
+      case DIRECTION.N:
+      case DIRECTION.S:
+        _target.setWidth(width);
+        _target.setHeight(height);
+        break;
+      default:
+        _target.setSize(width, height);
+    }
+
+    _target.align(modifiedBounds, OPPOSITE_DIRECTION[direction]);
 
     super.updatePosition(position);
-    // INFO: keep in mind this event is fired only when size of a shape is changing by dragging.
-    _target.getCanvas().dispatchEvent(EVENT.RESIZE, _target);
   }
 
   getCurrentDirection() {
@@ -238,8 +353,13 @@ class ResizeBehavior extends DragBehavior {
     return point;
   }
 
+  _onTargetResize() {
+    this._updateHandlers();
+  }
+
   attachBehavior() {
     this._updateHandlers();
+    this._target.getCanvas().addEventListener(EVENT.RESIZE, this._target, this._onTargetResize);
   }
 }
 

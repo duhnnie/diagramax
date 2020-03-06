@@ -1,5 +1,6 @@
 import Element from '../core/Element';
 import Shape from './Shape';
+import Geometry from '../utils/Geometry';
 
 const DEFAULTS = Object.freeze({
   base: 80,
@@ -7,6 +8,8 @@ const DEFAULTS = Object.freeze({
 });
 
 class Triangle extends Shape {
+  // TODO: Triangle should inherit from a new class Polygon, this method should be belong to that
+  // class.
   static toPointsString(points) {
     return points.map(({ x, y }) => `${x},${y}`).join(' ');
   }
@@ -25,11 +28,20 @@ class Triangle extends Shape {
     this.setSize(settings.base, settings.height);
   }
 
-  setBase(base) {
+  setBase(base, keepProportion) {
+    if (keepProportion) {
+      const height = base / this.getRatio();
+
+      return this.setSize(base, height);
+    }
+
+    const size = this.getSize();
+
     this._base = base;
 
     if (!this.__bulkAction) {
-      this._updateShape();
+      this._updateSize();
+      this._sizeHasChanged(size);
     }
 
     return this;
@@ -39,11 +51,20 @@ class Triangle extends Shape {
     return this._base;
   }
 
-  setHeight(height) {
+  setHeight(height, keepProportion) {
+    if (keepProportion) {
+      const width = this.getRatio() * height;
+
+      return this.setSize(width, height);
+    }
+
+    const size = this.getSize();
+
     this._height = height;
 
     if (!this.__bulkAction) {
-      this._updateShape();
+      this._updateSize();
+      this._sizeHasChanged(size);
     }
 
     return this;
@@ -53,8 +74,8 @@ class Triangle extends Shape {
     return this._height;
   }
 
-  setWidth(width) {
-    return this.setBase(width);
+  setWidth(width, keepProportion) {
+    return this.setBase(width, keepProportion);
   }
 
   _updateShape() {
@@ -65,6 +86,10 @@ class Triangle extends Shape {
     }
 
     return this;
+  }
+
+  _updateSize() {
+    this._updateShape();
   }
 
   setSize(width, height) {
@@ -98,20 +123,6 @@ class Triangle extends Shape {
         y: yPoints[1],
       },
     ];
-  }
-
-  adjustSize(boundingBox) {
-    // TODO this code is exactly the same as Rectangle.adjustSize(), fix it.
-    const { top, right, bottom, left } = boundingBox;
-    const newWidth = right - left;
-    const newHeight = bottom - top;
-
-    this.setPosition(
-      left + (newWidth / 2),
-      top + (newHeight / 2),
-    );
-
-    this.setSize((right - left), (bottom - top));
   }
 
   getBounds() {

@@ -1,12 +1,12 @@
-import Element from '../core/Element';
 import Component from '../component/Component';
 import Port from '../connection/Port';
 import Connection from '../connection/Connection';
 import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
 import SelectBehavior from '../behavior/SelectBehavior';
-import ResizeBehavior from '../behavior/ResizeBehavior';
+import ResizeBehavior, { EVENT as RESIZE_EVENT, DIRECTION } from '../behavior/ResizeBehavior';
 import ShapeControlsLayer from './components/ShapeControlsLayer';
+import Geometry from '../utils/Geometry';
 
 const DEFAULTS = {
   position: {
@@ -56,11 +56,21 @@ class Shape extends Component {
     return this;
   }
 
-  setX(x) {
-    if (typeof x !== 'number') {
-      throw new Error('setX(): invalid parameter.');
-    }
+  _sizeHasChanged(oldSize) {
+    const { oldWidth, oldHeight } = oldSize;
+    const size = this.getSize();
+    const { width, height } = size;
+    const canvas = this.getCanvas();
 
+    if (canvas && (width !== oldWidth || height !== oldHeight)) {
+      this.getCanvas().dispatchEvent(RESIZE_EVENT.RESIZE, this, {
+        previous: oldSize,
+        current: size,
+      });
+    }
+  }
+
+  setX(x) {
     this._x = x;
 
     if (this._html) {
@@ -79,9 +89,6 @@ class Shape extends Component {
   }
 
   setY(y) {
-    if (typeof y !== 'number') {
-      throw new Error('setY(): invalid parameter.');
-    }
     this._y = y;
 
     if (this._html) {
@@ -117,8 +124,13 @@ class Shape extends Component {
     };
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  _updateSize() {
+    throw new Error('updateSize(): This method should be implemented.');
+  }
+
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
-  setWidth(width) {
+  setWidth(width, keepProportion) {
     throw new Error('setWidth(): This method should be implemented.');
   }
 
@@ -127,7 +139,7 @@ class Shape extends Component {
   }
 
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
-  setHeight(height) {
+  setHeight(height, keepProportion) {
     throw new Error('setHeight(): This method should be implemented.');
   }
 
@@ -135,11 +147,20 @@ class Shape extends Component {
     return this.getSize().height;
   }
 
+  getRatio() {
+    return this.getWidth() / this.getHeight();
+  }
+
   setSize(width, height) {
+    const size = this.getSize();
+
     this.__bulkAction = true;
 
     this.setWidth(width)
       .setHeight(height);
+
+    this._updateSize();
+    this._sizeHasChanged(size);
 
     this.__bulkAction = false;
 
@@ -162,11 +183,6 @@ class Shape extends Component {
     const height = bottom - top;
 
     return { width, height };
-  }
-
-  // eslint-disable-next-line no-unused-vars, class-methods-use-this
-  adjustSize(boundingBox) {
-    throw new Error('adjustSize(): This method should be implemented.');
   }
 
   getPortDescriptor(index) {
@@ -289,18 +305,18 @@ class Shape extends Component {
   }
 
   hasAvailablePortFor(portIndex, mode) {
-    const port = this._ports[portIndex];
+    const selectedPort = this._ports[portIndex];
 
-    if (port) {
-      if (port.mode === null) {
-        const portsInMode = this._ports.filter(port => {
-          return port.mode === mode;
-        });
+    if (selectedPort) {
+      if (selectedPort.mode === null) {
+        const portsInMode = this._ports.filter((port) => port.mode === mode);
 
         return portsInMode.length < 3;
       }
 
-      return port.isAvailableFor(mode);
+      // TODO: the validationcan be performed here and isAvailableFor() could be removed, unless it
+      // is used somewhere else.
+      return selectedPort.isAvailableFor(mode);
     }
 
     return false;
@@ -329,9 +345,49 @@ class Shape extends Component {
   }
 
   /**
+   * Aligns the Shape inside the specified boundary.
+   * @param {Object} boundary A boundary object inside the Shape will be aligned to.
+   * @param {ResizeBehavior.DIRECTION} alignment The direction to align the Shape to.
+   */
+  align(boundary, alignment = null) {
+    const { width, height } = this.getSize();
+    let { x, y } = Geometry.getBoundSizeAndPos(boundary);
+
+    switch (alignment) {
+      case DIRECTION.W:
+      case DIRECTION.NW:
+      case DIRECTION.SW:
+        x = boundary.left + (width / 2);
+        break;
+      case DIRECTION.E:
+      case DIRECTION.NE:
+      case DIRECTION.SE:
+        x = boundary.right - (width / 2);
+      default:
+    }
+
+    switch (alignment) {
+      case DIRECTION.N:
+      case DIRECTION.NW:
+      case DIRECTION.NE:
+        y = boundary.top + (height / 2);
+        break;
+      case DIRECTION.S:
+      case DIRECTION.SW:
+      case DIRECTION.SE:
+        y = boundary.bottom - (height / 2);
+        break;
+      default:
+    }
+
+    this.setPosition(x, y);
+  }
+
+  /**
    * Add a graphic control for manipulating the Shape.
    * @param {SVGElement} svgElement An SVG element to be the graphic control for the Shape.
-   * @param {Object} events An object in which the key is an event name and its value is a function or an array
+   * @param {Object} events An object in which the key is an event name and its value is a function
+   * or an array
    * in which each element is a function to be executed when that event occurs.
    */
   _addControl(svgElement, events) {

@@ -55,7 +55,7 @@ export default {
    * then the relative position on y is 0.
    * @param {Point} originPoint Origin point
    * @param {Point} destinationPoint destination point
-   * @return {Object} An object with 'x' and 'y' keys, whose values are the normalized 
+   * @return {Object} An object with 'x' and 'y' keys, whose values are the normalized
    * relative position for those axis.
    */
   getNormalizedPosition(origPoint, destPoint) {
@@ -69,14 +69,29 @@ export default {
   },
   /**
    * Verifies if two planes (defined by a boundary object) are overlapped.
-   * @param {Object} boundsA An boundary object.
-   * @param {Object} boundsB An boundary object.
+   * @param {Object} boundsA A boundary object.
+   * @param {Object} boundsB A boundary object.
    * @returns {Boolean}
    */
   areOverlapped(boundsA, boundsB) {
     const { x, y } = this.getOverlappedDimensions(boundsA, boundsB);
 
     return x && y;
+  },
+  /**
+   * Returns the position (x and y) and size (width and height) of a boundary object.
+   * @param {Object} bound A boundary object.
+   */
+  getBoundSizeAndPos(bound) {
+    const width = bound.right - bound.left;
+    const height = bound.bottom - bound.top;
+
+    return {
+      x: bound.left + (width / 2),
+      y: bound.top + (height / 2),
+      width,
+      height,
+    };
   },
   /**
    * Returns value clamped to the inclusive range of min and max.
