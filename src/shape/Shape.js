@@ -39,17 +39,10 @@ class Shape extends Component {
   }
 
   _initPorts() {
-    Object.values(PORT_POSITION).forEach((portPosition) => {
-      let direction = portPosition % 2 ? -1 : 1;
-
-      if (portPosition < 2) {
-        direction = portPosition % 2 || -1;
-      }
-
-      this._ports[portPosition] = new Port({
+    Object.values(PORT_POSITION).forEach((position) => {
+      this._ports[position] = new Port({
         shape: this,
-        orientation: portPosition % 2 ? PORT_ORIENTATION.X : PORT_ORIENTATION.Y,
-        direction,
+        position,
       });
     });
 
@@ -185,15 +178,29 @@ class Shape extends Component {
     return { width, height };
   }
 
+  _getPortPoint(port) {
+    const { orientation, direction } = port;
+    const { x, y } = this.getPosition();
+    const xOffset = orientation === PORT_ORIENTATION.X ? this.getWidth() / 2 : 0;
+    const yOffset = orientation === PORT_ORIENTATION.Y ? this.getHeight() / 2 : 0;
+
+    return {
+      x: x + (xOffset * direction),
+      y: y + (yOffset * direction),
+    };
+  }
+
   getPortDescriptor(index) {
     const port = this._ports[index];
 
     if (port) {
-      const descriptor = port.getDescriptor();
-
-      descriptor.portIndex = index;
-
-      return descriptor;
+      return {
+        orientation: port.orientation,
+        direction: port.direction,
+        mode: port.mode,
+        point: this._getPortPoint(port),
+        portIndex: index,
+      };
     }
 
     return null;

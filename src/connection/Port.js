@@ -12,8 +12,8 @@ export const ORIENTATION = Object.freeze({
 });
 
 export const DIRECTION = Object.freeze({
-  BACKWARD: -1,
-  FORWARD: 1,
+  NEGATIVE: -1,
+  POSITIVE: 1,
 });
 
 export const MODE = Object.freeze({
@@ -26,6 +26,24 @@ export const POSITION = Object.freeze({
   EAST: 1,
   SOUTH: 2,
   WEST: 3,
+  props: {
+    0: {
+      orientation: ORIENTATION.Y,
+      direction: DIRECTION.NEGATIVE,
+    },
+    1: {
+      orientation: ORIENTATION.X,
+      direction: DIRECTION.POSITIVE,
+    },
+    2: {
+      orientation: ORIENTATION.Y,
+      direction: DIRECTION.POSITIVE,
+    },
+    3: {
+      orientation: ORIENTATION.X,
+      direction: DIRECTION.NEGATIVE,
+    },
+  },
 });
 
 export const PRIORITY = Object.freeze({
@@ -41,19 +59,21 @@ export const PRIORITY = Object.freeze({
   },
 });
 
+function getPositionProps(position) {
+  return POSITION.props[position];
+}
+
 class Port {
   constructor(settings) {
     this._mode = null;
-    this._orientation = null;
-    this._direction = null;
+    this._position = null;
     this._connections = new Set();
     this._shape = null;
 
     settings = { ...DEFAULTS, ...settings };
 
     this._setShape(settings.shape)
-      ._setOrientation(settings.orientation)
-      ._setDirection(settings.direction)
+      ._setPosition(settings.position)
       .setConnections(settings.connections);
   }
 
@@ -62,11 +82,11 @@ class Port {
   }
 
   get orientation() {
-    return this._orientation;
+    return getPositionProps(this._position).orientation;
   }
 
   get direction() {
-    return this._direction;
+    return getPositionProps(this._position).direction;
   }
 
   get size() {
@@ -82,21 +102,8 @@ class Port {
     return this;
   }
 
-  _setOrientation(orientation) {
-    if (!Object.keys(ORIENTATION).find((i) => ORIENTATION[i] === orientation)) {
-      throw new Error('setOrientation(): invalid parameter.');
-    }
-
-    this._orientation = orientation;
-    return this;
-  }
-
-  _setDirection(direction) {
-    if (!Object.keys(DIRECTION).find((i) => DIRECTION[i] === direction)) {
-      throw new Error('setDirection(): invalid parameter.');
-    }
-
-    this._direction = direction;
+  _setPosition(position) {
+    this._position = position;
     return this;
   }
 
@@ -148,18 +155,19 @@ class Port {
   }
 
   getDescriptor() {
+    const { orientation, direction } = getPositionProps(this._position);
+
     return {
-      orientation: this._orientation,
-      direction: this._direction,
+      orientation,
+      direction,
       mode: this._mode,
       point: this.getConnectionPoint(),
     };
   }
 
   getConnectionPoint() {
+    const { orientation, direction } = getPositionProps(this._position);
     const shapePosition = this._shape.getPosition();
-    const orientation = this._orientation;
-    const direction = this._direction;
     const xOffset = orientation === ORIENTATION.X ? this._shape.getWidth() / 2 : 0;
     const yOffset = orientation === ORIENTATION.Y ? this._shape.getHeight() / 2 : 0;
 
