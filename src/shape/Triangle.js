@@ -1,6 +1,6 @@
 import Element from '../core/Element';
 import Shape from './Shape';
-import Geometry from '../utils/Geometry';
+import { ORIENTATION as PORT_ORIENTATION } from '../connection/Port';
 
 const DEFAULTS = Object.freeze({
   base: 80,
@@ -76,6 +76,17 @@ class Triangle extends Shape {
 
   setWidth(width, keepProportion) {
     return this.setBase(width, keepProportion);
+  }
+
+  _getPortPoint(port) {
+    const { x, y } = super._getPortPoint(port);
+    const { orientation, direction } = port;
+    const xOffset = orientation === PORT_ORIENTATION.X ? this.getWidth() / 4 : 0;
+
+    return {
+      x: x - (xOffset * direction),
+      y,
+    };
   }
 
   _updateShape() {
