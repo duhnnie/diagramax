@@ -29,7 +29,13 @@ class ShapeText extends Element {
     this._text = text.toString().trim();
 
     if (this._dom.textContainer) {
-      this._dom.textContainer.textContent = text;
+      const { textContainer } = this._dom;
+
+      if (this._text) {
+        textContainer.textContent = text;
+      } else {
+        textContainer.innerHTML = '&nbsp;&nbsp;&nbsp;';
+      }
     }
   }
 
