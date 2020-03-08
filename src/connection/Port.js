@@ -6,64 +6,85 @@ const DEFAULTS = {
   shape: null,
 };
 
+export const ORIENTATION = Object.freeze({
+  X: 'x',
+  Y: 'y',
+});
+
+export const DIRECTION = Object.freeze({
+  NEGATIVE: -1,
+  POSITIVE: 1,
+});
+
+export const MODE = Object.freeze({
+  IN: 0,
+  OUT: 1,
+});
+
+export const POSITION = Object.freeze({
+  NORTH: 0,
+  EAST: 1,
+  SOUTH: 2,
+  WEST: 3,
+  props: {
+    0: {
+      orientation: ORIENTATION.Y,
+      direction: DIRECTION.NEGATIVE,
+    },
+    1: {
+      orientation: ORIENTATION.X,
+      direction: DIRECTION.POSITIVE,
+    },
+    2: {
+      orientation: ORIENTATION.Y,
+      direction: DIRECTION.POSITIVE,
+    },
+    3: {
+      orientation: ORIENTATION.X,
+      direction: DIRECTION.NEGATIVE,
+    },
+  },
+});
+
+function getPositionProps(position) {
+  return POSITION.props[position];
+}
+
 class Port {
-  static get ORIENTATION() {
-    return {
-      X: 'x',
-      Y: 'y',
-    };
-  }
+  static getPriority(orientation, direction) {
+    let priorityOrder;
 
-  static get DIRECTION() {
-    return {
-      BACKWARD: -1,
-      FORWARD: 1,
-    };
-  }
+    switch (orientation) {
+      case ORIENTATION.Y:
+        if (direction === DIRECTION.NEGATIVE) {
+          priorityOrder = [POSITION.NORTH, POSITION.SOUTH];
+        } else {
+          priorityOrder = [POSITION.SOUTH, POSITION.NORTH];
+        }
 
-  static get MODE() {
-    return {
-      IN: 0,
-      OUT: 1,
-    };
-  }
+        break;
+      case ORIENTATION.X:
+      default:
+        if (direction === DIRECTION.NEGATIVE) {
+          priorityOrder = [POSITION.WEST, POSITION.EAST];
+        } else {
+          priorityOrder = [POSITION.EAST, POSITION.WEST];
+        }
+    }
 
-  static get INDEX() {
-    return {
-      NORTH: 0,
-      EAST: 1,
-      SOUTH: 2,
-      WEST: 3,
-    };
-  }
-
-  static get PRIORITY() {
-    return {
-      [Port.ORIENTATION.Y]: {
-        '-1': [Port.INDEX.NORTH, Port.INDEX.SOUTH],
-        0: [Port.INDEX.SOUTH, Port.INDEX.NORTH],
-        1: [Port.INDEX.SOUTH, Port.INDEX.NORTH],
-      },
-      [Port.ORIENTATION.X]: {
-        '-1': [Port.INDEX.WEST, Port.INDEX.EAST],
-        0: [Port.INDEX.EAST, Port.INDEX.WEST],
-        1: [Port.INDEX.EAST, Port.INDEX.WEST],
-      },
-    };
+    return priorityOrder;
   }
 
   constructor(settings) {
     this._mode = null;
-    this._orientation = null;
-    this._direction = null;
+    this._position = null;
     this._connections = new Set();
     this._shape = null;
 
     settings = { ...DEFAULTS, ...settings };
 
     this._setShape(settings.shape)
-      ._setOrientation(settings.orientation)
-      ._setDirection(settings.direction)
+      ._setPosition(settings.position)
       .setConnections(settings.connections);
   }
 
@@ -72,11 +93,11 @@ class Port {
   }
 
   get orientation() {
-    return this._orientation;
+    return getPositionProps(this._position).orientation;
   }
 
   get direction() {
-    return this._direction;
+    return getPositionProps(this._position).direction;
   }
 
   get size() {
@@ -92,21 +113,8 @@ class Port {
     return this;
   }
 
-  _setOrientation(orientation) {
-    if (!Object.keys(Port.ORIENTATION).find((i) => Port.ORIENTATION[i] === orientation)) {
-      throw new Error('setOrientation(): invalid parameter.');
-    }
-
-    this._orientation = orientation;
-    return this;
-  }
-
-  _setDirection(direction) {
-    if (!Object.keys(Port.DIRECTION).find((i) => Port.DIRECTION[i] === direction)) {
-      throw new Error('setDirection(): invalid parameter.');
-    }
-
-    this._direction = direction;
+  _setPosition(position) {
+    this._position = position;
     return this;
   }
 
@@ -121,7 +129,7 @@ class Port {
       throw new Error('addConnection(): the supplied connection doesn\'t belong to this shape.');
     }
 
-    const newMode = connection.getOrigShape() === this._shape ? Port.MODE.OUT : Port.MODE.IN;
+    const newMode = connection.getOrigShape() === this._shape ? MODE.OUT : MODE.IN;
 
     if (newMode !== this._mode && this._mode !== null) {
       throw new Error('addConnection(): Invalid connection direction.');
@@ -155,28 +163,6 @@ class Port {
     this._connections.clear();
     this._mode = null;
     return this;
-  }
-
-  getDescriptor() {
-    return {
-      orientation: this._orientation,
-      direction: this._direction,
-      mode: this._mode,
-      point: this.getConnectionPoint(),
-    };
-  }
-
-  getConnectionPoint() {
-    const shapePosition = this._shape.getPosition();
-    const orientation = this._orientation;
-    const direction = this._direction;
-    const xOffset = orientation === Port.ORIENTATION.X ? this._shape.getWidth() / 2 : 0;
-    const yOffset = orientation === Port.ORIENTATION.Y ? this._shape.getHeight() / 2 : 0;
-
-    return {
-      x: shapePosition.x + (xOffset * direction),
-      y: shapePosition.y + (yOffset * direction),
-    };
   }
 }
 

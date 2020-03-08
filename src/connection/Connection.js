@@ -2,7 +2,7 @@ import Element from '../core/Element';
 import Component from '../component/Component';
 import BPMNShape from '../shape/Shape';
 import ConnectionManager from './ConnectionManager';
-import Port from './Port';
+import Port, { ORIENTATION as PORT_ORIENTATION } from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
 import { EVENT as DRAG_EVENT } from '../behavior/DraggableShapeBehavior';
@@ -39,9 +39,9 @@ class Connection extends Component {
     let orientation;
 
     if (from.x === to.x) {
-      orientation = Port.ORIENTATION.Y;
+      orientation = PORT_ORIENTATION.Y;
     } else {
-      orientation = (from.y === to.y ? Port.ORIENTATION.X : -1);
+      orientation = (from.y === to.y ? PORT_ORIENTATION.X : -1);
     }
 
     if (orientation === -1) {
@@ -72,7 +72,7 @@ class Connection extends Component {
       const pathPieces = [];
       let lastPoint = null;
 
-      if (segmentOrientation === Port.ORIENTATION.X) {
+      if (segmentOrientation === PORT_ORIENTATION.X) {
         intersections.sort(({ point: a }, { point: b }) => (a.x < b.x ? -1 : 1) * segmentDirection);
       } else {
         intersections.sort(({ point: a }, { point: b }) => (a.y < b.y ? -1 : 1) * segmentDirection);
@@ -84,7 +84,7 @@ class Connection extends Component {
         let axis;
         let crossAxis;
 
-        if (segmentOrientation === Port.ORIENTATION.X) {
+        if (segmentOrientation === PORT_ORIENTATION.X) {
           axis = 'x';
           crossAxis = 'y';
           toPoint = toPointForX;
@@ -404,7 +404,7 @@ class Connection extends Component {
         points[pointsLength - 1]);
       const lastSegmentDirection = Connection._getSegmentDirection(points[pointsLength - 2],
         points[pointsLength - 1]);
-      const arrowAngle = (lastSegmentOrientation === Port.ORIENTATION.X
+      const arrowAngle = (lastSegmentOrientation === PORT_ORIENTATION.X
         ? 2 + lastSegmentDirection
         : 1 + (lastSegmentDirection * -1));
 
