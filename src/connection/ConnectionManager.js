@@ -1,5 +1,5 @@
 import Geometry from '../utils/Geometry';
-import { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE, PRIORITY as PORT_PRIORITY } from './Port';
+import Port, { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE } from './Port';
 import Connection from './Connection';
 
 /**
@@ -14,10 +14,10 @@ import Connection from './Connection';
 function getPortPriorityOrder(mainOrientation, relativeX, relativeY) {
   const crossOrientation = mainOrientation === PORT_ORIENTATION.X
     ? PORT_ORIENTATION.Y : PORT_ORIENTATION.X;
-  const mainPorts = PORT_PRIORITY[mainOrientation][mainOrientation === PORT_ORIENTATION.X
-    ? relativeX : relativeY];
-  const crossPorts = PORT_PRIORITY[crossOrientation][crossOrientation === PORT_ORIENTATION.X
-    ? relativeX : relativeY];
+  const mainPorts = Port.getPriority(mainOrientation, mainOrientation === PORT_ORIENTATION.X
+    ? relativeX : relativeY);
+  const crossPorts = Port.getPriority(crossOrientation, crossOrientation === PORT_ORIENTATION.X
+    ? relativeX : relativeY);
 
   mainPorts.splice(1, 0, ...crossPorts);
 

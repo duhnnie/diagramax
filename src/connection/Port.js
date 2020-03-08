@@ -46,24 +46,35 @@ export const POSITION = Object.freeze({
   },
 });
 
-export const PRIORITY = Object.freeze({
-  [ORIENTATION.Y]: {
-    '-1': [POSITION.NORTH, POSITION.SOUTH],
-    0: [POSITION.SOUTH, POSITION.NORTH],
-    1: [POSITION.SOUTH, POSITION.NORTH],
-  },
-  [ORIENTATION.X]: {
-    '-1': [POSITION.WEST, POSITION.EAST],
-    0: [POSITION.EAST, POSITION.WEST],
-    1: [POSITION.EAST, POSITION.WEST],
-  },
-});
-
 function getPositionProps(position) {
   return POSITION.props[position];
 }
 
 class Port {
+  static getPriority(orientation, direction) {
+    let priorityOrder;
+
+    switch (orientation) {
+      case ORIENTATION.Y:
+        if (direction === DIRECTION.NEGATIVE) {
+          priorityOrder = [POSITION.NORTH, POSITION.SOUTH];
+        } else {
+          priorityOrder = [POSITION.SOUTH, POSITION.NORTH];
+        }
+
+        break;
+      case ORIENTATION.X:
+      default:
+        if (direction === DIRECTION.NEGATIVE) {
+          priorityOrder = [POSITION.WEST, POSITION.EAST];
+        } else {
+          priorityOrder = [POSITION.EAST, POSITION.WEST];
+        }
+    }
+
+    return priorityOrder;
+  }
+
   constructor(settings) {
     this._mode = null;
     this._position = null;
@@ -152,29 +163,6 @@ class Port {
     this._connections.clear();
     this._mode = null;
     return this;
-  }
-
-  getDescriptor() {
-    const { orientation, direction } = getPositionProps(this._position);
-
-    return {
-      orientation,
-      direction,
-      mode: this._mode,
-      point: this.getConnectionPoint(),
-    };
-  }
-
-  getConnectionPoint() {
-    const { orientation, direction } = getPositionProps(this._position);
-    const shapePosition = this._shape.getPosition();
-    const xOffset = orientation === ORIENTATION.X ? this._shape.getWidth() / 2 : 0;
-    const yOffset = orientation === ORIENTATION.Y ? this._shape.getHeight() / 2 : 0;
-
-    return {
-      x: shapePosition.x + (xOffset * direction),
-      y: shapePosition.y + (yOffset * direction),
-    };
   }
 }
 
