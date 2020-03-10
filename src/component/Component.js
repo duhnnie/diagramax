@@ -29,7 +29,7 @@ class Component extends Element {
 
     if (this._canvas !== canvas) {
       if (this._canvas) {
-        this.removeFromCanvas();
+        this.remove();
       }
       this._canvas = canvas;
       canvas.addElement(this);
@@ -38,13 +38,16 @@ class Component extends Element {
     return this;
   }
 
-  removeFromCanvas() {
-    const oldCanvas = this._canvas;
+  remove() {
+    const { _canvas } = this;
 
-    if (oldCanvas) {
+    if (_canvas) {
       this._canvas = null;
-      oldCanvas.removeElement(this);
-      $(this._html).remove();
+      _canvas.removeElement(this);
+
+      if (this._html) {
+        this._html.remove();
+      }
     }
 
     return this;

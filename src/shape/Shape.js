@@ -300,12 +300,12 @@ class Shape extends Component {
     return this._resizeBehavior.isDragging();
   }
 
-  removeFromCanvas() {
-    const oldCanvas = this._canvas;
+  remove() {
+    const { _canvas } = this;
 
-    if (oldCanvas) {
-      super.removeFromCanvas()
-        .removeConnections();
+    if (_canvas) {
+      this.removeConnections();
+      super.remove();
     }
 
     return this;

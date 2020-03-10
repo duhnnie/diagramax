@@ -387,7 +387,7 @@ class Connection extends Component {
   }
 
   disconnect() {
-    return this.removeFromCanvas();
+    return this.remove();
   }
 
   isConnectedWith(shape) {
@@ -473,7 +473,7 @@ class Connection extends Component {
     return this._draw();
   }
 
-  removeFromCanvas() {
+  remove() {
     const oldCanvas = this._canvas;
     const origShape = this._origShape;
     const destShape = this._destShape;
@@ -491,7 +491,7 @@ class Connection extends Component {
         this._removeDragListeners(destShape);
       }
 
-      super.removeFromCanvas();
+      super.remove();
     }
 
     return this;
