@@ -12,6 +12,12 @@
   display: none;
 }
 
+.shape .main-element:focus {
+  outline: dotted 1px red;
+  /* TODO: Fix hardcoded value */
+  outline-offset: 6px;
+}
+
 .shape .controls-layer.active,
 .shape:hover .controls-layer {
   display: initial;

@@ -101,6 +101,7 @@ class Component extends Element {
     const title = Element.create('title');
 
     title.textContent = this._text.getText();
+    wrapper.setAttribute('focusable', false);
     wrapper.appendChild(title);
     wrapper.appendChild(this._text.getHTML());
 
@@ -109,8 +110,10 @@ class Component extends Element {
     this._html = wrapper;
 
     if (this._dom.mainElement) {
+      const { mainElement } = this._dom;
       // TODO: This can be set in CSS?
-      this._dom.mainElement.setAttribute('cursor', 'pointer');
+      mainElement.setAttribute('cursor', 'pointer');
+      mainElement.classList.add('main-element');
     }
 
     this._setEventWall();

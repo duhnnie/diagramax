@@ -84,6 +84,7 @@ class SelectBehavior extends Behavior {
    */
   attachBehavior() {
     this._target.getHTML().addEventListener('mousedown', this.start, false);
+    this._target._dom.mainElement.addEventListener('focus', this.start, false);
   }
 
   detachBehavior() {
