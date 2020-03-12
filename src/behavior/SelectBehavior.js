@@ -50,6 +50,7 @@ class SelectBehavior extends Behavior {
         const canvas = target.getCanvas();
 
         this._isSelected = true;
+        target._dom.mainElement.classList.add('selected');
         target._controlsLayer.setActive();
         canvas.dispatchEvent(EVENT.SELECT, target);
       }
@@ -67,6 +68,7 @@ class SelectBehavior extends Behavior {
       this._isSelected = false;
       // TODO: fix this access to a protected member.
       target._controlsLayer.setActive(false);
+      target._dom.mainElement.classList.remove('selected');
       canvas.dispatchEvent(EVENT.UNSELECT, target);
     }
   }
@@ -83,12 +85,19 @@ class SelectBehavior extends Behavior {
    * @inheritdoc
    */
   attachBehavior() {
-    this._target.getHTML().addEventListener('mousedown', this.start, false);
-    this._target._dom.mainElement.addEventListener('focus', this.start, false);
+    // TODO: fix the access to private members.
+    const { mainElement } = this._target._dom;
+
+    mainElement.setAttribute('tabindex', 0);
+    mainElement.addEventListener('focus', this.start, false);
   }
 
   detachBehavior() {
-    this._target.getHTML().removeEventListener('mousedown', this.start, false);
+    // TODO: fix the access to private members.
+    const { mainElement } = this._target._dom;
+
+    mainElement.removeAttribute('tabindex', 0);
+    mainElement.removeEventListener('focus', this.start, false);
     super.detachBehavior();
   }
 }

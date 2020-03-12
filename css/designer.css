@@ -12,7 +12,7 @@
   display: none;
 }
 
-.shape .main-element:focus {
+.shape .main-element.selected {
   outline: dotted 1px red;
   /* TODO: Fix hardcoded value */
   outline-offset: 6px;
