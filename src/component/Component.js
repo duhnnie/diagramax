@@ -3,6 +3,10 @@ import Canvas from '../canvas/Canvas';
 import ShapeText from '../shape/components/ShapeText';
 import { stopPropagation } from '../canvas/EventBus';
 
+export const EVENT = Object.freeze({
+  REMOVE: 'remove',
+});
+
 class Component extends Element {
   constructor(settings) {
     super(settings);
@@ -42,12 +46,14 @@ class Component extends Element {
     const { _canvas } = this;
 
     if (_canvas) {
-      this._canvas = null;
       _canvas.removeElement(this);
+      this._canvas = null;
 
       if (this._html) {
         this._html.remove();
       }
+
+      _canvas.dispatchEvent(EVENT.REMOVE, this);
     }
 
     return this;

@@ -99,6 +99,7 @@ class Canvas extends Element {
   removeElement(element) {
     if (this.hasElement(element)) {
       this._shapes.delete(element) || this._connections.delete(element);
+      element.unselect();
       element.remove();
     }
 

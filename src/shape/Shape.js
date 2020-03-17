@@ -7,6 +7,7 @@ import SelectBehavior from '../behavior/SelectBehavior';
 import ResizeBehavior, { EVENT as RESIZE_EVENT, DIRECTION } from '../behavior/ResizeBehavior';
 import ShapeControlsLayer from './components/ShapeControlsLayer';
 import Geometry from '../utils/Geometry';
+import UnnamedBehavior from '../behavior/UnnamedBehavior';
 
 const DEFAULTS = {
   position: {
@@ -27,6 +28,7 @@ class Shape extends Component {
     this._connectivityBehavior = new ConnectivityBehavior(this);
     this._selectBehavior = new SelectBehavior(this);
     this._resizeBehavior = new ResizeBehavior(this);
+    this._unnamedBehavior = new UnnamedBehavior(this);
     this.__bulkAction = false;
 
     settings = {
@@ -56,7 +58,7 @@ class Shape extends Component {
     const canvas = this.getCanvas();
 
     if (canvas && (width !== oldWidth || height !== oldHeight)) {
-      this.getCanvas().dispatchEvent(RESIZE_EVENT.RESIZE, this, {
+      canvas.dispatchEvent(RESIZE_EVENT.RESIZE, this, {
         previous: oldSize,
         current: size,
       });
@@ -436,6 +438,7 @@ class Shape extends Component {
     this._dragBehavior.attachBehavior();
     this._selectBehavior.attachBehavior();
     this._resizeBehavior.attachBehavior();
+    this._unnamedBehavior.attachBehavior();
 
     return this;
   }
