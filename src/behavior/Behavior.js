@@ -38,9 +38,7 @@ class Behavior {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  end() {
-    throw new Error('end(): This method should be implemented.');
-  }
+  end() {}
 
   disable() {
     this._disabled = true;

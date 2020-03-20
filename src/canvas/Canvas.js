@@ -99,7 +99,8 @@ class Canvas extends Element {
   removeElement(element) {
     if (this.hasElement(element)) {
       this._shapes.delete(element) || this._connections.delete(element);
-      element.removeFromCanvas();
+      element.unselect();
+      element.remove();
     }
 
     return this;
@@ -107,7 +108,7 @@ class Canvas extends Element {
 
   clearElements() {
     this._shapes.forEach((i) => {
-      i.removeFromCanvas();
+      i.remove();
     });
     return this;
   }
