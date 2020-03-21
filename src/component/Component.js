@@ -3,6 +3,11 @@ import Canvas from '../canvas/Canvas';
 import ShapeText from '../shape/components/ShapeText';
 import { stopPropagation } from '../canvas/EventBus';
 
+const DEFAULTS = {
+  canvas: null,
+  text: '',
+};
+
 export const EVENT = Object.freeze({
   REMOVE: 'remove',
 });
@@ -14,10 +19,10 @@ class Component extends Element {
     this._text = new ShapeText();
     this._dom = {};
 
-    settings = jQuery.extend({
-      canvas: null,
-      text: '',
-    }, settings);
+    settings = {
+      ...DEFAULTS,
+      ...settings,
+    };
 
     this.setText(settings.text)
       .setCanvas(settings.canvas);
