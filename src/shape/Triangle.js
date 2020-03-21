@@ -1,19 +1,13 @@
 import Element from '../core/Element';
-import Shape from './Shape';
 import { ORIENTATION as PORT_ORIENTATION } from '../connection/Port';
+import Polygon from './Polygon';
 
 const DEFAULTS = Object.freeze({
   base: 80,
   height: 80,
 });
 
-class Triangle extends Shape {
-  // TODO: Triangle should inherit from a new class Polygon, this method should be belong to that
-  // class.
-  static toPointsString(points) {
-    return points.map(({ x, y }) => `${x},${y}`).join(' ');
-  }
-
+class Triangle extends Polygon {
   constructor(settings) {
     settings = {
       ...DEFAULTS,
@@ -89,26 +83,6 @@ class Triangle extends Shape {
     };
   }
 
-  _updateShape() {
-    const { mainElement } = this._dom;
-
-    if (mainElement) {
-      mainElement.setAttribute('points', Triangle.toPointsString(this._getPoints()));
-    }
-
-    return this;
-  }
-
-  _updateSize() {
-    this._updateShape();
-  }
-
-  setSize(width, height) {
-    super.setSize(width, height);
-
-    return this._updateShape();
-  }
-
   _getPoints() {
     const xPoints = [
       this._base * -0.5,
@@ -147,24 +121,6 @@ class Triangle extends Shape {
       bottom: _y + halfHeight,
       left: _x - halfWidth,
     };
-  }
-
-  _createHTML() {
-    if (!this._html) {
-      const triangle = Element.createSVG('polygon');
-
-      triangle.setAttribute('fill', '#ffffff');
-      triangle.setAttribute('stroke', '#000000');
-      triangle.setAttribute('stroke-width', '4');
-
-      this._dom.mainElement = triangle;
-
-      this.setSize(this._base, this._height);
-
-      super._createHTML();
-    }
-
-    return this;
   }
 }
 
