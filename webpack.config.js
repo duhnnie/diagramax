@@ -1,5 +1,4 @@
 const path = require('path');
-const _ = require('lodash');
 
 const devConfig = {
   devtool: 'eval-source-map',
@@ -12,13 +11,24 @@ const prodConfig = {};
 
 module.exports = (env, argv) => {
   const { mode } = argv;
-
-  return _.merge({
+  const base = {
     entry: './src/index.js',
     output: {
       filename: 'designer.js',
       path: path.resolve(__dirname, 'dist'),
       library: 'Designer',
     },
-  }, mode === 'production' ? prodConfig : devConfig);
+  };
+
+  if (mode === 'production') {
+    return {
+      ...base,
+      ...prodConfig,
+    };
+  }
+
+  return {
+    ...base,
+    ...devConfig,
+  };
 };
