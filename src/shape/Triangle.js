@@ -45,7 +45,7 @@ class Triangle extends Polygon {
     return this._base;
   }
 
-  setHeight(height, keepProportion) {
+  setHeight(height, keepProportion = false) {
     if (keepProportion) {
       const width = this.getRatio() * height;
 
@@ -68,7 +68,7 @@ class Triangle extends Polygon {
     return this._height;
   }
 
-  setWidth(width, keepProportion) {
+  setWidth(width, keepProportion = false) {
     return this.setBase(width, keepProportion);
   }
 

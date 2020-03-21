@@ -1,6 +1,5 @@
 import Element from '../core/Element';
 import Shape from './Shape';
-import Geometry from '../utils/Geometry';
 
 const DEFAULTS = {
   width: 80,
@@ -33,7 +32,7 @@ class Rectangle extends Shape {
     }
   }
 
-  setWidth(width, keepProportion) {
+  setWidth(width, keepProportion = false) {
     if (typeof width !== 'number') {
       throw new Error('setWidth(): invalid parameter.');
     }
@@ -60,7 +59,7 @@ class Rectangle extends Shape {
     return this._width;
   }
 
-  setHeight(height, keepProportion) {
+  setHeight(height, keepProportion = false) {
     if (typeof height !== 'number') {
       throw new Error('setHeight(): invalid parameter.');
     }

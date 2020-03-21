@@ -53,6 +53,14 @@
               }
             });
 
+            const ellipse = new Designer.Ellipse({
+              text: 'ellipse',
+              position: {
+                x: 600,
+                y: 1000,
+              },
+            });
+
             const canvas = new Designer.Canvas({
               width: 1440,
               height: 900,
@@ -63,6 +71,7 @@
                 eev,
                 circle,
                 triangle,
+                ellipse,
               ]
             });
 
