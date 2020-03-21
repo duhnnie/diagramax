@@ -125,7 +125,7 @@ class Shape extends Component {
   }
 
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
-  setWidth(width, keepProportion) {
+  setWidth(width, keepProportion = false) {
     throw new Error('setWidth(): This method should be implemented.');
   }
 
@@ -134,7 +134,7 @@ class Shape extends Component {
   }
 
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
-  setHeight(height, keepProportion) {
+  setHeight(height, keepProportion = false) {
     throw new Error('setHeight(): This method should be implemented.');
   }
 
