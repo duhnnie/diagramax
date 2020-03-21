@@ -51,6 +51,13 @@ class ConnectivityAreaBehavior extends Behavior {
     this._dom.line.setAttribute('stroke', '');
   }
 
+  _setOrigin(shape, point) {
+    this._origin = shape;
+    this._setConnectionLinePath(shape.getPosition(), this._getDestPoint(point.x, point.y));
+    this._dom.line.setAttribute('stroke', 'black');
+    if (!this._dom.line.isConnected) this._target.getContainer().appendChild(this._dom.line);
+  }
+
   /**
    * Adds a shape to the connection process. If there isn't any shapes set yet it will be set as
    * origin, otherwise the shape will be taken as destiny and the connection will be applied
@@ -58,15 +65,19 @@ class ConnectivityAreaBehavior extends Behavior {
    * @param {Shape} shape An instance of Shape
    * @param {Point} point The point in which
    */
-  addShape(shape, point) {
+  addShape(shape, point, chain) {
     if (this._origin) {
       this._destiny = shape;
       this.connect(this._origin, shape);
+
+      if (chain) {
+        this._setOrigin(this._destiny, point);
+        this._destiny = null;
+      } else {
+        this.end();
+      }
     } else {
-      this._origin = shape;
-      this._setConnectionLinePath(shape.getPosition(), this._getDestPoint(point.x, point.y));
-      this._dom.line.setAttribute('stroke', 'black');
-      if (!this._dom.line.isConnected) this._target.getContainer().appendChild(this._dom.line);
+      this._setOrigin(shape, point);
     }
   }
 
@@ -90,8 +101,6 @@ class ConnectivityAreaBehavior extends Behavior {
         destShape: destination,
       });
     }
-
-    this.end();
 
     return this;
   }

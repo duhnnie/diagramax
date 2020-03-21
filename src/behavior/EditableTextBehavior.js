@@ -33,7 +33,15 @@ wrapper.appendChild(inputText);
  * @private
  * Hides the text input.
  */
-const removeInput = () => wrapper.remove();
+const removeInput = () => {
+  // This due an issue at removing the element when it's already remove.
+  // Failed to execute 'remove' on 'Element': The node to be removed is no longer a child of this
+  // node. Perhaps it was moved in a 'blur' event handler?
+  try {
+    wrapper.remove();
+  // eslint-disable-next-line no-empty
+  } catch (e) {}
+};
 
 /**
  * @private

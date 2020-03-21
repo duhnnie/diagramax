@@ -3,6 +3,12 @@ import Shape from '../shape/Shape';
 import { EVENT as DRAG_EVENT } from './DraggableShapeBehavior';
 
 class ConnectivityBehavior extends Behavior {
+  static _getModifiers(event) {
+    return {
+      chain: event.shiftKey,
+    };
+  }
+
   constructor(target, settings) {
     if (!(target instanceof Shape)) {
       throw new Error('DragAndDropBehavior: The settings parameter should be an instance of Shape');
@@ -21,11 +27,12 @@ class ConnectivityBehavior extends Behavior {
 
     if (!target.isBeingDragged()) {
       const canvas = target.getCanvas();
+      const { chain } = ConnectivityBehavior._getModifiers(event);
 
       canvas.getConnectivityAreaBehavior().addShape(target, {
         x: event.clientX,
         y: event.clientY,
-      });
+      }, chain);
     }
   }
 

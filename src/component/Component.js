@@ -3,6 +3,10 @@ import Canvas from '../canvas/Canvas';
 import ShapeText from '../shape/components/ShapeText';
 import { stopPropagation } from '../canvas/EventBus';
 
+export const EVENT = Object.freeze({
+  REMOVE: 'remove',
+});
+
 class Component extends Element {
   constructor(settings) {
     super(settings);
@@ -29,7 +33,7 @@ class Component extends Element {
 
     if (this._canvas !== canvas) {
       if (this._canvas) {
-        this.removeFromCanvas();
+        this.remove();
       }
       this._canvas = canvas;
       canvas.addElement(this);
@@ -38,13 +42,18 @@ class Component extends Element {
     return this;
   }
 
-  removeFromCanvas() {
-    const oldCanvas = this._canvas;
+  remove() {
+    const { _canvas } = this;
 
-    if (oldCanvas) {
+    if (_canvas) {
+      _canvas.removeElement(this);
       this._canvas = null;
-      oldCanvas.removeElement(this);
-      $(this._html).remove();
+
+      if (this._html) {
+        this._html.remove();
+      }
+
+      _canvas.dispatchEvent(EVENT.REMOVE, this);
     }
 
     return this;
@@ -98,6 +107,7 @@ class Component extends Element {
     const title = Element.create('title');
 
     title.textContent = this._text.getText();
+    wrapper.setAttribute('focusable', false);
     wrapper.appendChild(title);
     wrapper.appendChild(this._text.getHTML());
 
@@ -106,8 +116,10 @@ class Component extends Element {
     this._html = wrapper;
 
     if (this._dom.mainElement) {
+      const { mainElement } = this._dom;
       // TODO: This can be set in CSS?
-      this._dom.mainElement.setAttribute('cursor', 'pointer');
+      mainElement.setAttribute('cursor', 'pointer');
+      mainElement.classList.add('main-element');
     }
 
     this._setEventWall();

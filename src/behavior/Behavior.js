@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import FunctionProxy from '../utils/FunctionProxy';
 
 const DEFAULTS = Object.freeze({
@@ -13,7 +12,10 @@ class Behavior {
   constructor(target, settings) {
     this._target = target;
 
-    settings = _.merge({}, DEFAULTS, settings);
+    settings = {
+      ...DEFAULTS,
+      ...settings,
+    };
 
     if (settings.disabled) {
       this.disable();
@@ -36,9 +38,7 @@ class Behavior {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  end() {
-    throw new Error('end(): This method should be implemented.');
-  }
+  end() {}
 
   disable() {
     this._disabled = true;

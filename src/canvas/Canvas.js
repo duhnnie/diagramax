@@ -5,7 +5,6 @@ import ConnectivityAreaBehavior from '../behavior/ConnectivityAreaBehavior';
 import Shape from '../shape/Shape';
 import Connection from '../connection/Connection';
 import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
-// import { EVENT as SELECT_EVENT } from '../behavior/SelectBehavior';
 
 class Canvas extends Element {
   constructor(settings) {
@@ -21,12 +20,13 @@ class Canvas extends Element {
     this._draggingAreaBehavior = new FluidDraggingAreaBehavior(this);
     this._connectivityAreaBehavior = new ConnectivityAreaBehavior(this);
 
-    settings = _.merge({
+    settings = {
       width: 800,
       height: 600,
       onReady: null,
       elements: [],
-    }, settings);
+      ...settings,
+    };
 
     this.setWidth(settings.width)
       .setHeight(settings.height)
@@ -99,7 +99,8 @@ class Canvas extends Element {
   removeElement(element) {
     if (this.hasElement(element)) {
       this._shapes.delete(element) || this._connections.delete(element);
-      element.removeFromCanvas();
+      element.unselect();
+      element.remove();
     }
 
     return this;
@@ -107,7 +108,7 @@ class Canvas extends Element {
 
   clearElements() {
     this._shapes.forEach((i) => {
-      i.removeFromCanvas();
+      i.remove();
     });
     return this;
   }
