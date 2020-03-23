@@ -42,8 +42,8 @@ function getConnectionPriorityPorts(origShape, destShape) {
 
   if (overlapX === overlapY) {
     if (overlapX) {
-      origPorts = [];
-      destPorts = [];
+      origPorts = getPortPriorityOrder(PORT_ORIENTATION.X, relativeX, relativeY);
+      destPorts = getPortPriorityOrder(PORT_ORIENTATION.Y, relativeX, relativeY);;
     } else {
       origPorts = getPortPriorityOrder(PORT_ORIENTATION.Y, relativeX, relativeY);
       destPorts = getPortPriorityOrder(PORT_ORIENTATION.X, relativeX * -1, relativeY * -1);

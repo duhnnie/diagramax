@@ -2,7 +2,7 @@ import Element from '../core/Element';
 import Component from '../component/Component';
 import BPMNShape from '../shape/Shape';
 import ConnectionManager from './ConnectionManager';
-import Port, { ORIENTATION as PORT_ORIENTATION } from './Port';
+import { ORIENTATION as PORT_ORIENTATION } from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
 import { EVENT as DRAG_EVENT } from '../behavior/DraggableShapeBehavior';
@@ -49,10 +49,6 @@ class Connection extends Component {
     }
 
     return orientation;
-  }
-
-  static isValid(origShape, destShape) {
-    return origShape !== destShape;
   }
 
   static _getSegmentDirection(from, to) {
@@ -286,8 +282,6 @@ class Connection extends Component {
   setOrigShape(shape) {
     if (!(shape instanceof BPMNShape)) {
       throw new Error('setOrigShape(): invalid parameter.');
-    } else if (!Connection.isValid(shape, this._destShape)) {
-      throw new Error('setOrigShape(): The origin and destiny are the same.');
     }
 
     if (shape !== this._origShape) {
@@ -318,8 +312,6 @@ class Connection extends Component {
   setDestShape(shape) {
     if (!(shape instanceof BPMNShape)) {
       throw new Error('setOrigShape(): invalid parameter.');
-    } else if (!Connection.isValid(this._origShape, shape)) {
-      throw new Error('setDestShape(): The origin and destiny are the same.');
     }
 
     if (shape !== this._destShape) {
@@ -460,6 +452,8 @@ class Connection extends Component {
   }
 
   connect() {
+    if (!this._origShape || !this._destShape) return;
+
     if (!this._points.length) {
       this._calculatePoints();
       this._updateIntersectionPoints();
