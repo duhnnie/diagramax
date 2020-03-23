@@ -2,7 +2,7 @@ import Element from '../core/Element';
 import Component from '../component/Component';
 import BPMNShape from '../shape/Shape';
 import ConnectionManager from './ConnectionManager';
-import { ORIENTATION as PORT_ORIENTATION } from './Port';
+import { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE } from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
 import { EVENT as DRAG_EVENT } from '../behavior/DraggableShapeBehavior';
@@ -430,8 +430,8 @@ class Connection extends Component {
     const destPortDescriptor = this._destShape.getPortDescriptor(portIndexes.dest);
 
     if (origPortDescriptor) {
-      this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex);
-      this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex);
+      this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex, PORT_MODE.OUT);
+      this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex, PORT_MODE.IN);
 
       const waypoints = ConnectionManager.getWaypoints(origPortDescriptor, destPortDescriptor);
 

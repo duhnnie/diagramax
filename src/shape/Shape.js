@@ -42,6 +42,8 @@ class Shape extends Component {
 
   _initPorts() {
     Object.values(PORT_POSITION).forEach((position) => {
+      if (typeof position !== 'number') return;
+
       this._ports[position] = new Port({
         shape: this,
         position,
@@ -283,9 +285,9 @@ class Shape extends Component {
     return this;
   }
 
-  assignConnectionToPort(connection, portIndex) {
+  assignConnectionToPort(connection, portIndex, mode) {
     this._removeFromPorts(connection);
-    this._ports[portIndex].addConnection(connection);
+    this._ports[portIndex].addConnection(connection, mode);
 
     return this;
   }
