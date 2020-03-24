@@ -43,7 +43,7 @@ function getConnectionPriorityPorts(origShape, destShape) {
   if (overlapX === overlapY) {
     if (overlapX) {
       origPorts = getPortPriorityOrder(PORT_ORIENTATION.X, relativeX, relativeY);
-      destPorts = getPortPriorityOrder(PORT_ORIENTATION.Y, relativeX, relativeY);;
+      destPorts = origPorts.slice(0).reverse();
     } else {
       origPorts = getPortPriorityOrder(PORT_ORIENTATION.Y, relativeX, relativeY);
       destPorts = getPortPriorityOrder(PORT_ORIENTATION.X, relativeX * -1, relativeY * -1);
@@ -167,12 +167,13 @@ export default {
    */
   getConnectionPorts(origShape, destShape) {
     const candidatePorts = getConnectionPriorityPorts(origShape, destShape);
+    const orig = candidatePorts.orig.find((portIndex) => origShape.hasAvailablePortFor(portIndex, PORT_MODE.OUT));
+    const dest = candidatePorts.dest.find((portIndex) => {
+      if (origShape === destShape && portIndex === orig) return false;
 
-    return {
-      orig: candidatePorts.orig.find((portIndex) => origShape.hasAvailablePortFor(portIndex,
-        PORT_MODE.OUT)),
-      dest: candidatePorts.dest.find((portIndex) => destShape.hasAvailablePortFor(portIndex,
-        PORT_MODE.IN)),
-    };
+      return destShape.hasAvailablePortFor(portIndex, PORT_MODE.IN);
+    });
+
+    return { orig, dest };
   },
 };
