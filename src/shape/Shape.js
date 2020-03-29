@@ -1,5 +1,5 @@
 import Component from '../component/Component';
-import Port, { ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION } from '../connection/Port';
+import Port, { MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION } from '../connection/Port';
 import Connection from '../connection/Connection';
 import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
@@ -182,6 +182,16 @@ class Shape extends Component {
     return { width, height };
   }
 
+  /**
+   * If the current shape can be connected with other shape.
+   * @param {Shape} otherShape The shape to be connected with.
+   * @param {Port.MODE} mode The connection mode.
+   */
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars
+  canAcceptConnection(shape, mode) {
+    return true;
+  }
+
   _getPortPoint(port) {
     const { orientation, direction } = port;
     const { x, y } = this.getPosition();
@@ -216,16 +226,21 @@ class Shape extends Component {
 
   addOutgoingConnection(connection) {
     if (!(connection instanceof Connection)) {
-      throw new Error('setOutgoingConnection(): invalid parameter.');
+      throw new Error('addOutgoingConnection(): invalid parameter.');
     }
 
-    this._connections.add(connection);
+    const otherShape = connection.getDestShape();
+    let result = false;
 
-    if (connection.getOrigShape() !== this) {
-      connection.setOrigShape(this);
+    if (this.canAcceptConnection(otherShape, PORT_MODE.OUT)) {
+      result = connection.getOrigShape() !== this ? connection.setShapes(this, otherShape) : true;
+
+      if (result) {
+        this._connections.add(connection);
+      }
     }
 
-    return this;
+    return result;
   }
 
   getOutgoingConnections() {
@@ -234,16 +249,21 @@ class Shape extends Component {
 
   addIncomingConnection(connection) {
     if (!(connection instanceof Connection)) {
-      throw new Error('setIncomingConnection(): invalid parameter');
+      throw new Error('addOutgoingConnection(): invalid parameter.');
     }
 
-    this._connections.add(connection);
+    const otherShape = connection.getOrigShape();
+    let result = false;
 
-    if (connection.getDestShape() !== this) {
-      connection.setOrigShape(this);
+    if (this.canAcceptConnection(otherShape, PORT_MODE.IN)) {
+      result = connection.getDestShape() !== this ? connection.setShapes(otherShape, this) : true;
+
+      if (result) {
+        this._connections.add(connection);
+      }
     }
 
-    return this;
+    return result;
   }
 
   getIncomingConnections() {

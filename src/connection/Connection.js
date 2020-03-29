@@ -2,7 +2,7 @@ import Element from '../core/Element';
 import Component from '../component/Component';
 import BPMNShape from '../shape/Shape';
 import ConnectionManager from './ConnectionManager';
-import { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE } from './Port';
+import Port, { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE } from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
 import { EVENT as DRAG_EVENT } from '../behavior/DraggableShapeBehavior';
@@ -156,9 +156,9 @@ class Connection extends Component {
     };
 
     this
+      // TODO: is this useful? anyway it's redundant
       .setCanvas(settings.canvas)
-      .setOrigShape(settings.origShape)
-      .setDestShape(settings.destShape)
+      .setShapes(settings.origShape, settings.destShape);
   }
 
   addInterceptor(connection) {
@@ -279,64 +279,56 @@ class Connection extends Component {
     return this;
   }
 
-  setOrigShape(shape) {
-    if (!(shape instanceof BPMNShape)) {
-      throw new Error('setOrigShape(): invalid parameter.');
-    }
-
-    if (shape !== this._origShape) {
-      if (this._origShape) {
-        const oldOrigShape = this._origShape;
-
-        this._origShape = null;
-        oldOrigShape.removeConnection(this);
-        this._removeDragListeners(oldOrigShape);
-      }
-
-      this._origShape = shape;
-      shape.addOutgoingConnection(this);
-      this._addDragListeners(shape);
-
-      if (this._html) {
-        this.connect();
-      }
-    }
-
-    return this;
-  }
-
   getOrigShape() {
     return this._origShape;
   }
 
-  setDestShape(shape) {
-    if (!(shape instanceof BPMNShape)) {
-      throw new Error('setOrigShape(): invalid parameter.');
-    }
-
-    if (shape !== this._destShape) {
-      if (this._destShape) {
-        const oldDestShape = this._destShape;
-
-        this._destShape = null;
-        oldDestShape.removeConnection(this);
-        this._removeDragListeners(oldDestShape);
-      }
-
-      this._destShape = shape;
-      shape.addIncomingConnection(this);
-      this._addDragListeners(shape);
-
-      if (this._html) {
-        this.connect();
-      }
-    }
-
-    return this;
-  }
-
   getDestShape() {
     return this._destShape;
+  }
+
+  // TODO: rename to connect() and the current connect() rename to other thing.
+  setShapes(origShape, destShape) {
+    if (origShape.canAcceptConnection(destShape, PORT_MODE.OUT)
+      && destShape.canAcceptConnection(origShape, PORT_MODE.IN)) {
+      const { _origShape: oldOrigShape, _destShape: oldDestShape } = this;
+      let result = true;
+
+      this._origShape = origShape;
+      this._destShape = destShape;
+
+      if (origShape !== oldOrigShape) {
+        if (oldOrigShape) {
+          oldOrigShape.removeConnection(this);
+          this._removeDragListeners(oldOrigShape);
+          this._points = [];
+        }
+
+        result = origShape.addOutgoingConnection(this);
+        if (result) this._addDragListeners(origShape);
+      }
+
+      if (destShape !== oldDestShape && result) {
+        if (oldDestShape) {
+          oldDestShape.removeConnection(this);
+          this._removeDragListeners(oldDestShape);
+          this._points = [];
+        }
+
+        result = destShape.addIncomingConnection(this);
+        if (result) this._addDragListeners(destShape);
+      }
+
+      if (result) {
+        this.connect();
+      } else {
+        this.disconnect();
+      }
+
+      return result;
+    }
+
+    return false;
   }
 
   getBounds() {
