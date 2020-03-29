@@ -233,7 +233,7 @@ class Shape extends Component {
     let result = false;
 
     if (this.canAcceptConnection(otherShape, PORT_MODE.OUT)) {
-      result = connection.getOrigShape() !== this ? connection.setShapes(this, otherShape) : true;
+      result = connection.getOrigShape() !== this ? connection.connect(this, otherShape) : true;
 
       if (result) {
         this._connections.add(connection);
@@ -256,7 +256,7 @@ class Shape extends Component {
     let result = false;
 
     if (this.canAcceptConnection(otherShape, PORT_MODE.IN)) {
-      result = connection.getDestShape() !== this ? connection.setShapes(otherShape, this) : true;
+      result = connection.getDestShape() !== this ? connection.connect(otherShape, this) : true;
 
       if (result) {
         this._connections.add(connection);
@@ -437,7 +437,7 @@ class Shape extends Component {
     this._resetPorts();
 
     this._connections.forEach((connection) => {
-      connection.connect();
+      connection.make();
     });
 
     return this;

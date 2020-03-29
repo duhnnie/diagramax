@@ -158,7 +158,7 @@ class Connection extends Component {
     this
       // TODO: is this useful? anyway it's redundant
       .setCanvas(settings.canvas)
-      .setShapes(settings.origShape, settings.destShape);
+      .connect(settings.origShape, settings.destShape);
   }
 
   addInterceptor(connection) {
@@ -256,7 +256,7 @@ class Connection extends Component {
 
   _onShapeDragEnd() {
     this._html.setAttribute('opacity', 1);
-    this.connect();
+    this.make();
   }
 
   _addDragListeners(shape) {
@@ -287,8 +287,7 @@ class Connection extends Component {
     return this._destShape;
   }
 
-  // TODO: rename to connect() and the current connect() rename to other thing.
-  setShapes(origShape, destShape) {
+  connect(origShape, destShape) {
     if (origShape.canAcceptConnection(destShape, PORT_MODE.OUT)
       && destShape.canAcceptConnection(origShape, PORT_MODE.IN)) {
       const { _origShape: oldOrigShape, _destShape: oldDestShape } = this;
@@ -320,7 +319,7 @@ class Connection extends Component {
       }
 
       if (result) {
-        this.connect();
+        this.make();
       } else {
         this.disconnect();
       }
@@ -443,7 +442,7 @@ class Connection extends Component {
     return this;
   }
 
-  connect() {
+  make() {
     if (!this._origShape || !this._destShape) return;
 
     if (!this._points.length) {
