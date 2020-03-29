@@ -1,4 +1,3 @@
-import Element from '../core/Element';
 import { ORIENTATION as PORT_ORIENTATION } from '../connection/Port';
 import Polygon from './Polygon';
 

@@ -122,27 +122,28 @@ class Port {
     return this._mode === null || this._mode === mode;
   }
 
-  addConnection(connection) {
+  addConnection(connection, mode) {
     if (!(connection instanceof Connection)) {
       throw new Error('addConnection(): Invalid parameter.');
     } else if (!this._shape.isUsingConnection(connection)) {
       throw new Error('addConnection(): the supplied connection doesn\'t belong to this shape.');
+    } else if ((mode === MODE.IN && connection.getDestShape() !== this._shape)
+     || (mode === MODE.OUT && connection.getOrigShape() !== this._shape)) {
+      throw new Error('addConnection(): mode doesn\'t match with connection direction.');
     }
 
-    const newMode = connection.getOrigShape() === this._shape ? MODE.OUT : MODE.IN;
-
-    if (newMode !== this._mode && this._mode !== null) {
+    if (mode !== this._mode && this._mode !== null) {
       throw new Error('addConnection(): Invalid connection direction.');
     }
 
-    this._mode = newMode;
+    this._mode = mode;
     this._connections.add(connection);
     return this;
   }
 
   setConnections(connections) {
-    connections.forEach((connection) => {
-      this.addConnection(connection);
+    connections.forEach((connection, mode) => {
+      this.addConnection(connection, mode);
     });
 
     return this;
