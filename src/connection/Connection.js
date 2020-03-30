@@ -7,6 +7,7 @@ import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
 import { EVENT as DRAG_EVENT } from '../behavior/DraggableShapeBehavior';
 import { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
+import SelectBehavior from '../behavior/SelectBehavior';
 
 const DEFAULTS = {
   origShape: null,
@@ -149,6 +150,7 @@ class Connection extends Component {
     this._destShape = null;
     this._interceptors = new Set();
     this._intersections = new Map();
+    this._selectBehavior = new SelectBehavior(this);
 
     settings = {
       ...DEFAULTS,
@@ -501,6 +503,7 @@ class Connection extends Component {
 
     arrowWrapper2.appendChild(arrow);
     arrowWrapper.appendChild(arrowWrapper2);
+    this._dom.mainElement = path;
 
     super._createHTML();
 
@@ -509,6 +512,7 @@ class Connection extends Component {
     this._dom.path = path;
     this._dom.arrow = arrowWrapper;
     this._dom.arrowRotateContainer = arrowWrapper2;
+    this._selectBehavior.attachBehavior();
 
     return this;
   }
