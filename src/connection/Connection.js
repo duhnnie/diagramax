@@ -1,8 +1,7 @@
 import Element from '../core/Element';
 import Component from '../component/Component';
-import BPMNShape from '../shape/Shape';
 import ConnectionManager from './ConnectionManager';
-import Port, { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE } from './Port';
+import { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE } from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
 import { EVENT as DRAG_EVENT } from '../behavior/DraggableShapeBehavior';
