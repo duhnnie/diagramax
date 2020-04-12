@@ -30,14 +30,6 @@ class Repository {
       this.addProduct(key, Klass);
     });
   }
-
-  get(key, args) {
-    if (!this._products[key]) {
-      throw new Error(`get(): product key '${key}' is not registered.`);
-    }
-
-    return this._products[key](...args);
-  }
 }
 
 export default Repository;
