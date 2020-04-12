@@ -2,7 +2,7 @@ const DEFAULTS = Object.freeze({
   products: {},
 });
 
-class Factory {
+class Repository {
   constructor(settings) {
     settings = { ...DEFAULTS, ...settings };
 
@@ -23,7 +23,7 @@ class Factory {
     const productsArray = Object.entries(products || {});
 
     if (!productsArray.length) {
-      throw new Error('setProducts(): At least one product should be produced by this factory.');
+      throw new Error('setProducts(): At least one product should be produced by this repository.');
     }
 
     productsArray.forEach(([key, Klass]) => {
@@ -40,4 +40,4 @@ class Factory {
   }
 }
 
-export default Factory;
+export default Repository;
