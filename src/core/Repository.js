@@ -6,7 +6,7 @@ class Repository {
   constructor(settings) {
     settings = { ...DEFAULTS, ...settings };
 
-    this._products = null;
+    this._products = {};
 
     this.setProducts(settings.products);
   }
