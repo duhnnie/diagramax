@@ -164,6 +164,11 @@ class Connection extends Component {
     });
   }
 
+  _removeInterceptors() {
+    this._interceptors.forEach((connection) => connection._removeIntersections(this));
+    this._interceptors.clear();
+  }
+
   _removeIntersections(connection = null) {
     if (connection) {
       this._intersections.forEach((intersections, key) => {
@@ -180,8 +185,7 @@ class Connection extends Component {
   _onShapeDragStart() {
     this._html.setAttribute('opacity', 0.3);
 
-    this._interceptors.forEach((connection) => connection._removeIntersections(this));
-
+    this._removeInterceptors();
     this._removeIntersections();
   }
 
@@ -476,18 +480,19 @@ class Connection extends Component {
     const destShape = this._destShape;
 
     if (oldCanvas) {
-      if (origShape.getOutgoingConnections().has(this)) {
+      if (origShape && origShape.getOutgoingConnections().has(this)) {
         this._origShape = null;
         origShape.removeConnection(this);
         this._removeDragListeners(origShape);
       }
 
-      if (destShape.getIncomingConnections().has(this)) {
+      if (destShape && destShape.getIncomingConnections().has(this)) {
         this._destShape = null;
         destShape.removeConnection(this);
         this._removeDragListeners(destShape);
       }
 
+      this._removeInterceptors();
       super.remove();
     }
 
