@@ -93,7 +93,7 @@ class ConnectivityAreaBehavior extends Behavior {
 
     // TODO: This is hot fix, this shoudl be handled by proxied functions
     // a ticket for that was created #73
-    if (origin && destination && origin !== destination
+    if (origin && destination
       && !origin._connectivityBehavior._disabled && !destination._connectivityBehavior._disabled) {
       const connection = new Connection({
         canvas: target,

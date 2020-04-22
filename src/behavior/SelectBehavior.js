@@ -96,7 +96,7 @@ class SelectBehavior extends Behavior {
     // TODO: fix the access to private members.
     const { mainElement } = this._target._dom;
 
-    mainElement.removeAttribute('tabindex', 0);
+    mainElement.removeAttribute('tabindex');
     mainElement.removeEventListener('focus', this.start, false);
     super.detachBehavior();
   }

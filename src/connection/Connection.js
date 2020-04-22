@@ -1,16 +1,23 @@
 import Element from '../core/Element';
 import Component from '../component/Component';
-import BPMNShape from '../shape/Shape';
 import ConnectionManager from './ConnectionManager';
-import Port, { ORIENTATION as PORT_ORIENTATION } from './Port';
+import { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE, ORIENTATION } from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
 import { EVENT as DRAG_EVENT } from '../behavior/DraggableShapeBehavior';
 import { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
+import SelectBehavior from '../behavior/SelectBehavior';
+import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY_PRODUCTS } from './LineStrategyRepository';
+import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY_PRODUCTS } from './VertexStrategyRepository';
+import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY_PRODUCTS } from './IntersectionStrategyRepository';
 
 const DEFAULTS = {
   origShape: null,
   destShape: null,
+  line: LINE_STRATEGY_PRODUCTS.STRAIGHT,
+  vertex: VERTEX_STRATEGY_PRODUCTS.ARC,
+  vertexSize: 10,
+  intersection: INTERSECTION_STRATEGY_PRODUCTS.ARC,
 };
 
 const INTERSECTION_SIZE = Object.freeze({
@@ -35,6 +42,7 @@ class Connection extends Component {
     return INTERSECTION_SIZE;
   }
 
+  // TODO: Move this to Geometry as getLineSlope.
   static _getSegmentOrientation(from, to) {
     let orientation;
 
@@ -51,10 +59,6 @@ class Connection extends Component {
     return orientation;
   }
 
-  static isValid(origShape, destShape) {
-    return origShape !== destShape;
-  }
-
   static _getSegmentDirection(from, to) {
     if (from.x < to.x || from.y < to.y) {
       return 1;
@@ -63,106 +67,29 @@ class Connection extends Component {
     return from.x > to.x || from.y > to.y ? -1 : 0;
   }
 
-  static getSegmentDrawing(from, to, intersections = []) {
-    let segmentString = '';
-
-    if (intersections.length) {
-      const segmentOrientation = Connection._getSegmentOrientation(from, to);
-      const segmentDirection = Connection._getSegmentDirection(from, to);
-      const pathPieces = [];
-      let lastPoint = null;
-
-      if (segmentOrientation === PORT_ORIENTATION.X) {
-        intersections.sort(({ point: a }, { point: b }) => (a.x < b.x ? -1 : 1) * segmentDirection);
-      } else {
-        intersections.sort(({ point: a }, { point: b }) => (a.y < b.y ? -1 : 1) * segmentDirection);
-      }
-
-      intersections.forEach(({ point: intersection }) => {
-        const halfArcWidth = Connection.INTERSECTION_SIZE.WIDTH * segmentDirection * -0.5;
-        let toPoint;
-        let axis;
-        let crossAxis;
-
-        if (segmentOrientation === PORT_ORIENTATION.X) {
-          axis = 'x';
-          crossAxis = 'y';
-          toPoint = toPointForX;
-        } else {
-          axis = 'y';
-          crossAxis = 'x';
-          toPoint = toPointForY;
-        }
-
-        let initial = intersection[axis] + halfArcWidth;
-        const final = Geometry.clamp(intersection[axis] - halfArcWidth, to[axis]);
-
-        if (lastPoint && ((segmentDirection === 1 && initial < lastPoint[axis])
-          || (segmentDirection === -1 && initial > lastPoint[axis]))) {
-          const targetPiece = pathPieces.pop();
-          let last = lastPoint[axis];
-
-          last = Geometry.clamp(final, lastPoint[axis], to[axis]);
-          lastPoint = toPoint(final, intersection[crossAxis]);
-
-          targetPiece.pop();
-          targetPiece.pop();
-          targetPiece.push(toPoint(last,
-            intersection[crossAxis] + Connection.INTERSECTION_SIZE.HEIGHT));
-          targetPiece.push(lastPoint);
-
-          pathPieces.push(targetPiece);
-        } else {
-          initial = Geometry.clamp(initial, from[axis], to[axis]);
-
-          const intersectionPoints = [
-            toPoint(initial, intersection[crossAxis]),
-            toPoint(initial, intersection[crossAxis] + Connection.INTERSECTION_SIZE.HEIGHT),
-            toPoint(final, intersection[crossAxis] + Connection.INTERSECTION_SIZE.HEIGHT),
-            toPoint(final, intersection[crossAxis]),
-          ];
-
-          pathPieces.push(intersectionPoints);
-          lastPoint = intersectionPoints.slice(0).pop();
-        }
-      });
-
-      segmentString = pathPieces.map((piece) => piece.map((point, index) => {
-        const { x, y } = point;
-
-        if (index === 0) {
-          return `L${x} ${y}`;
-        }
-        if (index === 1) {
-          return ` C${x} ${y}`;
-        }
-
-        return `, ${x} ${y}`;
-      }).join('')).join(' ');
-    }
-
-    segmentString += ` L${to.x} ${to.y}`;
-
-    return segmentString;
-  }
-
   constructor(settings) {
     super(settings);
-    this._points = [];
-    this._origShape = null;
-    this._destShape = null;
-    this._interceptors = new Set();
-    this._intersections = new Map();
 
     settings = {
       ...DEFAULTS,
       ...settings,
     };
 
+    this._points = [];
+    this._origShape = null;
+    this._destShape = null;
+    this._interceptors = new Set();
+    this._intersections = new Map();
+    this._selectBehavior = new SelectBehavior(this);
+    this._lineStrategy = LineStrategyRepository.get(settings.line);
+    this._vertexStrategy = VertexStrategyRepository.get(settings.vertex);
+    this._vertexSize = settings.vertexSize;
+    this._intersectionStrategy = IntersectionStrategyRepository.get(settings.intersection);
+
     this
+      // TODO: is this useful? anyway it's redundant
       .setCanvas(settings.canvas)
-      .setOrigShape(settings.origShape)
-      .setDestShape(settings.destShape)
+      .connect(settings.origShape, settings.destShape);
   }
 
   addInterceptor(connection) {
@@ -237,6 +164,11 @@ class Connection extends Component {
     });
   }
 
+  _removeInterceptors() {
+    this._interceptors.forEach((connection) => connection._removeIntersections(this));
+    this._interceptors.clear();
+  }
+
   _removeIntersections(connection = null) {
     if (connection) {
       this._intersections.forEach((intersections, key) => {
@@ -253,14 +185,13 @@ class Connection extends Component {
   _onShapeDragStart() {
     this._html.setAttribute('opacity', 0.3);
 
-    this._interceptors.forEach((connection) => connection._removeIntersections(this));
-
+    this._removeInterceptors();
     this._removeIntersections();
   }
 
   _onShapeDragEnd() {
     this._html.setAttribute('opacity', 1);
-    this.connect();
+    this.make();
   }
 
   _addDragListeners(shape) {
@@ -283,68 +214,55 @@ class Connection extends Component {
     return this;
   }
 
-  setOrigShape(shape) {
-    if (!(shape instanceof BPMNShape)) {
-      throw new Error('setOrigShape(): invalid parameter.');
-    } else if (!Connection.isValid(shape, this._destShape)) {
-      throw new Error('setOrigShape(): The origin and destiny are the same.');
-    }
-
-    if (shape !== this._origShape) {
-      if (this._origShape) {
-        const oldOrigShape = this._origShape;
-
-        this._origShape = null;
-        oldOrigShape.removeConnection(this);
-        this._removeDragListeners(oldOrigShape);
-      }
-
-      this._origShape = shape;
-      shape.addOutgoingConnection(this);
-      this._addDragListeners(shape);
-
-      if (this._html) {
-        this.connect();
-      }
-    }
-
-    return this;
-  }
-
   getOrigShape() {
     return this._origShape;
   }
 
-  setDestShape(shape) {
-    if (!(shape instanceof BPMNShape)) {
-      throw new Error('setOrigShape(): invalid parameter.');
-    } else if (!Connection.isValid(this._origShape, shape)) {
-      throw new Error('setDestShape(): The origin and destiny are the same.');
-    }
-
-    if (shape !== this._destShape) {
-      if (this._destShape) {
-        const oldDestShape = this._destShape;
-
-        this._destShape = null;
-        oldDestShape.removeConnection(this);
-        this._removeDragListeners(oldDestShape);
-      }
-
-      this._destShape = shape;
-      shape.addIncomingConnection(this);
-      this._addDragListeners(shape);
-
-      if (this._html) {
-        this.connect();
-      }
-    }
-
-    return this;
-  }
-
   getDestShape() {
     return this._destShape;
+  }
+
+  connect(origShape, destShape) {
+    if (origShape.canAcceptConnection(destShape, PORT_MODE.OUT)
+      && destShape.canAcceptConnection(origShape, PORT_MODE.IN)) {
+      const { _origShape: oldOrigShape, _destShape: oldDestShape } = this;
+      let result = true;
+
+      this._origShape = origShape;
+      this._destShape = destShape;
+
+      if (origShape !== oldOrigShape) {
+        if (oldOrigShape) {
+          oldOrigShape.removeConnection(this);
+          this._removeDragListeners(oldOrigShape);
+          this._points = [];
+        }
+
+        result = origShape.addOutgoingConnection(this);
+        if (result) this._addDragListeners(origShape);
+      }
+
+      if (destShape !== oldDestShape && result) {
+        if (oldDestShape) {
+          oldDestShape.removeConnection(this);
+          this._removeDragListeners(oldDestShape);
+          this._points = [];
+        }
+
+        result = destShape.addIncomingConnection(this);
+        if (result) this._addDragListeners(destShape);
+      }
+
+      if (result) {
+        this.make();
+      } else {
+        this.disconnect();
+      }
+
+      return result;
+    }
+
+    return false;
   }
 
   getBounds() {
@@ -394,12 +312,104 @@ class Connection extends Component {
     return this._origShape === shape || this._destShape === shape;
   }
 
-  _draw() {
-    const pointsLength = this._points.length;
-    let pathString = '';
+  _getVertexData(start, middle, end) {
+    if (!(start && middle && end)) {
+      return null;
+    }
 
-    if (pointsLength > 0) {
-      const { _points: points } = this;
+    // TODO: Make support for diagonal segments
+    const beforeDirection = Connection._getSegmentDirection(start, middle);
+    const beforeOrientation = Connection._getSegmentOrientation(start, middle);
+    const beforeLength = Geometry.getPathLength(start, middle);
+    const afterDirection = Connection._getSegmentDirection(middle, end);
+    const afterOrientation = Connection._getSegmentOrientation(middle, end);
+    const afterLength = Geometry.getPathLength(middle, end) / 2;
+    const size = Math.min(this._vertexSize, beforeLength, afterLength);
+    const beforeDisplacement = Geometry.movePoint(middle, size * beforeDirection * -1, beforeOrientation);
+    const afterDisplacement = Geometry.movePoint(middle, size * afterDirection, afterOrientation);
+    const vertexStart = {
+      x: beforeOrientation === ORIENTATION.X ? beforeDisplacement.x : middle.x,
+      y: beforeOrientation === ORIENTATION.Y ? beforeDisplacement.y : middle.y,
+    };
+    const vertexEnd = {
+      x: afterOrientation === ORIENTATION.X ? afterDisplacement.x : middle.x,
+      y: afterOrientation === ORIENTATION.Y ? afterDisplacement.y : middle.y,
+    };
+
+    return {
+      data: this._vertexStrategy(vertexStart, middle, vertexEnd),
+      start: vertexStart,
+      middle,
+      end: vertexEnd,
+    };
+  }
+
+  _getSegmentData(start, end, intersections) {
+    const segmentOrientation = Connection._getSegmentOrientation(start, end);
+    const segmentDirection = Connection._getSegmentDirection(start, end);
+    const to = end;
+    let from = start;
+    let lastIntersection;
+
+    // TODO: Maybe this should be ordered at the moment of setting (or before)
+    if (segmentOrientation === PORT_ORIENTATION.X) {
+      intersections.sort(({ point: a }, { point: b }) => (a.x < b.x ? -1 : 1) * segmentDirection);
+    } else {
+      intersections.sort(({ point: a }, { point: b }) => (a.y < b.y ? -1 : 1) * segmentDirection);
+    }
+
+    return intersections.map(({ point }) => {
+      const intersection = this._intersectionStrategy(point, { from, to }, lastIntersection);
+      const data = [];
+
+      if (intersection) {
+        if (!intersection.replace && lastIntersection) {
+          data.push(lastIntersection.data);
+        }
+
+        data.push(this._lineStrategy(from, intersection.start));
+        from = intersection.end;
+      }
+
+      lastIntersection = intersection;
+      return data.join(' ');
+    })
+      .concat((lastIntersection && lastIntersection.data) || '')
+      .concat(this._lineStrategy(from, to)).join(' ');
+  }
+
+  _draw() {
+    const points = this._points.slice(0);
+    let vertex;
+
+    const pathString = points.map((point, index, array) => {
+      if (index === 0) {
+        return `M${point.x} ${point.y}`;
+      }
+
+      const nextPoint = array[index + 1];
+      const data = [];
+      const start = (vertex && vertex.end) || array[index - 1];
+      const intersections = (this._intersections.get(index - 1) || []).slice(0);
+
+      if (nextPoint) {
+        vertex = this._getVertexData(start, point, nextPoint);
+
+        if (vertex) {
+          data.push(this._getSegmentData(start, vertex.start, intersections));
+          data.push(vertex.data);
+        } else {
+          data.push(this._getSegmentData(start, point, intersections));
+        }
+        return data.join(' ');
+      }
+
+      return this._getSegmentData(start, point, intersections);
+    }).join(' ');
+
+    if (pathString) {
+      const pointsLength = points.length;
+
       const lastSegmentOrientation = Connection._getSegmentOrientation(points[pointsLength - 2],
         points[pointsLength - 1]);
       const lastSegmentDirection = Connection._getSegmentDirection(points[pointsLength - 2],
@@ -407,17 +417,6 @@ class Connection extends Component {
       const arrowAngle = (lastSegmentOrientation === PORT_ORIENTATION.X
         ? 2 + lastSegmentDirection
         : 1 + (lastSegmentDirection * -1));
-
-      pathString += `M${points[0].x} ${points[0].y}`;
-
-      for (let i = 1; i < pointsLength; i += 1) {
-        const pathIntersections = this._intersections.get(i - 1);
-
-        pathString += Connection.getSegmentDrawing(
-          points[i - 1], points[i],
-          pathIntersections && pathIntersections.slice(0),
-        );
-      }
 
       this._dom.arrow.setAttribute('transform', `translate(${points[points.length - 1].x}, ${points[points.length - 1].y})`);
       this._dom.arrowRotateContainer.setAttribute('transform', `scale(0.5, 0.5) rotate(${90 * arrowAngle})`);
@@ -438,8 +437,8 @@ class Connection extends Component {
     const destPortDescriptor = this._destShape.getPortDescriptor(portIndexes.dest);
 
     if (origPortDescriptor) {
-      this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex);
-      this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex);
+      this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex, PORT_MODE.OUT);
+      this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex, PORT_MODE.IN);
 
       const waypoints = ConnectionManager.getWaypoints(origPortDescriptor, destPortDescriptor);
 
@@ -459,7 +458,9 @@ class Connection extends Component {
     return this;
   }
 
-  connect() {
+  make() {
+    if (!this._origShape || !this._destShape) return;
+
     if (!this._points.length) {
       this._calculatePoints();
       this._updateIntersectionPoints();
@@ -479,18 +480,19 @@ class Connection extends Component {
     const destShape = this._destShape;
 
     if (oldCanvas) {
-      if (origShape.getOutgoingConnections().has(this)) {
+      if (origShape && origShape.getOutgoingConnections().has(this)) {
         this._origShape = null;
         origShape.removeConnection(this);
         this._removeDragListeners(origShape);
       }
 
-      if (destShape.getIncomingConnections().has(this)) {
+      if (destShape && destShape.getIncomingConnections().has(this)) {
         this._destShape = null;
         destShape.removeConnection(this);
         this._removeDragListeners(destShape);
       }
 
+      this._removeInterceptors();
       super.remove();
     }
 
@@ -516,6 +518,7 @@ class Connection extends Component {
 
     arrowWrapper2.appendChild(arrow);
     arrowWrapper.appendChild(arrowWrapper2);
+    this._dom.mainElement = path;
 
     super._createHTML();
 
@@ -524,6 +527,7 @@ class Connection extends Component {
     this._dom.path = path;
     this._dom.arrow = arrowWrapper;
     this._dom.arrowRotateContainer = arrowWrapper2;
+    this._selectBehavior.attachBehavior();
 
     return this;
   }

@@ -2,98 +2,113 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
     <head>
         <link rel="stylesheet" href="../css/designer.css"/>
-        <script src="../lib/jquery-3.2.1.min.js"></script>
-        <script src="./lib/lodash.js"></script>
         <script src="./designer.js"></script>
         <script type="text/javascript">
-            const ev = new Designer.Rectangle({
-                id: 'ev',
-                text: "Start",
+            const rectA = new Designer.Rectangle({
+                id: 'rectA',
+                text: "Rect A",
                 position: {
-                    x: 50,
-                    y: 50
+                    x: 113,
+                    y: 475
                 }
             });
-            const act = new Designer.Rectangle({
-                id: 'act1',
-                text: "Activity #1",
+            const rectB = new Designer.Rectangle({
+                id: 'rectB',
+                text: "Rect B",
                 position: {
-                    x: 180,
-                    y: 180
+                    x: 285,
+                    y: 114
                 }
             });
-            const act2 = new Designer.Rectangle({
-                id: 'act2',
-                text: "Activity #2",
+            const rectC = new Designer.Rectangle({
+                id: 'rectC',
+                text: "Rect C",
                 position: {
-                    x: 350,
-                    y: 300
+                    x: 584,
+                    y: 447
                 }
             });
-            const eev = new Designer.Rectangle({
-                id: 'eev',
-                text: "End Event",
+            const rectD = new Designer.Rectangle({
+                id: 'rectD',
+                text: "Rect D",
                 position: {
-                    x: 700,
-                    y: 80
+                    x: 252,
+                    y: 413
                 }
             });
 
-            const circle = new Designer.Circle({
-              id: 'myCircle',
-              text: 'Circle',
+            const circleA = new Designer.Circle({
+              id: 'circleA',
+              text: 'Circle A',
               position: {
-                x: 234,
-                y: 183,
+                x: 190,
+                y: 189,
               }
             });
 
-            const triangle = new Designer.Triangle({
+            const triangleA = new Designer.Triangle({
+              id: 'triangleA',
+              text: 'Triangle A',
               position: {
-                x: 300,
-                y: 400,
+                x: 112,
+                y: 315,
               }
+            });
+
+            const ellipseA = new Designer.Ellipse({
+              id: 'ellipseA',
+              text: 'Ellipse A',
+              radiusX: 220,
+              radiusY: 80,
+              position: {
+                x: 420,
+                y: 216,
+              },
             });
 
             const canvas = new Designer.Canvas({
               width: 1440,
               height: 900,
               elements: [
-                ev,
-                act,
-                act2,
-                eev,
-                circle,
-                triangle,
+                rectA,
+                rectB,
+                rectC,
+                rectD,
+                circleA,
+                triangleA,
+                ellipseA,
               ]
             });
 
             document.addEventListener('DOMContentLoaded', function () {
-                let act3,
+                let rectE,
                     connection;
 
-                // canvas.connect('ev', 'act1');
-                // canvas.connect('act1', 'act2');
-                // canvas.connect('act2', 'eev');
                 document.body.appendChild(canvas.getHTML());
 
-                act3 = new Designer.Rectangle({
-                    text: "Another Activity",
+                rectE = new Designer.Rectangle({
+                    id: "rectE",
+                    text: "Rect E",
                     position: {
-                        x: 550,
-                        y: 400
+                        x: 514,
+                        y: 288
                     }
                 });
 
-                canvas.addElement(act3);
-                // connection = eev.getIncomingConnections();
-                // connection = connection.values();
-                // connection = connection.next();
-                // connection = connection.value;
+                canvas.addElement(rectE);
 
-                // connection.setDestShape(act3);
-
-                canvas.connect(act3, eev);
+                canvas.connect(circleA, rectA);
+                canvas.connect(rectA, triangleA);
+                canvas.connect(triangleA, rectB);
+                canvas.connect(triangleA, rectC);
+                canvas.connect(rectB, ellipseA);
+                canvas.connect(rectC, ellipseA);
+                canvas.connect(ellipseA, rectD);
+                canvas.connect(rectD, rectE);
+                // // canvas.connect(eev, act2);
+                // canvas.connect(eev, ellipse);
+                // canvas.connect(circle, ev);
+                // canvas.connect()
             });
         </script>
     </head>

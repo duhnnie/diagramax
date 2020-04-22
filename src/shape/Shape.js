@@ -1,5 +1,5 @@
 import Component from '../component/Component';
-import Port, { ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION } from '../connection/Port';
+import Port, { MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION } from '../connection/Port';
 import Connection from '../connection/Connection';
 import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
@@ -42,6 +42,8 @@ class Shape extends Component {
 
   _initPorts() {
     Object.values(PORT_POSITION).forEach((position) => {
+      if (typeof position !== 'number') return;
+
       this._ports[position] = new Port({
         shape: this,
         position,
@@ -125,7 +127,7 @@ class Shape extends Component {
   }
 
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
-  setWidth(width, keepProportion) {
+  setWidth(width, keepProportion = false) {
     throw new Error('setWidth(): This method should be implemented.');
   }
 
@@ -134,7 +136,7 @@ class Shape extends Component {
   }
 
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
-  setHeight(height, keepProportion) {
+  setHeight(height, keepProportion = false) {
     throw new Error('setHeight(): This method should be implemented.');
   }
 
@@ -180,6 +182,16 @@ class Shape extends Component {
     return { width, height };
   }
 
+  /**
+   * If the current shape can be connected with other shape.
+   * @param {Shape} otherShape The shape to be connected with.
+   * @param {Port.MODE} mode The connection mode.
+   */
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars
+  canAcceptConnection(shape, mode) {
+    return true;
+  }
+
   _getPortPoint(port) {
     const { orientation, direction } = port;
     const { x, y } = this.getPosition();
@@ -214,16 +226,21 @@ class Shape extends Component {
 
   addOutgoingConnection(connection) {
     if (!(connection instanceof Connection)) {
-      throw new Error('setOutgoingConnection(): invalid parameter.');
+      throw new Error('addOutgoingConnection(): invalid parameter.');
     }
 
-    this._connections.add(connection);
+    const otherShape = connection.getDestShape();
+    let result = false;
 
-    if (connection.getOrigShape() !== this) {
-      connection.setOrigShape(this);
+    if (this.canAcceptConnection(otherShape, PORT_MODE.OUT)) {
+      result = connection.getOrigShape() !== this ? connection.connect(this, otherShape) : true;
+
+      if (result) {
+        this._connections.add(connection);
+      }
     }
 
-    return this;
+    return result;
   }
 
   getOutgoingConnections() {
@@ -232,16 +249,21 @@ class Shape extends Component {
 
   addIncomingConnection(connection) {
     if (!(connection instanceof Connection)) {
-      throw new Error('setIncomingConnection(): invalid parameter');
+      throw new Error('addOutgoingConnection(): invalid parameter.');
     }
 
-    this._connections.add(connection);
+    const otherShape = connection.getOrigShape();
+    let result = false;
 
-    if (connection.getDestShape() !== this) {
-      connection.setOrigShape(this);
+    if (this.canAcceptConnection(otherShape, PORT_MODE.IN)) {
+      result = connection.getDestShape() !== this ? connection.connect(otherShape, this) : true;
+
+      if (result) {
+        this._connections.add(connection);
+      }
     }
 
-    return this;
+    return result;
   }
 
   getIncomingConnections() {
@@ -283,9 +305,9 @@ class Shape extends Component {
     return this;
   }
 
-  assignConnectionToPort(connection, portIndex) {
+  assignConnectionToPort(connection, portIndex, mode) {
     this._removeFromPorts(connection);
-    this._ports[portIndex].addConnection(connection);
+    this._ports[portIndex].addConnection(connection, mode);
 
     return this;
   }
@@ -331,26 +353,20 @@ class Shape extends Component {
     return false;
   }
 
+  select() {
+    this._selectBehavior.start();
+  }
+
+  unselect() {
+    this._selectBehavior.unselect();
+  }
+
   /**
    * If the shape is selected.
    * @returns {Boolean}
    */
   isSelected() {
     return this._selectBehavior.isSelected();
-  }
-
-  /**
-   * Selects the shape.
-   */
-  select() {
-    this._selectBehavior.start();
-  }
-
-  /**
-   * Unselects the shape.
-   */
-  unselect() {
-    this._selectBehavior.unselect();
   }
 
   /**
@@ -415,7 +431,7 @@ class Shape extends Component {
     this._resetPorts();
 
     this._connections.forEach((connection) => {
-      connection.connect();
+      connection.make();
     });
 
     return this;

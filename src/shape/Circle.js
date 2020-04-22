@@ -1,7 +1,5 @@
 import Element from '../core/Element';
 import Shape from './Shape';
-import { DIRECTION as RESIZE_DIRECTION } from '../behavior/ResizeBehavior';
-import Geometry from '../utils/Geometry';
 
 const DEFAULTS = Object.freeze({
   radius: 30,

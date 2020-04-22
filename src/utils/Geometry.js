@@ -1,4 +1,28 @@
+import { ORIENTATION } from '../connection/Port';
+import Connection from '../connection/Connection';
+
 export default {
+  // TODO: this will fail for diagonal lines.
+  /**
+   * Verifies if a point belongs to a line.
+   * @param {Point} point The point subject of the evaluation.
+   * @param {Point} pointA The point that defines one of the limits of the line.
+   * @param {*} pointB The point that defines the other limit of the line.
+   */
+  isInLine(point, pointA, pointB) {
+    const { x: xA, y: yA } = pointA;
+    const { x: xB, y: yB } = pointB;
+    const { x, y } = point;
+
+    if (xA === xB && xA === x) {
+      return this.isInBetween(y, yA, yB);
+    }
+
+    return (yA === yB && yA === y) ? this.isInBetween(x, xA, xB) : false;
+  },
+  // TODO: Change this method to something more generic, like, distance between two points and use
+  // a generic formule in order to make it work with diagonal lines.
+  // TODO: Rename to something like getPointDistance
   /**
    * Returns the length of the sortest path between to points.
    * @param {Point} pointA
@@ -7,14 +31,61 @@ export default {
   getPathLength(pointA, pointB) {
     return Math.abs(pointA.y - pointB.y) + Math.abs(pointA.x - pointB.x);
   },
+  // TODO: make this method to support digaonal directions.
+  // TODO: move ORIENTATION, DIRECTION from Port to here
+  /**
+   * Will take the provided point and return a new point after applying a position displacement.
+   * @param {Point} point The point to move.
+   * @param {Number} units The units in which the point will be moved.
+   * @param {Port.ORIENTATION} orientation The orientation in which the point will be moved.
+   */
+  movePoint(point, units, orientation) {
+    let { x, y } = point;
+
+    if (orientation === ORIENTATION.X) {
+      x += units;
+    } else if (orientation === ORIENTATION.Y) {
+      y += units;
+    }
+
+    return { x, y };
+  },
+  // TODO: rename this method to something more meangful
+  // TODO: There are some places in which this is required and it is implemented again,
+  // modify those places to use this method.
+  getRelativeFactor(a, b) {
+    if (a < b) {
+      return 1;
+    }
+
+    return a > b ? -1 : 0;
+  },
+  // TODO: Add support for diagonal lines.
+  getMiddlePoint(pointA, pointB) {
+    const length = this.getPathLength(pointA, pointB);
+    const orientation = Connection._getSegmentOrientation(pointA, pointB);
+    let { x, y } = pointA;
+
+    if (orientation === ORIENTATION.X) {
+      x += (length / 2) * this.getRelativeFactor(pointA.x, pointB.x);
+    } else {
+      // TODO: here we're assuming that is Y, but this will stop working when the line is diagonal.
+      y += (length / 2) * this.getRelativeFactor(pointA.y, pointB.y);
+    }
+
+    return { x, y };
+  },
   /**
    * Verifiy if a value is between two other values;
    * @param {Number} value The value to evaluate
-   * @param {Number} min The low border
-   * @param {Number} max The top border
+   * @param {Number} limitA One of the limits.
+   * @param {Number} limitB The other limit.
    * @returns {Boolean}
    */
-  isInBetween(value, min, max) {
+  isInBetween(value, limitA, limitB) {
+    const min = Math.min(limitA, limitB);
+    const max = Math.max(limitA, limitB);
+
     return value > min && value < max;
   },
   /**
@@ -123,5 +194,13 @@ export default {
       x,
       y,
     };
+  },
+  /**
+   * Compare if two points are the same.
+   * @param {Point} pointA
+   * @param {Point} pointB
+   */
+  areSamePoint(pointA, pointB) {
+    return pointA.x === pointB.x && pointA.y === pointB.y;
   },
 };
