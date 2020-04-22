@@ -98,6 +98,18 @@ class Component extends Element {
 
   getBounds() { throw new Error('getBounds() should be implemented.'); }
 
+  /**
+   * Selects the shape.
+   */
+  // eslint-disable-next-line class-methods-use-this
+  select() {}
+
+  /**
+   * Unselects the shape.
+   */
+  // eslint-disable-next-line class-methods-use-this
+  unselect() {}
+
   _setEventWall() {
     this._html.addEventListener('click', stopPropagation, false);
     this._html.addEventListener('dblClick', stopPropagation, false);

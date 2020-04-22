@@ -476,13 +476,13 @@ class Connection extends Component {
     const destShape = this._destShape;
 
     if (oldCanvas) {
-      if (origShape.getOutgoingConnections().has(this)) {
+      if (origShape && origShape.getOutgoingConnections().has(this)) {
         this._origShape = null;
         origShape.removeConnection(this);
         this._removeDragListeners(origShape);
       }
 
-      if (destShape.getIncomingConnections().has(this)) {
+      if (destShape && destShape.getIncomingConnections().has(this)) {
         this._destShape = null;
         destShape.removeConnection(this);
         this._removeDragListeners(destShape);

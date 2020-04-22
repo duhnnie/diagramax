@@ -353,26 +353,20 @@ class Shape extends Component {
     return false;
   }
 
+  select() {
+    this._selectBehavior.start();
+  }
+
+  unselect() {
+    this._selectBehavior.unselect();
+  }
+
   /**
    * If the shape is selected.
    * @returns {Boolean}
    */
   isSelected() {
     return this._selectBehavior.isSelected();
-  }
-
-  /**
-   * Selects the shape.
-   */
-  select() {
-    this._selectBehavior.start();
-  }
-
-  /**
-   * Unselects the shape.
-   */
-  unselect() {
-    this._selectBehavior.unselect();
   }
 
   /**
