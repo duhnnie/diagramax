@@ -81,10 +81,11 @@
             });
 
             document.addEventListener('DOMContentLoaded', function () {
-                let rectE,
-                    connection;
+                let rectE;
+                let connection;
+                let counter = 1;
 
-                document.body.appendChild(canvas.getHTML());
+                document.querySelector('#diagram').appendChild(canvas.getHTML());
 
                 rectE = new Designer.Rectangle({
                     id: "rectE",
@@ -105,14 +106,57 @@
                 canvas.connect(rectC, ellipseA);
                 canvas.connect(ellipseA, rectD);
                 canvas.connect(rectD, rectE);
-                // // canvas.connect(eev, act2);
-                // canvas.connect(eev, ellipse);
-                // canvas.connect(circle, ev);
-                // canvas.connect()
+
+                document.querySelector('#add').addEventListener('click', () => {
+                  const selection = document.querySelector('#shape-selector').value;
+                  let shape;
+
+                  switch (selection) {
+                    case 'Circle':
+                      shape = new Designer.Circle({
+                        text: `Circle #${counter}`
+                      });
+                      break;
+                    case 'Rectangle':
+                      shape = new Designer.Rectangle({
+                        text: `Rectangle #${counter}`
+                      });
+                      break;
+                    case 'Triangle':
+                      shape = new Designer.Triangle({
+                        text: `Triangle #${counter}`
+                      });
+                      break;
+                    case 'Ellipse':
+                      shape = new Designer.Ellipse({
+                        text: `Ellipse #${counter}`
+                      });
+                      break;
+                    default:
+                  }
+
+                  if (shape) {
+                    canvas.addElement(shape);
+                    counter += 1;
+                  }
+                }, false);
             });
         </script>
     </head>
     <body>
-
+      <div id="controls">
+        <label>
+          Select Shape:
+          <select id="shape-selector">
+            <option value="Circle">Circle</option>
+            <option value="Rectangle">Rectangle</option>
+            <option value="Triangle">Triangle</option>
+            <option value="Ellipse">Ellipse</option>
+          </select>
+        </label>
+        <button id="add">Add</button>
+        <div>double click on any shape to start a connection</div>
+      </div>
+      <div id="diagram"></div>
     </body>
 </html>
