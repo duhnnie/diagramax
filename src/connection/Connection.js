@@ -164,6 +164,11 @@ class Connection extends Component {
     });
   }
 
+  _removeInterceptors() {
+    this._interceptors.forEach((connection) => connection._removeIntersections(this));
+    this._interceptors.clear();
+  }
+
   _removeIntersections(connection = null) {
     if (connection) {
       this._intersections.forEach((intersections, key) => {
@@ -180,8 +185,7 @@ class Connection extends Component {
   _onShapeDragStart() {
     this._html.setAttribute('opacity', 0.3);
 
-    this._interceptors.forEach((connection) => connection._removeIntersections(this));
-
+    this._removeInterceptors();
     this._removeIntersections();
   }
 
@@ -488,6 +492,7 @@ class Connection extends Component {
         this._removeDragListeners(destShape);
       }
 
+      this._removeInterceptors();
       super.remove();
     }
 
