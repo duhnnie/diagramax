@@ -1,11 +1,11 @@
-import Element from '../../core/Element';
-import EditableTextBehavior from '../../behavior/EditableTextBehavior';
+import Element from '../core/Element';
+import EditableTextBehavior from '../behavior/EditableTextBehavior';
 
 const DEFAULTS = {
   text: '',
 };
 
-class ShapeText extends Element {
+class ComponentText extends Element {
   constructor(settings) {
     super(settings);
 
@@ -22,7 +22,7 @@ class ShapeText extends Element {
   }
 
   /**
-   * Sets the text to the ShapeText
+   * Sets the text to the ComponentText
    * @param {String} text The text to set.
    */
   setText(text) {
@@ -72,4 +72,4 @@ class ShapeText extends Element {
   }
 }
 
-export default ShapeText;
+export default ComponentText;

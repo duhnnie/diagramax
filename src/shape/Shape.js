@@ -3,9 +3,7 @@ import Port, { MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as P
 import Connection from '../connection/Connection';
 import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
-import SelectBehavior from '../behavior/SelectBehavior';
 import ResizeBehavior, { EVENT as RESIZE_EVENT, DIRECTION } from '../behavior/ResizeBehavior';
-import ShapeControlsLayer from './components/ShapeControlsLayer';
 import Geometry from '../utils/Geometry';
 import KeyboardControlledBehavior from '../behavior/KeyboardControlledBehavior';
 
@@ -23,10 +21,8 @@ class Shape extends Component {
     this._y = null;
     this._connections = new Set();
     this._ports = [];
-    this._controlsLayer = new ShapeControlsLayer();
     this._dragBehavior = new RegularDraggableShapeBehavior(this);
     this._connectivityBehavior = new ConnectivityBehavior(this);
-    this._selectBehavior = new SelectBehavior(this);
     this._resizeBehavior = new ResizeBehavior(this);
     this._keyboardBehavior = new KeyboardControlledBehavior(this);
     this.__bulkAction = false;
@@ -353,22 +349,6 @@ class Shape extends Component {
     return false;
   }
 
-  select() {
-    this._selectBehavior.start();
-  }
-
-  unselect() {
-    this._selectBehavior.unselect();
-  }
-
-  /**
-   * If the shape is selected.
-   * @returns {Boolean}
-   */
-  isSelected() {
-    return this._selectBehavior.isSelected();
-  }
-
   /**
    * Aligns the Shape inside the specified boundary.
    * @param {Object} boundary A boundary object inside the Shape will be aligned to.
@@ -408,17 +388,6 @@ class Shape extends Component {
     this.setPosition(x, y);
   }
 
-  /**
-   * Add a graphic control for manipulating the Shape.
-   * @param {SVGElement} svgElement An SVG element to be the graphic control for the Shape.
-   * @param {Object} events An object in which the key is an event name and its value is a function
-   * or an array
-   * in which each element is a function to be executed when that event occurs.
-   */
-  _addControl(svgElement, events) {
-    this._controlsLayer.addControl(svgElement, events);
-  }
-
   _resetPorts() {
     this._ports.forEach((port) => {
       port.clearConnections();
@@ -444,15 +413,12 @@ class Shape extends Component {
 
     super._createHTML();
 
-    this._html.setAttribute('class', 'shape');
+    this._html.classList.add('shape');
     this._html.setAttribute('transform', `translate(${this._x}, ${this._y})`);
-
     this._html.insertBefore(this._dom.mainElement, this._dom.title);
-    this._html.prepend(this._controlsLayer.getHTML());
 
     this._connectivityBehavior.attachBehavior();
     this._dragBehavior.attachBehavior();
-    this._selectBehavior.attachBehavior();
     this._resizeBehavior.attachBehavior();
     this._keyboardBehavior.attachBehavior();
 
