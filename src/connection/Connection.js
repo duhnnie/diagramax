@@ -522,7 +522,7 @@ class Connection extends Component {
 
     super._createHTML();
 
-    this._html.setAttribute('class', 'connection');
+    this._html.classList.add('connection');
     this._html.appendChild(path);
     this._dom.path = path;
     this._dom.arrow = arrowWrapper;

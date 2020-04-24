@@ -12,14 +12,14 @@
   display: none;
 }
 
-.shape .main-element.selected {
+.component .main-element.selected {
   outline: dotted 1px red;
   /* TODO: Fix hardcoded value */
   outline-offset: 6px;
 }
 
-.shape .controls-layer.active,
-.shape:hover .controls-layer {
+.component .controls-layer.active,
+.component:hover .controls-layer {
   display: initial;
 }
 

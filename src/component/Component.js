@@ -1,6 +1,8 @@
 import Element from '../core/Element';
 import Canvas from '../canvas/Canvas';
-import ShapeText from '../shape/components/ShapeText';
+import ComponentText from './ComponentText';
+import ComponentControlsLayer from './ComponentControlsLayer';
+import SelectBehavior from '../behavior/SelectBehavior';
 import { stopPropagation } from '../canvas/EventBus';
 
 const DEFAULTS = {
@@ -16,8 +18,10 @@ class Component extends Element {
   constructor(settings) {
     super(settings);
     this._canvas = null;
-    this._text = new ShapeText();
+    this._text = new ComponentText();
     this._dom = {};
+    this._controlsLayer = new ComponentControlsLayer();
+    this._selectBehavior = new SelectBehavior(this);
 
     settings = {
       ...DEFAULTS,
@@ -30,8 +34,6 @@ class Component extends Element {
 
   // TODO: make this method internal.
   setCanvas(canvas) {
-    let oldCanvas;
-
     if (!(canvas === null || canvas instanceof Canvas)) {
       throw new Error('setCanvas(): Invalid parameter.');
     }
@@ -45,6 +47,33 @@ class Component extends Element {
     }
 
     return this;
+  }
+
+  /**
+   * Add a graphic control for manipulating the Component.
+   * @param {SVGElement} svgElement An SVG element to be the graphic control for the Component.
+   * @param {Object} events An object in which the key is an event name and its value is a function
+   * or an array
+   * in which each element is a function to be executed when that event occurs.
+   */
+  _addControl(svgElement, events) {
+    this._controlsLayer.addControl(svgElement, events);
+  }
+
+  select() {
+    this._selectBehavior.start();
+  }
+
+  unselect() {
+    this._selectBehavior.unselect();
+  }
+
+  /**
+   * If the shape is selected.
+   * @returns {Boolean}
+   */
+  isSelected() {
+    return this._selectBehavior.isSelected();
   }
 
   remove() {
@@ -98,18 +127,6 @@ class Component extends Element {
 
   getBounds() { throw new Error('getBounds() should be implemented.'); }
 
-  /**
-   * Selects the shape.
-   */
-  // eslint-disable-next-line class-methods-use-this
-  select() {}
-
-  /**
-   * Unselects the shape.
-   */
-  // eslint-disable-next-line class-methods-use-this
-  unselect() {}
-
   _setEventWall() {
     this._html.addEventListener('click', stopPropagation, false);
     this._html.addEventListener('dblClick', stopPropagation, false);
@@ -124,7 +141,9 @@ class Component extends Element {
     const title = Element.create('title');
 
     title.textContent = this._text.getText();
+    wrapper.classList.add('component');
     wrapper.setAttribute('focusable', false);
+    wrapper.appendChild(this._controlsLayer.getHTML());
     wrapper.appendChild(title);
     wrapper.appendChild(this._text.getHTML());
 
@@ -139,7 +158,9 @@ class Component extends Element {
       mainElement.classList.add('main-element');
     }
 
+
     this._setEventWall();
+    this._selectBehavior.attachBehavior();
 
     return this.setID(this._id);
   }

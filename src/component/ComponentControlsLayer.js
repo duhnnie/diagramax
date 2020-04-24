@@ -1,6 +1,6 @@
-import Element from '../../core/Element';
+import Element from '../core/Element';
 
-class ShapeControlsLayer extends Element {
+class ComponentControlsLayer extends Element {
   constructor(settings) {
     super(settings);
 
@@ -84,4 +84,4 @@ class ShapeControlsLayer extends Element {
   }
 }
 
-export default ShapeControlsLayer;
+export default ComponentControlsLayer;
