@@ -5,7 +5,6 @@ import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBeha
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
 import ResizeBehavior, { EVENT as RESIZE_EVENT, DIRECTION } from '../behavior/ResizeBehavior';
 import Geometry from '../utils/Geometry';
-import KeyboardControlledBehavior from '../behavior/KeyboardControlledBehavior';
 
 const DEFAULTS = {
   position: {
@@ -24,7 +23,6 @@ class Shape extends Component {
     this._dragBehavior = new RegularDraggableShapeBehavior(this);
     this._connectivityBehavior = new ConnectivityBehavior(this);
     this._resizeBehavior = new ResizeBehavior(this);
-    this._keyboardBehavior = new KeyboardControlledBehavior(this);
     this.__bulkAction = false;
 
     settings = {
@@ -420,7 +418,6 @@ class Shape extends Component {
     this._connectivityBehavior.attachBehavior();
     this._dragBehavior.attachBehavior();
     this._resizeBehavior.attachBehavior();
-    this._keyboardBehavior.attachBehavior();
 
     return this;
   }

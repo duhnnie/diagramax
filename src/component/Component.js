@@ -3,6 +3,7 @@ import Canvas from '../canvas/Canvas';
 import ComponentText from './ComponentText';
 import ComponentControlsLayer from './ComponentControlsLayer';
 import SelectBehavior from '../behavior/SelectBehavior';
+import KeyboardControlledBehavior from '../behavior/KeyboardControlledBehavior';
 import { stopPropagation } from '../canvas/EventBus';
 
 const DEFAULTS = {
@@ -22,6 +23,7 @@ class Component extends Element {
     this._dom = {};
     this._controlsLayer = new ComponentControlsLayer();
     this._selectBehavior = new SelectBehavior(this);
+    this._keyboardBehavior = new KeyboardControlledBehavior(this);
 
     settings = {
       ...DEFAULTS,
@@ -161,6 +163,7 @@ class Component extends Element {
 
     this._setEventWall();
     this._selectBehavior.attachBehavior();
+    this._keyboardBehavior.attachBehavior();
 
     return this.setID(this._id);
   }
