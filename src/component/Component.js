@@ -130,8 +130,9 @@ class Component extends Element {
   getBounds() { throw new Error('getBounds() should be implemented.'); }
 
   _setEventWall() {
-    this._html.addEventListener('click', stopPropagation, false);
-    this._html.addEventListener('dblClick', stopPropagation, false);
+    // TODO: this event listeners should be from an <g> that wraps the main element
+    this._dom.mainElement.addEventListener('click', stopPropagation, false);
+    this._dom.mainElement.addEventListener('dblClick', stopPropagation, false);
   }
 
   _createHTML() {
