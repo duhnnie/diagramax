@@ -7,17 +7,19 @@ import Geometry from '../utils/Geometry';
 import { EVENT as DRAG_EVENT } from '../behavior/DraggableShapeBehavior';
 import { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
 import SelectBehavior from '../behavior/SelectBehavior';
-import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY_PRODUCTS } from './LineStrategyRepository';
-import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY_PRODUCTS } from './VertexStrategyRepository';
-import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY_PRODUCTS } from './IntersectionStrategyRepository';
+import WaypointStrategyRepository, { PRODUCTS as WAYPOINT_STRATEGY } from './WaypointStrategyRepository';
+import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY } from './LineStrategyRepository';
+import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY } from './VertexStrategyRepository';
+import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY } from './IntersectionStrategyRepository';
 
 const DEFAULTS = {
   origShape: null,
   destShape: null,
-  line: LINE_STRATEGY_PRODUCTS.STRAIGHT,
-  vertex: VERTEX_STRATEGY_PRODUCTS.ARC,
+  waypoint: WAYPOINT_STRATEGY.RECT,
+  line: LINE_STRATEGY.STRAIGHT,
+  vertex: VERTEX_STRATEGY.ARC,
   vertexSize: 10,
-  intersection: INTERSECTION_STRATEGY_PRODUCTS.ARC,
+  intersection: INTERSECTION_STRATEGY.ARC,
 };
 
 const INTERSECTION_SIZE = Object.freeze({
@@ -81,6 +83,7 @@ class Connection extends Component {
     this._interceptors = new Set();
     this._intersections = new Map();
     this._selectBehavior = new SelectBehavior(this);
+    this._waypointStrategy = WaypointStrategyRepository.get(settings.waypoint);
     this._lineStrategy = LineStrategyRepository.get(settings.line);
     this._vertexStrategy = VertexStrategyRepository.get(settings.vertex);
     this._vertexSize = settings.vertexSize;
@@ -440,7 +443,7 @@ class Connection extends Component {
       this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex, PORT_MODE.OUT);
       this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex, PORT_MODE.IN);
 
-      const waypoints = ConnectionManager.getWaypoints(origPortDescriptor, destPortDescriptor);
+      const waypoints = this._waypointStrategy(origPortDescriptor, destPortDescriptor);
 
       waypoints.push({
         x: destPortDescriptor.point.x,
