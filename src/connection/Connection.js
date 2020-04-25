@@ -1,12 +1,12 @@
 import Element from '../core/Element';
 import Component from '../component/Component';
-import ConnectionManager from './ConnectionManager';
 import { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE, ORIENTATION } from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
 import { EVENT as DRAG_EVENT } from '../behavior/DraggableShapeBehavior';
 import { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
 import SelectBehavior from '../behavior/SelectBehavior';
+import PortPriorityStrategyRepository, { PRODUCTS as PORTPRIORITY_STRATEGY } from './PortPriorityStrategyRepository';
 import WaypointStrategyRepository, { PRODUCTS as WAYPOINT_STRATEGY } from './WaypointStrategyRepository';
 import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY } from './LineStrategyRepository';
 import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY } from './VertexStrategyRepository';
@@ -15,6 +15,7 @@ import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY } fro
 const DEFAULTS = {
   origShape: null,
   destShape: null,
+  portPriority: PORTPRIORITY_STRATEGY.CLOSER,
   waypoint: WAYPOINT_STRATEGY.RECT,
   line: LINE_STRATEGY.STRAIGHT,
   vertex: VERTEX_STRATEGY.ARC,
@@ -83,6 +84,7 @@ class Connection extends Component {
     this._interceptors = new Set();
     this._intersections = new Map();
     this._selectBehavior = new SelectBehavior(this);
+    this._portPriorityStrategy = PortPriorityStrategyRepository.get(settings.portPriority);
     this._waypointStrategy = WaypointStrategyRepository.get(settings.waypoint);
     this._lineStrategy = LineStrategyRepository.get(settings.line);
     this._vertexStrategy = VertexStrategyRepository.get(settings.vertex);
@@ -432,10 +434,27 @@ class Connection extends Component {
     return this;
   }
 
+  /**
+   * Returns the best-eligible ports for connect 2 shapes.
+   * @returns {Object} An object with 'orig' and 'dest' keys and values with the port index.
+   */
+  _getPortsForConnection() {
+    const { _origShape, _destShape } = this;
+    const candidatePorts = this._portPriorityStrategy(_origShape, _destShape);
+    const orig = candidatePorts.orig.find((portIndex) => _origShape.hasAvailablePortFor(portIndex, PORT_MODE.OUT));
+    const dest = candidatePorts.dest.find((portIndex) => {
+      if (_origShape === _destShape && portIndex === orig) return false;
+
+      return _destShape.hasAvailablePortFor(portIndex, PORT_MODE.IN);
+    });
+
+    return { orig, dest };
+  }
+
   _calculatePoints() {
     if (!this._origShape || !this._destShape) return this;
 
-    const portIndexes = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
+    const portIndexes = this._getPortsForConnection();
     const origPortDescriptor = this._origShape.getPortDescriptor(portIndexes.orig);
     const destPortDescriptor = this._destShape.getPortDescriptor(portIndexes.dest);
 

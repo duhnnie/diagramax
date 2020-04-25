@@ -1,6 +1,5 @@
-import Geometry from '../utils/Geometry';
-import Port, { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE } from './Port';
-import Connection from './Connection';
+import Geometry from '../../utils/Geometry';
+import Port, { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE } from '../Port';
 
 /**
  * Returns and array with the port indexes sorted in priority order for elegibility based on a
@@ -30,7 +29,7 @@ function getPortPriorityOrder(mainOrientation, relativeX, relativeY) {
  * @param {Shape} destShape destination shape.
  * @returns {Object}
  */
-function getConnectionPriorityPorts(origShape, destShape) {
+const CloserPortPriorityStrategy = function CloserPortPriorityStrategy(origShape, destShape) {
   const origBounds = origShape.getBounds();
   const destBounds = destShape.getBounds();
   const origPosition = origShape.getPosition();
@@ -67,24 +66,6 @@ function getConnectionPriorityPorts(origShape, destShape) {
     orig: origPorts,
     dest: destPorts,
   };
-}
-
-export default {
-  /**
-   * Returns the best-eligible ports for connect 2 shapes.
-   * @param {Shape} origShape Origin shape.
-   * @param {Shape} destShape Destination shape.
-   * @returns {Object} An object with 'orig' and 'dest' keys and values with the port index.
-   */
-  getConnectionPorts(origShape, destShape) {
-    const candidatePorts = getConnectionPriorityPorts(origShape, destShape);
-    const orig = candidatePorts.orig.find((portIndex) => origShape.hasAvailablePortFor(portIndex, PORT_MODE.OUT));
-    const dest = candidatePorts.dest.find((portIndex) => {
-      if (origShape === destShape && portIndex === orig) return false;
-
-      return destShape.hasAvailablePortFor(portIndex, PORT_MODE.IN);
-    });
-
-    return { orig, dest };
-  },
 };
+
+export default CloserPortPriorityStrategy;
