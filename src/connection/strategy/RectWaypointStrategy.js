@@ -68,10 +68,10 @@ const RectWaypointStrategy = function RectWaypointStrategy(orig, dest) {
     const { point } = newTarget;
 
     if (target === orig) {
-      return [point].concat(this.getWaypoints(newTarget, dest));
+      return [point].concat(RectWaypointStrategy(newTarget, dest));
     }
 
-    return this.getWaypoints(orig, newTarget).concat(point);
+    return RectWaypointStrategy(orig, newTarget).concat(point);
   }
 
   // None of the points (orig and dest) direction is opposite respect the other one.
