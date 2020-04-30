@@ -198,24 +198,19 @@ class Shape extends Component {
     };
   }
 
-  getPortDescriptor(index) {
+  // TODO: Remove thid method
+  getPortDescription(index) {
     const port = this._ports[index];
 
     if (port) {
-      return {
-        orientation: port.orientation,
-        direction: port.direction,
-        mode: port.mode,
-        point: this.getPortPoint(index),
-        portIndex: index,
-      };
+      return port.getDescription();
     }
 
     return null;
   }
 
   getPorts() {
-    return this._ports.map((port, index) => this.getPortDescriptor(index));
+    return this._ports.map((port, index) => this.getPortDescription(index));
   }
 
   addOutgoingConnection(connection) {

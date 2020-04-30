@@ -455,8 +455,8 @@ class Connection extends Component {
     if (!this._origShape || !this._destShape) return this;
 
     const portIndexes = this._getPortsForConnection();
-    const origPortDescriptor = this._origShape.getPortDescriptor(portIndexes.orig);
-    const destPortDescriptor = this._destShape.getPortDescriptor(portIndexes.dest);
+    const origPortDescriptor = this._origShape.getPortDescription(portIndexes.orig);
+    const destPortDescriptor = this._destShape.getPortDescription(portIndexes.dest);
 
     if (origPortDescriptor) {
       this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex, PORT_MODE.OUT);

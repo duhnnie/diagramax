@@ -165,6 +165,18 @@ class Port {
     this._mode = null;
     return this;
   }
+
+  getDescription() {
+    const index = this._position;
+
+    return {
+      orientation: this.orientation,
+      direction: this.direction,
+      mode: this.mode,
+      point: this._shape.getPortPoint(index),
+      portIndex: index,
+    };
+  }
 }
 
 export default Port;
