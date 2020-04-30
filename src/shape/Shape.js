@@ -1,5 +1,5 @@
 import Component from '../component/Component';
-import Port, { MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION } from '../connection/Port';
+import Port, { getPositionProps, MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION } from '../connection/Port';
 import Connection from '../connection/Connection';
 import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
@@ -186,9 +186,9 @@ class Shape extends Component {
     return true;
   }
 
-  _getPortPoint(port) {
-    const { orientation, direction } = port;
+  getPortPoint(position) {
     const { x, y } = this.getPosition();
+    const { orientation, direction } = getPositionProps(position);
     const xOffset = orientation === PORT_ORIENTATION.X ? this.getWidth() / 2 : 0;
     const yOffset = orientation === PORT_ORIENTATION.Y ? this.getHeight() / 2 : 0;
 
@@ -206,7 +206,7 @@ class Shape extends Component {
         orientation: port.orientation,
         direction: port.direction,
         mode: port.mode,
-        point: this._getPortPoint(port),
+        point: this.getPortPoint(index),
         portIndex: index,
       };
     }

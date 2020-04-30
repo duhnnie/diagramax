@@ -46,7 +46,7 @@ export const POSITION = Object.freeze({
   },
 });
 
-function getPositionProps(position) {
+export function getPositionProps(position) {
   return POSITION.props[position];
 }
 
