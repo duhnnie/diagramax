@@ -209,8 +209,8 @@ class Shape extends Component {
     return null;
   }
 
-  getPorts() {
-    return this._ports.map((port, index) => this.getPortDescription(index));
+  getPort(position) {
+    return this._ports[position];
   }
 
   addOutgoingConnection(connection) {
