@@ -12,6 +12,12 @@ import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY } from './LineStrateg
 import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY } from './VertexStrategyRepository';
 import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY } from './IntersectionStrategyRepository';
 
+export const EVENT = Object.freeze({
+  CONNECT: 'connect',
+  PORT_CHANGE: 'portchange',
+  DISCONNECT: 'disconnect',
+});
+
 const DEFAULTS = {
   origShape: null,
   destShape: null,
@@ -233,12 +239,14 @@ class Connection extends Component {
     if (origShape.canAcceptConnection(destShape, PORT_MODE.OUT)
       && destShape.canAcceptConnection(origShape, PORT_MODE.IN)) {
       const { _origShape: oldOrigShape, _destShape: oldDestShape } = this;
+      const changeOrigShape = origShape !== oldOrigShape;
+      const changeDestShape = destShape !== oldDestShape;
       let result = true;
 
       this._origShape = origShape;
       this._destShape = destShape;
 
-      if (origShape !== oldOrigShape) {
+      if (changeOrigShape) {
         if (oldOrigShape) {
           oldOrigShape.removeConnection(this);
           this._removeDragListeners(oldOrigShape);
@@ -249,7 +257,7 @@ class Connection extends Component {
         if (result) this._addDragListeners(origShape);
       }
 
-      if (destShape !== oldDestShape && result) {
+      if (changeDestShape && result) {
         if (oldDestShape) {
           oldDestShape.removeConnection(this);
           this._removeDragListeners(oldDestShape);
@@ -261,6 +269,12 @@ class Connection extends Component {
       }
 
       if (result) {
+        if (changeOrigShape || changeDestShape) {
+          this._canvas.dispatchEvent(EVENT.CONNECT, this, {
+            origShape,
+            destShape,
+          });
+        }
         this.make();
       } else {
         this.disconnect();
@@ -481,8 +495,18 @@ class Connection extends Component {
       this._points = waypoints || [];
     }
 
-    this._origPort = origPort;
-    this._destPort = destPort;
+    if (this._origPort !== origPort || this._destPort !== destPort) {
+      const { _origPort: oldOrigPort, _destPort: oldDestPort } = this;
+
+      this._origPort = origPort;
+      this._destPort = destPort;
+      this._canvas.dispatchEvent(EVENT.PORT_CHANGE, this, {
+        origPort,
+        destPort,
+        oldOrigPort,
+        oldDestPort,
+      });
+    }
 
     return this;
   }
@@ -524,6 +548,10 @@ class Connection extends Component {
       }
 
       this._removeInterceptors();
+      oldCanvas.dispatchEvent(EVENT.DISCONNECT, this, {
+        origShape,
+        destShape,
+      });
       super.remove();
     }
 
