@@ -467,6 +467,21 @@ class Connection extends Component {
     return { orig, dest };
   }
 
+  _setPorts(origPort, destPort) {
+    const { _origPort: oldOrigPort, _destPort: oldDestPort } = this;
+
+    if (origPort !== oldOrigPort || destPort !== oldDestPort) {
+      this._origPort = origPort;
+      this._destPort = destPort;
+      this._canvas.dispatchEvent(EVENT.PORT_CHANGE, this, {
+        origPort,
+        destPort,
+        oldOrigPort,
+        oldDestPort,
+      });
+    }
+  }
+
   _calculatePoints() {
     if (!this._origShape || !this._destShape) return this;
 
@@ -495,18 +510,7 @@ class Connection extends Component {
       this._points = waypoints || [];
     }
 
-    if (this._origPort !== origPort || this._destPort !== destPort) {
-      const { _origPort: oldOrigPort, _destPort: oldDestPort } = this;
-
-      this._origPort = origPort;
-      this._destPort = destPort;
-      this._canvas.dispatchEvent(EVENT.PORT_CHANGE, this, {
-        origPort,
-        destPort,
-        oldOrigPort,
-        oldDestPort,
-      });
-    }
+    this._setPorts(origPort, destPort);
 
     return this;
   }
@@ -535,18 +539,17 @@ class Connection extends Component {
     if (oldCanvas) {
       if (origShape && origShape.getOutgoingConnections().has(this)) {
         this._origShape = null;
-        this._origPort = null;
         origShape.removeConnection(this);
         this._removeDragListeners(origShape);
       }
 
       if (destShape && destShape.getIncomingConnections().has(this)) {
         this._destShape = null;
-        this._destPort = null;
         destShape.removeConnection(this);
         this._removeDragListeners(destShape);
       }
 
+      this._setPorts(null, null);
       this._removeInterceptors();
       oldCanvas.dispatchEvent(EVENT.DISCONNECT, this, {
         origShape,
