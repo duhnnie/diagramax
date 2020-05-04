@@ -11,6 +11,7 @@ import WaypointStrategyRepository, { PRODUCTS as WAYPOINT_STRATEGY } from './Way
 import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY } from './LineStrategyRepository';
 import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY } from './VertexStrategyRepository';
 import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY } from './IntersectionStrategyRepository';
+import ReconnectionBehavior from '../behavior/ReconnectionBehavior';
 
 export const EVENT = Object.freeze({
   CONNECT: 'connect',
@@ -98,6 +99,7 @@ class Connection extends Component {
     this._vertexStrategy = VertexStrategyRepository.get(settings.vertex);
     this._vertexSize = settings.vertexSize;
     this._intersectionStrategy = IntersectionStrategyRepository.get(settings.intersection);
+    this._reconnectionBehavior = new ReconnectionBehavior(this);
 
     this
       // TODO: is this useful? anyway it's redundant
@@ -233,6 +235,14 @@ class Connection extends Component {
 
   getDestShape() {
     return this._destShape;
+  }
+
+  getOrigPort() {
+    return this._origPort;
+  }
+
+  getDestPort() {
+    return this._destPort;
   }
 
   connect(origShape, destShape) {
@@ -590,6 +600,7 @@ class Connection extends Component {
     this._dom.arrow = arrowWrapper;
     this._dom.arrowRotateContainer = arrowWrapper2;
     this._selectBehavior.attachBehavior();
+    this._reconnectionBehavior.attachBehavior();
 
     return this;
   }
