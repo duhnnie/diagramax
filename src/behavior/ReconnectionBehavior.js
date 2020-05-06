@@ -30,11 +30,14 @@ class ReconnectionBehavior extends Behavior {
 
   _updateHandlers() {
     const { _target } = this;
-    const { point: origPoint } = _target.getOrigPort().getDescription();
-    const { point: destPoint } = _target.getDestPort().getDescription();
+    const origPort = _target.getOrigPort();
+    const destPort = _target.getDestPort();
+    const { point: origPoint = null } = (origPort && origPort.getDescription()) || {};
+    const { point: destPoint = null } = (destPort && destPort.getDescription()) || {};
+
+    if ([origPort, destPort].includes(null)) return;
 
     if (!this._dom.origHandler) {
-
       this._dom.origHandler = ReconnectionBehavior.createHandler(origPoint.x, origPoint.y);
       this._dom.destHandler = ReconnectionBehavior.createHandler(destPoint.x, destPoint.y);
     }
@@ -50,7 +53,8 @@ class ReconnectionBehavior extends Behavior {
   }
 
   attachBehavior() {
-    this._target.getCanvas().addEventListener(CONNECTION_EVENT.PORT_CHANGE, this._target, this._updateHandlers, this);
+    this._target.getCanvas().addEventListener(CONNECTION_EVENT.PORT_CHANGE, this._target, this._updateHandlers,
+      this);
   }
 }
 

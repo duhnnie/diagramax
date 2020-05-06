@@ -479,10 +479,27 @@ class Connection extends Component {
 
   _setPorts(origPort, destPort) {
     const { _origPort: oldOrigPort, _destPort: oldDestPort } = this;
+    const atLeastOneNewPort = origPort !== oldOrigPort || destPort !== oldDestPort;
+    let changed = false;
 
-    if (origPort !== oldOrigPort || destPort !== oldDestPort) {
+    if (atLeastOneNewPort) {
       this._origPort = origPort;
       this._destPort = destPort;
+      changed = true;
+    }
+
+    if (!changed && origPort && destPort) {
+      const origDesc = origPort.getDescription();
+      const destDesc = destPort.getDescription();
+      const oldOrigDesc = oldOrigPort.getDescription();
+      const oldDestDesc = oldDestPort.getDescription();
+
+      if (!Geometry.areSamePoint(origDesc.point, oldOrigDesc.point) || Geometry.areSamePoint(destDesc.point, oldDestDesc.point)) {
+        changed = true;
+      }
+    }
+
+    if (changed) {
       this._canvas.dispatchEvent(EVENT.PORT_CHANGE, this, {
         origPort,
         destPort,

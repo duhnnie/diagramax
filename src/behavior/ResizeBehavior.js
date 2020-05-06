@@ -178,6 +178,7 @@ class ResizeBehavior extends DragBehavior {
           newHandler.classList.add(`handler-resize-${className}`);
           newHandler.dataset.direction = direction;
 
+          // TODO: Fix this access to private member
           this._target._addControl(newHandler, {
             mousedown: this._onGrab,
             mouseup: this.endDrag,
