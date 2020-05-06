@@ -8,8 +8,16 @@
     cursor: default;
 }
 
-.shape .controls-layer {
+.component .controls-layer {
   display: none;
+}
+
+.shape .controls-layer {
+  pointer-events: bounding-box;
+}
+
+.connection .controls-layer {
+  pointer-events: visible;
 }
 
 .component .main-element.selected {

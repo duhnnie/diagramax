@@ -75,9 +75,7 @@ class ComponentControlsLayer extends Element {
   _createHTML() {
     const layer = Element.createSVG('g');
 
-    layer.setAttribute('pointer-events', 'bounding-box');
     layer.classList.add('controls-layer');
-
     this._html = layer;
 
     return this;

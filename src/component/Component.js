@@ -170,5 +170,4 @@ class Component extends Element {
   }
 }
 
-
 export default Component;
