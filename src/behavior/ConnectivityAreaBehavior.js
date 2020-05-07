@@ -55,7 +55,8 @@ class ConnectivityAreaBehavior extends Behavior {
     this._origin = shape;
     this._setConnectionLinePath(shape.getPosition(), this._getDestPoint(point.x, point.y));
     this._dom.line.setAttribute('stroke', 'black');
-    if (!this._dom.line.isConnected) this._target.getContainer().appendChild(this._dom.line);
+    // TODO: Fix this access to protected member.
+    if (!this._dom.line.isConnected) this._target._dom.componentsLayer.appendChild(this._dom.line);
   }
 
   /**

@@ -81,11 +81,7 @@ class Canvas extends Element {
       element.setCanvas(this);
 
       if (this._html) {
-        if (element instanceof Connection) {
-          this._dom.container.prepend(element.getHTML());
-        } else {
-          this._dom.container.appendChild(element.getHTML());
-        }
+        this._dom.componentsLayer.appendChild(element.getHTML());
       }
     }
 
@@ -203,10 +199,6 @@ class Canvas extends Element {
     return this._connectivityAreaBehavior;
   }
 
-  getContainer() {
-    return this._dom.container;
-  }
-
   selectItem(item) {
     // TODO: maybe selection behavior should have the methods to set a selection and to add an item
     // to a current selection set.
@@ -215,26 +207,27 @@ class Canvas extends Element {
   }
 
   _createHTML() {
-    let svg;
-    let g;
-
     if (this._html) {
       return this;
     }
 
-    svg = Element.createSVG('svg');
+    const svg = Element.createSVG('svg');
+    const root = Element.createSVG('g');
+    const componentsLayer = Element.createSVG('g');
+    const uiLayer = Element.createSVG('g');
+
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
     svg.setAttribute('version', '1.1');
     svg.setAttribute('class', 'bpmn-canvas');
     svg.style.background = '#F0F0F0';
 
-    g = Element.createSVG('g');
-    g.setAttribute('transform', 'scale(1, 1)');
+    root.setAttribute('transform', 'scale(1, 1)');
+    root.append(componentsLayer, uiLayer);
+    svg.appendChild(root);
 
-    svg.appendChild(g);
-
-    this._dom.container = g;
+    this._dom.uiLayer = uiLayer;
+    this._dom.componentsLayer = componentsLayer;
     this._html = svg;
 
     this.setWidth(this._width)
