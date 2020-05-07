@@ -453,9 +453,8 @@ class Connection extends Component {
       this._dom.arrowRotateContainer.setAttribute('transform', `scale(0.5, 0.5) rotate(${90 * arrowAngle})`);
     }
 
-    this._dom.arrow.style.display = pathString ? '' : 'none';
+    this._dom.mainElement.style.display = pathString ? '' : 'none';
     this._dom.path.setAttribute('d', pathString);
-    this._html.appendChild(this._dom.arrow);
 
     return this;
   }
@@ -593,6 +592,7 @@ class Connection extends Component {
       return this;
     }
 
+    const mainElement = Element.createSVG('g');
     const arrowWrapper = Element.createSVG('g');
     const arrowWrapper2 = Element.createSVG('g');
     const arrow = Element.createSVG('path');
@@ -607,12 +607,14 @@ class Connection extends Component {
 
     arrowWrapper2.appendChild(arrow);
     arrowWrapper.appendChild(arrowWrapper2);
-    this._dom.mainElement = path;
+    mainElement.appendChild(arrowWrapper);
+    mainElement.appendChild(path);
+    this._dom.mainElement = mainElement;
 
     super._createHTML();
 
     this._html.classList.add('connection');
-    this._html.appendChild(path);
+    this._html.appendChild(this._dom.mainElement);
     this._dom.path = path;
     this._dom.arrow = arrowWrapper;
     this._dom.arrowRotateContainer = arrowWrapper2;
