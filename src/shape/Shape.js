@@ -13,6 +13,12 @@ const DEFAULTS = {
   },
 };
 
+export const EVENT = Object.freeze({
+  DRAG_START: 'dragstart',
+  DRAG: 'drag',
+  DRAG_END: 'dragend',
+});
+
 class Shape extends Component {
   constructor(settings) {
     super(settings);

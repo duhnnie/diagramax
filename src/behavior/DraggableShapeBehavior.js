@@ -1,11 +1,6 @@
 import DragBehavior from './DragBehavior';
-import Shape from '../shape/Shape';
+import Shape, { EVENT as SHAPE_EVENT } from '../shape/Shape';
 
-export const EVENT = Object.freeze({
-  START: 'dragstart',
-  DRAG: 'drag',
-  END: 'dragend',
-});
 class DraggableShapeBehavior extends DragBehavior {
   constructor(target, settings) {
     if (!(target instanceof Shape)) {
@@ -37,7 +32,7 @@ class DraggableShapeBehavior extends DragBehavior {
       super.startDrag(point);
       // TODO: When Element inherits from EventTarget, the method
       // should trigger the event from itself.
-      this._target.getCanvas().dispatchEvent(EVENT.START, this._target);
+      this._target.getCanvas().dispatchEvent(SHAPE_EVENT.DRAG_START, this._target);
     }
   }
 
@@ -48,7 +43,7 @@ class DraggableShapeBehavior extends DragBehavior {
 
       super.endDrag(event);
       canvas.setDraggingShape(null);
-      canvas.dispatchEvent(EVENT.END, _target);
+      canvas.dispatchEvent(SHAPE_EVENT.DRAG_END, _target);
     }
   }
 
@@ -82,7 +77,7 @@ class DraggableShapeBehavior extends DragBehavior {
     }
 
     super.updatePosition({ x, y });
-    this._target.getCanvas().dispatchEvent(EVENT.DRAG, this._target);
+    this._target.getCanvas().dispatchEvent(SHAPE_EVENT.DRAG, this._target);
   }
 
   attachBehavior() {

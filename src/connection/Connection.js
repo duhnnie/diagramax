@@ -3,7 +3,7 @@ import Component from '../component/Component';
 import { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE, ORIENTATION } from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
-import { EVENT as DRAG_EVENT } from '../behavior/DraggableShapeBehavior';
+import { EVENT as SHAPE_EVENT } from '../shape/Shape';
 import { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
 import SelectBehavior from '../behavior/SelectBehavior';
 import PortPriorityStrategyRepository, { PRODUCTS as PORTPRIORITY_STRATEGY } from './PortPriorityStrategyRepository';
@@ -210,8 +210,8 @@ class Connection extends Component {
   }
 
   _addDragListeners(shape) {
-    this._canvas.addEventListener(DRAG_EVENT.START, shape, this._onShapeDragStart, this);
-    this._canvas.addEventListener(DRAG_EVENT.END, shape, this._onShapeDragEnd, this);
+    this._canvas.addEventListener(SHAPE_EVENT.DRAG_START, shape, this._onShapeDragStart, this);
+    this._canvas.addEventListener(SHAPE_EVENT.DRAG_END, shape, this._onShapeDragEnd, this);
     this._canvas.addEventListener(RESIZE_EVENT.START, shape, this._onShapeDragStart, this);
     this._canvas.addEventListener(RESIZE_EVENT.END, shape, this._onShapeDragEnd, this);
 
@@ -219,9 +219,9 @@ class Connection extends Component {
   }
 
   _removeDragListeners(shape) {
-    this._canvas.removeEventListener(DRAG_EVENT.START, shape, this._onShapeDragStart,
+    this._canvas.removeEventListener(SHAPE_EVENT.DRAG_START, shape, this._onShapeDragStart,
       this);
-    this._canvas.removeEventListener(DRAG_EVENT.END, shape, this._onShapeDragEnd,
+    this._canvas.removeEventListener(SHAPE_EVENT.DRAG_END, shape, this._onShapeDragEnd,
       this);
     this._canvas.removeEventListener(RESIZE_EVENT.START, shape, this._onShapeDragEnd, this);
     this._canvas.removeEventListener(RESIZE_EVENT.END, shape, this._onShapeDragEnd, this);

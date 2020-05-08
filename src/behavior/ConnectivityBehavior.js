@@ -1,6 +1,5 @@
 import Behavior from './Behavior';
-import Shape from '../shape/Shape';
-import { EVENT as DRAG_EVENT } from './DraggableShapeBehavior';
+import Shape, { EVENT as SHAPE_EVENT } from '../shape/Shape';
 
 class ConnectivityBehavior extends Behavior {
   static _getModifiers(event) {
@@ -45,7 +44,7 @@ class ConnectivityBehavior extends Behavior {
     const canvas = _target.getCanvas();
 
     this._target.getHTML().addEventListener('dblclick', this._onDblClick, false);
-    canvas.addEventListener(DRAG_EVENT.START, _target, this.end);
+    canvas.addEventListener(SHAPE_EVENT.DRAG_START, _target, this.end);
   }
 
   detachBehavior() {
@@ -53,7 +52,7 @@ class ConnectivityBehavior extends Behavior {
     const canvas = _target.getCanvas();
 
     _target.getHTML().removeEventListener('dblclick', this._onDblClick, false);
-    canvas.removeEventListener(DRAG_EVENT.START, _target, this.end);
+    canvas.removeEventListener(SHAPE_EVENT.DRAG_START, _target, this.end);
     super.detachBehavior();
   }
 }
