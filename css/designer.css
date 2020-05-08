@@ -8,58 +8,51 @@
     cursor: default;
 }
 
-.component .controls-layer {
+.controls-layer {
   display: none;
 }
 
-.shape .controls-layer {
-  pointer-events: bounding-box;
-}
-
-.connection .controls-layer {
-  pointer-events: visible;
-}
-
+.component .main-element:hover,
+.component .main-element:focus,
 .component .main-element.selected {
   outline: dotted 1px red;
   /* TODO: Fix hardcoded value */
   outline-offset: 6px;
 }
 
-.component .controls-layer.active,
-.component:hover .controls-layer {
+.controls-layer.active {
   display: initial;
 }
 
-.shape .controls-layer .handler-resize-nwse {
+.controls-layer .handler-resize-nwse {
   cursor: nwse-resize;
 }
 
-.shape .controls-layer .handler-resize-ns {
+.controls-layer .handler-resize-ns {
   cursor: ns-resize;
 }
 
-.shape .controls-layer .handler-resize-nesw {
+.controls-layer .handler-resize-nesw {
   cursor: nesw-resize;
 }
 
-.shape .controls-layer .handler-resize-ew {
+.controls-layer .handler-resize-ew {
   cursor: ew-resize;
 }
 
-.shape .controls-layer .handler-resize-ew {
+.controls-layer .handler-resize-ew {
   cursor: ew-resize;
 }
 
-.shape .controls-layer .handler-resize-nesw {
+.controls-layer .handler-resize-nesw {
   cursor: nesw-resize;
 }
 
-.shape .controls-layer .handler-resize-ns {
+.controls-layer .handler-resize-ns {
   cursor: ns-resize;
 }
 
-.shape .controls-layer .handler-resize-nwse {
+.controls-layer .handler-resize-nwse {
   cursor: nwse-resize;
 }
 

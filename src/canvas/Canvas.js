@@ -1,5 +1,5 @@
 import Element from '../core/Element';
-import EventBus from './EventBus';
+import EventBus, { stopPropagation } from './EventBus';
 import FluidDraggingAreaBehavior from '../behavior/FluidDraggingAreaBehavior';
 import ConnectivityAreaBehavior from '../behavior/ConnectivityAreaBehavior';
 import Shape from '../shape/Shape';
@@ -82,6 +82,7 @@ class Canvas extends Element {
 
       if (this._html) {
         this._dom.componentsLayer.appendChild(element.getHTML());
+        this._dom.uiLayer.appendChild(element.getUIHTML());
       }
     }
 
@@ -225,6 +226,11 @@ class Canvas extends Element {
     root.setAttribute('transform', 'scale(1, 1)');
     root.append(componentsLayer, uiLayer);
     svg.appendChild(root);
+
+    uiLayer.addEventListener('click', stopPropagation, false);
+    uiLayer.addEventListener('dblClick', stopPropagation, false);
+    componentsLayer.addEventListener('click', stopPropagation, false);
+    componentsLayer.addEventListener('dblClick', stopPropagation, false);
 
     this._dom.uiLayer = uiLayer;
     this._dom.componentsLayer = componentsLayer;

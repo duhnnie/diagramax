@@ -127,7 +127,7 @@ class ResizeBehavior extends DragBehavior {
     }
 
     // TODO: fix this access to a protected member.
-    _target._controlsLayer.setActive();
+    _target._componentUI.setActive();
 
     super.startDrag(position, options);
     // TODO: When Element inherits from EventTarget, the method
@@ -143,8 +143,6 @@ class ResizeBehavior extends DragBehavior {
       const canvas = _target.getCanvas();
 
       this._updateHandlers();
-      // TODO fix this access to protected member.
-      _target._controlsLayer.setActive(false);
       super.endDrag(event);
       canvas.setResizingShape(null);
       canvas.dispatchEvent(EVENT.END, _target);

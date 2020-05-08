@@ -1,10 +1,8 @@
 import Element from '../core/Element';
 import Canvas from '../canvas/Canvas';
 import ComponentText from './ComponentText';
-import ComponentControlsLayer from './ComponentControlsLayer';
 import SelectBehavior from '../behavior/SelectBehavior';
 import KeyboardControlledBehavior from '../behavior/KeyboardControlledBehavior';
-import { stopPropagation } from '../canvas/EventBus';
 
 const DEFAULTS = {
   canvas: null,
@@ -15,13 +13,16 @@ export const EVENT = Object.freeze({
   REMOVE: 'remove',
 });
 
+/**
+ * @abstract
+ */
 class Component extends Element {
   constructor(settings) {
     super(settings);
     this._canvas = null;
     this._text = new ComponentText();
     this._dom = {};
-    this._controlsLayer = new ComponentControlsLayer();
+    this._componentUI = this._getComponentUI();
     this._selectBehavior = new SelectBehavior(this);
     this._keyboardBehavior = new KeyboardControlledBehavior(this);
 
@@ -30,8 +31,14 @@ class Component extends Element {
       ...settings,
     };
 
-    this.setText(settings.text)
+    this
+      .setText(settings.text)
       .setCanvas(settings.canvas);
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _getComponentUI() {
+    throw new Error('_getComponentUI(): This method should be implemented.');
   }
 
   // TODO: make this method internal.
@@ -59,7 +66,7 @@ class Component extends Element {
    * in which each element is a function to be executed when that event occurs.
    */
   _addControl(svgElement, events) {
-    this._controlsLayer.addControl(svgElement, events);
+    this._componentUI.addControl(svgElement, events);
   }
 
   select() {
@@ -82,13 +89,10 @@ class Component extends Element {
     const { _canvas } = this;
 
     if (_canvas) {
+      this._componentUI.remove();
       _canvas.removeElement(this);
       this._canvas = null;
-
-      if (this._html) {
-        this._html.remove();
-      }
-
+      super.remove();
       _canvas.dispatchEvent(EVENT.REMOVE, this);
     }
 
@@ -129,12 +133,6 @@ class Component extends Element {
 
   getBounds() { throw new Error('getBounds() should be implemented.'); }
 
-  _setEventWall() {
-    // TODO: this event listeners should be from an <g> that wraps the main element
-    this._dom.mainElement.addEventListener('click', stopPropagation, false);
-    this._dom.mainElement.addEventListener('dblClick', stopPropagation, false);
-  }
-
   _createHTML() {
     if (this._html) {
       return this;
@@ -146,7 +144,7 @@ class Component extends Element {
     title.textContent = this._text.getText();
     wrapper.classList.add('component');
     wrapper.setAttribute('focusable', false);
-    wrapper.appendChild(this._controlsLayer.getHTML());
+    // wrapper.appendChild(this._componentUI.getHTML());
     wrapper.appendChild(title);
     wrapper.appendChild(this._text.getHTML());
 
@@ -161,12 +159,14 @@ class Component extends Element {
       mainElement.classList.add('main-element');
     }
 
-
-    this._setEventWall();
     this._selectBehavior.attachBehavior();
     this._keyboardBehavior.attachBehavior();
 
     return this.setID(this._id);
+  }
+
+  getUIHTML() {
+    return this._componentUI.getHTML();
   }
 }
 

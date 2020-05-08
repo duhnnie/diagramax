@@ -5,6 +5,7 @@ import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBeha
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
 import ResizeBehavior, { EVENT as RESIZE_EVENT, DIRECTION } from '../behavior/ResizeBehavior';
 import Geometry from '../utils/Geometry';
+import ShapeUI from './ShapeUI';
 
 const DEFAULTS = {
   position: {
@@ -39,6 +40,10 @@ class Shape extends Component {
 
     this._initPorts()
       .setPosition(settings.position.x, settings.position.y);
+  }
+
+  _getComponentUI() {
+    return new ShapeUI(this);
   }
 
   _initPorts() {

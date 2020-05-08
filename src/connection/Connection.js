@@ -12,6 +12,7 @@ import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY } from './LineStrateg
 import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY } from './VertexStrategyRepository';
 import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY } from './IntersectionStrategyRepository';
 import ReconnectionBehavior from '../behavior/ReconnectionBehavior';
+import ComponentUI from '../component/ComponentUI';
 
 export const EVENT = Object.freeze({
   CONNECT: 'connect',
@@ -105,6 +106,10 @@ class Connection extends Component {
       // TODO: is this useful? anyway it's redundant
       .setCanvas(settings.canvas)
       .connect(settings.origShape, settings.destShape);
+  }
+
+  _getComponentUI() {
+    return new ComponentUI(this);
   }
 
   addInterceptor(connection) {
