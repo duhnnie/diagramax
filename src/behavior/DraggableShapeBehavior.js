@@ -77,7 +77,6 @@ class DraggableShapeBehavior extends DragBehavior {
     }
 
     super.updatePosition({ x, y });
-    this._target.getCanvas().dispatchEvent(SHAPE_EVENT.DRAG, this._target);
   }
 
   attachBehavior() {

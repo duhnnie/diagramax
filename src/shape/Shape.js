@@ -14,9 +14,10 @@ const DEFAULTS = {
 };
 
 export const EVENT = Object.freeze({
-  DRAG_START: 'dragstart',
-  DRAG: 'drag',
-  DRAG_END: 'dragend',
+  POSITION_CHANGE: 'position:change',
+  DRAG_START: 'drag:start',
+  DRAG: 'position:change',
+  DRAG_END: 'drag:end',
 });
 
 class Shape extends Component {
@@ -67,7 +68,15 @@ class Shape extends Component {
     }
   }
 
+  _triggerPositionChange(x, y) {
+    const canvas = this.getCanvas();
+
+    if (canvas) canvas.dispatchEvent(EVENT.POSITION_CHANGE, this, this.getPosition(), { x, y });
+  }
+
   setX(x) {
+    const oldX = this._x;
+
     this._x = x;
 
     if (this._html) {
@@ -75,6 +84,7 @@ class Shape extends Component {
 
       if (!this.__bulkAction) {
         this._drawConnections();
+        this._triggerPositionChange(oldX, this._y);
       }
     }
 
@@ -86,6 +96,8 @@ class Shape extends Component {
   }
 
   setY(y) {
+    const oldY = this._y;
+
     this._y = y;
 
     if (this._html) {
@@ -93,6 +105,7 @@ class Shape extends Component {
 
       if (!this.__bulkAction) {
         this._drawConnections();
+        this._triggerPositionChange(this._x, oldY);
       }
     }
 
@@ -104,6 +117,9 @@ class Shape extends Component {
   }
 
   setPosition(x, y) {
+    const oldX = this._x;
+    const oldY = this._y;
+
     this.__bulkAction = true;
 
     this.setX(x)
@@ -111,7 +127,8 @@ class Shape extends Component {
 
     this.__bulkAction = false;
 
-    return this._drawConnections();
+    this._drawConnections();
+    this._triggerPositionChange(oldX, oldY);
   }
 
   getPosition() {
