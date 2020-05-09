@@ -17,7 +17,7 @@
 .component .main-element.selected {
   outline: dotted 1px red;
   /* TODO: Fix hardcoded value */
-  outline-offset: 6px;
+  outline-offset: 0;
 }
 
 .controls-layer.active {
