@@ -38,12 +38,14 @@ class DraggableShapeBehavior extends DragBehavior {
 
   endDrag(event) {
     if (this._grabbed || this._dragging) {
-      const { _target } = this;
+      const { _target, _dragging } = this;
       const canvas = _target.getCanvas();
 
       super.endDrag(event);
       canvas.setDraggingShape(null);
-      canvas.dispatchEvent(SHAPE_EVENT.DRAG_END, _target);
+      if (_dragging) {
+        canvas.dispatchEvent(SHAPE_EVENT.DRAG_END, _target);
+      }
     }
   }
 
