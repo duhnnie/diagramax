@@ -20,6 +20,11 @@ export const EVENT = Object.freeze({
   DISCONNECT: 'disconnect',
 });
 
+export const POINT = Object.freeze({
+  ORIG: 0,
+  DEST: 1,
+});
+
 const DEFAULTS = {
   origShape: null,
   destShape: null,
@@ -100,6 +105,7 @@ class Connection extends Component {
     this._vertexStrategy = VertexStrategyRepository.get(settings.vertex);
     this._vertexSize = settings.vertexSize;
     this._intersectionStrategy = IntersectionStrategyRepository.get(settings.intersection);
+    // TODO: maybe rename it to dragBehavior since it will connect with Canvas' DraggingAreaBehavior
     this._reconnectionBehavior = new ReconnectionBehavior(this);
 
     this
@@ -190,13 +196,14 @@ class Connection extends Component {
   }
 
   _removeIntersections(connection = null) {
-    if (connection) {
+    // TODO: intersections and interceptors adding removal should be handled with events (DS-132)
+    if (connection && this._origPort && this._destPort) {
       this._intersections.forEach((intersections, key) => {
         this._intersections.set(key,
           intersections.filter((intersection) => intersection.connection !== connection));
       });
 
-      this._draw();
+      this._draw(this._origPort.getDescription(), this._destPort.getDescription());
     } else {
       this._intersections.clear();
     }
@@ -312,10 +319,10 @@ class Connection extends Component {
         };
       }
 
-      bounds.top = y < bounds.top ? y : bounds.top;
-      bounds.right = x > bounds.right ? x : bounds.right;
-      bounds.bottom = y > bounds.bottom ? y : bounds.bottom;
-      bounds.left = x < bounds.left ? x : bounds.left;
+      bounds.top = Math.min(y, bounds.top);
+      bounds.right = Math.max(x, bounds.right);
+      bounds.bottom = Math.max(y, bounds.bottom);
+      bounds.left = Math.min(x, bounds.left);
 
       return bounds;
     }, null) || {};
@@ -414,8 +421,19 @@ class Connection extends Component {
       .concat(this._lineStrategy(from, to)).join(' ');
   }
 
-  _draw() {
-    const points = this._points.slice(0);
+  _draw(origPortDescriptor, destPortDescriptor) {
+    let points = [];
+
+    if (origPortDescriptor) {
+      points = this._waypointStrategy(origPortDescriptor, destPortDescriptor);
+    }
+    this._points = points;
+
+    if (!(this._origShape.isBeingDragged() || this._destShape.isBeingDragged()
+      || this._origShape.isBeingResized() || this._destShape.isBeingResized())) {
+      this._updateIntersectionPoints();
+    }
+
     let vertex;
 
     const pathString = points.map((point, index, array) => {
@@ -513,8 +531,8 @@ class Connection extends Component {
     }
   }
 
-  _calculatePoints() {
-    if (!this._origShape || !this._destShape) return this;
+  make() {
+    if (!this._origShape || !this._destShape) return;
 
     const portIndexes = this._getPortsForConnection();
     const origPort = this._origShape.getPort(portIndexes.orig);
@@ -522,44 +540,11 @@ class Connection extends Component {
     const origPortDescriptor = origPort.getDescription();
     const destPortDescriptor = destPort.getDescription();
 
-    if (origPortDescriptor) {
-      this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex, PORT_MODE.OUT);
-      this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex, PORT_MODE.IN);
-
-      const waypoints = this._waypointStrategy(origPortDescriptor, destPortDescriptor);
-
-      waypoints.push({
-        x: destPortDescriptor.point.x,
-        y: destPortDescriptor.point.y,
-      });
-
-      waypoints.unshift({
-        x: origPortDescriptor.point.x,
-        y: origPortDescriptor.point.y,
-      });
-
-      this._points = waypoints || [];
-    }
-
+    this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex, PORT_MODE.OUT);
+    this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex, PORT_MODE.IN);
     this._setPorts(origPort, destPort);
 
-    return this;
-  }
-
-  make() {
-    if (!this._origShape || !this._destShape) return;
-
-    if (!this._points.length) {
-      this._calculatePoints();
-      this._updateIntersectionPoints();
-    } else if (this._origShape.isBeingDragged() || this._destShape.isBeingDragged()
-      || this._origShape.isBeingResized() || this._destShape.isBeingResized()) {
-      this._calculatePoints();
-    } else {
-      this._updateIntersectionPoints();
-    }
-
-    return this._draw();
+    this._draw(origPortDescriptor, destPortDescriptor);
   }
 
   remove() {

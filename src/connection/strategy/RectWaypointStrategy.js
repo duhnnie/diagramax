@@ -68,30 +68,35 @@ const RectWaypointStrategy = function RectWaypointStrategy(orig, dest) {
     const { point } = newTarget;
 
     if (target === orig) {
-      return [point].concat(RectWaypointStrategy(newTarget, dest));
+      return [orig.point, point].concat(RectWaypointStrategy(newTarget, dest));
     }
 
-    return RectWaypointStrategy(orig, newTarget).concat(point);
+    return RectWaypointStrategy(orig, newTarget).concat(point, dest.point);
   }
 
   // None of the points (orig and dest) direction is opposite respect the other one.
   if (orig.orientation !== dest.orientation) {
-    return [{
-      x: orig.orientation === PORT_ORIENTATION.X ? dest.point.x : orig.point.x,
-      y: dest.orientation === PORT_ORIENTATION.X ? dest.point.y : orig.point.y,
-    }];
+    return [
+      orig.point,
+      {
+        x: orig.orientation === PORT_ORIENTATION.X ? dest.point.x : orig.point.x,
+        y: dest.orientation === PORT_ORIENTATION.X ? dest.point.y : orig.point.y,
+      },
+      dest.point];
   }
 
   // Both points have the same orientation (validated above) and they're at the same level
   if (orig.point.x === dest.point.x || orig.point.y === dest.point.y) {
-    return [];
+    return [orig.point, dest.point];
   }
 
   const diff = (dest.point[orig.orientation] - orig.point[orig.orientation]) / 2;
 
   return [
+    orig.point,
     getNextPoint(orig, diff),
     getNextPoint(dest, diff * -1),
+    dest.point,
   ];
 };
 
