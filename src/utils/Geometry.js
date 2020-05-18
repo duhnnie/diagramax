@@ -116,8 +116,8 @@ export default {
   /**
    * Returns an object that specifies the normalized relative position between an origin Shape
    * and a destination Shape.
-   * If destination Shape is on the origin Shape's right the relative position on x is 1.
-   * If destination Shape is on the origin Shape's left the relative position on x is -1.
+   * If destination Shape is on the origin Shape's right side the relative position on x is 1.
+   * If destination Shape is on the origin Shape's left side the relative position on x is -1.
    * If destination Shape is on the same x position than origin Shape,
    * then the relative postiion on x is 0.
    * If destination Shape is down the origin Shape the relative position on y is 1.

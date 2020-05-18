@@ -195,6 +195,12 @@ class Canvas extends Element {
     return this._connectToDragAreaBehavior(behavior);
   }
 
+  setDraggingConnection(connection, connectionPoint) {
+    const behavior = connection._reconnectionBehavior;
+
+    return this._connectToDragAreaBehavior(behavior, { connectionPoint });
+  }
+
   // TODO: Does make sense to have this method?
   getConnectivityAreaBehavior() {
     return this._connectivityAreaBehavior;
