@@ -258,8 +258,8 @@ class Connection extends Component {
   }
 
   connect(origShape, destShape) {
-    if (origShape.canAcceptConnection(destShape, PORT_MODE.OUT)
-      && destShape.canAcceptConnection(origShape, PORT_MODE.IN)) {
+    if (origShape.canAcceptConnection(PORT_MODE.OUT, destShape)
+      && destShape.canAcceptConnection(PORT_MODE.IN, origShape)) {
       const { _origShape: oldOrigShape, _destShape: oldDestShape } = this;
       const changeOrigShape = origShape !== oldOrigShape;
       const changeDestShape = destShape !== oldDestShape;
@@ -482,23 +482,6 @@ class Connection extends Component {
     return this;
   }
 
-  /**
-   * Returns the best-eligible ports for connect 2 shapes.
-   * @returns {Object} An object with 'orig' and 'dest' keys and values with the port index.
-   */
-  _getPortsForConnection() {
-    const { _origShape, _destShape } = this;
-    const candidatePorts = this._portPriorityStrategy(_origShape, _destShape);
-    const orig = candidatePorts.orig.find((portIndex) => _origShape.hasAvailablePortFor(portIndex, PORT_MODE.OUT));
-    const dest = candidatePorts.dest.find((portIndex) => {
-      if (_origShape === _destShape && portIndex === orig) return false;
-
-      return _destShape.hasAvailablePortFor(portIndex, PORT_MODE.IN);
-    });
-
-    return { orig, dest };
-  }
-
   _setPorts(origPort, destPort) {
     const { _origPort: oldOrigPort, _destPort: oldDestPort } = this;
     const atLeastOneNewPort = origPort !== oldOrigPort || destPort !== oldDestPort;
@@ -534,7 +517,7 @@ class Connection extends Component {
   make() {
     if (!this._origShape || !this._destShape) return;
 
-    const portIndexes = this._getPortsForConnection();
+    const portIndexes = this._portPriorityStrategy(this._origShape, this._destShape);
     const origPort = this._origShape.getPort(portIndexes.orig);
     const destPort = this._destShape.getPort(portIndexes.dest);
     const origPortDescriptor = origPort.getDescription();

@@ -206,11 +206,11 @@ class Shape extends Component {
 
   /**
    * If the current shape can be connected with other shape.
-   * @param {Shape} otherShape The shape to be connected with.
    * @param {Port.MODE} mode The connection mode.
+   * @param {Shape} [otherShape = null] The shape to be connected with. If it's not provided the evaluation will be made bsed on the direction for any kind of Shape.
    */
   // eslint-disable-next-line class-methods-use-this, no-unused-vars
-  canAcceptConnection(shape, mode) {
+  canAcceptConnection(mode, shape = null) {
     return true;
   }
 
@@ -249,7 +249,7 @@ class Shape extends Component {
     const otherShape = connection.getDestShape();
     let result = false;
 
-    if (this.canAcceptConnection(otherShape, PORT_MODE.OUT)) {
+    if (this.canAcceptConnection(PORT_MODE.OUT, otherShape)) {
       result = connection.getOrigShape() !== this ? connection.connect(this, otherShape) : true;
 
       if (result) {
@@ -272,7 +272,7 @@ class Shape extends Component {
     const otherShape = connection.getOrigShape();
     let result = false;
 
-    if (this.canAcceptConnection(otherShape, PORT_MODE.IN)) {
+    if (this.canAcceptConnection(PORT_MODE.IN, otherShape)) {
       result = connection.getDestShape() !== this ? connection.connect(otherShape, this) : true;
 
       if (result) {

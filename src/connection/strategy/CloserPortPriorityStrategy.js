@@ -62,9 +62,16 @@ const CloserPortPriorityStrategy = function CloserPortPriorityStrategy(origShape
     destPorts = getPortPriorityOrder(orientation, relativeX * -1, relativeY * -1);
   }
 
+  const origPort = origPorts.find((portIndex) => origShape.hasAvailablePortFor(portIndex, PORT_MODE.OUT));
+  const destPort = destPorts.find((portIndex) => {
+    if (origShape === destShape && portIndex === origPort) return false;
+
+    return destShape.hasAvailablePortFor(portIndex, PORT_MODE.IN);
+  });
+
   return {
-    orig: origPorts,
-    dest: destPorts,
+    orig: origPort,
+    dest: destPort,
   };
 };
 
