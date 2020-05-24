@@ -1,11 +1,33 @@
 import Component from '../component/Component';
-import Port, { getPositionProps, MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION } from '../connection/Port';
+import Port, { getPositionProps, MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION, ORIENTATION } from '../connection/Port';
 import Connection from '../connection/Connection';
 import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
 import ResizeBehavior, { EVENT as RESIZE_EVENT, DIRECTION } from '../behavior/ResizeBehavior';
 import Geometry from '../utils/Geometry';
 import ShapeUI from './ShapeUI';
+
+/*
+ * Returns and array with the port indexes sorted in priority order for elegibility based on a
+ * primary orientation.
+ * @param {Number} mainOrientation The orientation index that will be the assumed as the
+ * prioritized one.
+ * @param {Object} Object containing the relative position, x and y respect to destination in
+ * respective axis.
+ * @returns {Array}
+ */
+function getPortPriorityOrder(mainOrientation, { x, y }) {
+  const crossOrientation = mainOrientation === PORT_ORIENTATION.X
+    ? PORT_ORIENTATION.Y : PORT_ORIENTATION.X;
+  const mainPorts = Port.getPriority(mainOrientation, mainOrientation === PORT_ORIENTATION.X
+    ? x : y);
+  const crossPorts = Port.getPriority(crossOrientation, crossOrientation === PORT_ORIENTATION.X
+    ? x : y);
+
+  mainPorts.splice(1, 0, ...crossPorts);
+
+  return mainPorts;
+}
 
 const DEFAULTS = {
   position: {
@@ -407,6 +429,45 @@ class Shape extends Component {
     }
 
     this.setPosition(x, y);
+  }
+
+  getConnectionPort(shape, mode) {
+    const { x: overlapX, y: overlapY } = Geometry.getOverlappedDimensions(
+      this.getBounds(),
+      shape.getBounds(),
+    );
+    let relativePosition = Geometry.getNormalizedPosition(
+      mode === PORT_MODE.OUT ? this.getPosition() : shape.getPosition(),
+      mode === PORT_MODE.OUT ? shape.getPosition() : this.getPosition(),
+    );
+    let orientation;
+
+    if (overlapX && overlapY) {
+      orientation = mode === PORT_MODE.OUT ? PORT_ORIENTATION.X : PORT_ORIENTATION.Y;
+    } else {
+      if (mode === PORT_MODE.IN) {
+        relativePosition = {
+          x: relativePosition.x * -1,
+          y: relativePosition.y * -1,
+        };
+      }
+
+      if (overlapX === overlapY) {
+        orientation = mode === PORT_MODE.OUT ? ORIENTATION.Y : ORIENTATION.X;
+      } else if (relativePosition.x === 0) {
+        orientation = PORT_ORIENTATION.Y;
+      } else if (relativePosition.y === 0) {
+        orientation = PORT_ORIENTATION.X;
+      } else {
+        orientation = overlapX ? PORT_ORIENTATION.Y : PORT_ORIENTATION.X;
+      }
+    }
+
+
+    const ports = getPortPriorityOrder(orientation, relativePosition);
+    const portIndex = ports.find((portIndex) => this.hasAvailablePortFor(portIndex, mode));
+
+    return portIndex !== null ? this.getPort(portIndex) : null;
   }
 
   _resetPorts() {
