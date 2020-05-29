@@ -15,11 +15,31 @@ class ConnectivityBehavior extends Behavior {
 
     super(target, settings);
 
-    this._onDblClick = this._bind(this._onDblClick);
+    this._onMouseDown = this._bind(this._onMouseDown);
+    this._onMouseUp = this._bind(this._onMouseUp);
+    this._onConnectionEnter = this._bind(this._onConnectionEnter);
+    this._onConnectionLeave = this._bind(this._onConnectionLeave);
     this.end = this.end.bind(this);
   }
 
-  _onDblClick(event) {
+  _onMouseDown(event) {
+    const target = this._target;
+
+    event.stopPropagation();
+
+    if (!target.isBeingDragged() && event.altKey) {
+      const canvas = target.getCanvas();
+      const { chain } = ConnectivityBehavior._getModifiers(event);
+
+      // canvas.getConnectivityAreaBehavior().addShape(target, {
+      //   x: event.clientX,
+      //   y: event.clientY,
+      // }, chain);
+      canvas.startConnection(target);
+    }
+  }
+
+  _onMouseUp(event) {
     const target = this._target;
 
     event.stopPropagation();
@@ -28,11 +48,26 @@ class ConnectivityBehavior extends Behavior {
       const canvas = target.getCanvas();
       const { chain } = ConnectivityBehavior._getModifiers(event);
 
-      canvas.getConnectivityAreaBehavior().addShape(target, {
-        x: event.clientX,
-        y: event.clientY,
-      }, chain);
+      // canvas.getConnectivityAreaBehavior().addShape(target, {
+      //   x: event.clientX,
+      //   y: event.clientY,
+      // }, chain);
+      canvas.completeConnection(target);
     }
+  }
+
+  _onConnectionEnter(event) {
+    const { _target } = this;
+    const canvas = _target.getCanvas();
+
+    canvas._connectivityAreaBehavior.enterShape(_target);
+  }
+
+  _onConnectionLeave(event) {
+    const { _target } = this;
+    const canvas = _target.getCanvas();
+
+    canvas._connectivityAreaBehavior.leaveShape(_target);
   }
 
   end() {
@@ -43,7 +78,10 @@ class ConnectivityBehavior extends Behavior {
     const { _target } = this;
     const canvas = _target.getCanvas();
 
-    this._target.getHTML().addEventListener('dblclick', this._onDblClick, false);
+    _target.getHTML().addEventListener('mousedown', this._onMouseDown, false);
+    _target.getHTML().addEventListener('mouseup', this._onMouseUp, false);
+    _target.getHTML().addEventListener('mouseenter', this._onConnectionEnter, false);
+    _target.getHTML().addEventListener('mouseleave', this._onConnectionLeave, false);
     canvas.addEventListener(SHAPE_EVENT.DRAG_START, _target, this.end);
   }
 
@@ -51,7 +89,10 @@ class ConnectivityBehavior extends Behavior {
     const { _target } = this;
     const canvas = _target.getCanvas();
 
-    _target.getHTML().removeEventListener('dblclick', this._onDblClick, false);
+    _target.getHTML().removeEventListener('mousedown', this._onMouseDown, false);
+    _target.getHTML().removeEventListener('mouseup', this._onMouseUp, false);
+    _target.getHTML().removeEventListener('mouseenter', this._onConnectionEnter, false);
+    _target.getHTML().removeEventListener('mouseleave', this._onConnectionLeave, false);
     canvas.removeEventListener(SHAPE_EVENT.DRAG_START, _target, this.end);
     super.detachBehavior();
   }

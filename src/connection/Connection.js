@@ -6,7 +6,6 @@ import Geometry from '../utils/Geometry';
 import { EVENT as SHAPE_EVENT } from '../shape/Shape';
 import { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
 import SelectBehavior from '../behavior/SelectBehavior';
-import PortPriorityStrategyRepository, { PRODUCTS as PORTPRIORITY_STRATEGY } from './PortPriorityStrategyRepository';
 import WaypointStrategyRepository, { PRODUCTS as WAYPOINT_STRATEGY } from './WaypointStrategyRepository';
 import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY } from './LineStrategyRepository';
 import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY } from './VertexStrategyRepository';
@@ -28,7 +27,6 @@ export const POINT = Object.freeze({
 const DEFAULTS = {
   origShape: null,
   destShape: null,
-  portPriority: PORTPRIORITY_STRATEGY.CLOSER,
   waypoint: WAYPOINT_STRATEGY.RECT,
   line: LINE_STRATEGY.STRAIGHT,
   vertex: VERTEX_STRATEGY.ARC,
@@ -40,14 +38,6 @@ const INTERSECTION_SIZE = Object.freeze({
   WIDTH: 10,
   HEIGHT: 8,
 });
-
-const toPointForX = function (mainValue, secondaryValue) {
-  return Geometry.toPoint(mainValue, secondaryValue);
-};
-
-const toPointForY = function (mainValue, secondaryValue) {
-  return Geometry.toPoint(secondaryValue, mainValue);
-};
 
 class Connection extends Component {
   static get ARROW_SEGMENT_LENGTH() {
@@ -99,7 +89,6 @@ class Connection extends Component {
     this._interceptors = new Set();
     this._intersections = new Map();
     this._selectBehavior = new SelectBehavior(this);
-    this._portPriorityStrategy = PortPriorityStrategyRepository.get(settings.portPriority);
     this._waypointStrategy = WaypointStrategyRepository.get(settings.waypoint);
     this._lineStrategy = LineStrategyRepository.get(settings.line);
     this._vertexStrategy = VertexStrategyRepository.get(settings.vertex);
@@ -108,10 +97,12 @@ class Connection extends Component {
     // TODO: maybe rename it to dragBehavior since it will connect with Canvas' DraggingAreaBehavior
     this._reconnectionBehavior = new ReconnectionBehavior(this);
 
-    this
-      // TODO: is this useful? anyway it's redundant
-      .setCanvas(settings.canvas)
-      .connect(settings.origShape, settings.destShape);
+    // TODO: is this useful? anyway it's redundant
+    this.setCanvas(settings.canvas);
+
+    if (settings.origShape && settings.destShape) {
+      this.connect(settings.origShape, settings.destShape);
+    }
   }
 
   _getComponentUI() {
@@ -255,6 +246,10 @@ class Connection extends Component {
 
   getDestPort() {
     return this._destPort;
+  }
+
+  start(shape) {
+    this._reconnectionBehavior.start(shape);
   }
 
   connect(origShape, destShape) {
@@ -429,9 +424,12 @@ class Connection extends Component {
     }
     this._points = points;
 
-    if (!(this._origShape.isBeingDragged() || this._destShape.isBeingDragged()
-      || this._origShape.isBeingResized() || this._destShape.isBeingResized())) {
-      this._updateIntersectionPoints();
+    // TODO: this validation should be removed since it was added just for test a thing.
+    if (this._origShape && this._destShape) {
+      if (!(this._origShape.isBeingDragged() || this._destShape.isBeingDragged()
+        || this._origShape.isBeingResized() || this._destShape.isBeingResized())) {
+        this._updateIntersectionPoints();
+      }
     }
 
     let vertex;
@@ -517,9 +515,8 @@ class Connection extends Component {
   make() {
     if (!this._origShape || !this._destShape) return;
 
-    const portIndexes = this._portPriorityStrategy(this._origShape, this._destShape);
-    const origPort = this._origShape.getPort(portIndexes.orig);
-    const destPort = this._destShape.getPort(portIndexes.dest);
+    const origPort = this._origShape.getConnectionPort(this._destShape, PORT_MODE.OUT);
+    const destPort = this._destShape.getConnectionPort(this._origShape, PORT_MODE.IN);
     const origPortDescriptor = origPort.getDescription();
     const destPortDescriptor = destPort.getDescription();
 

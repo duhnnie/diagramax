@@ -25,7 +25,7 @@ class DraggingAreaBehavior extends Behavior {
       this.removeDragBehavior();
       this._dragBehavior = behavior;
       this._behaviorOptions = { ...options };
-      behavior._target.select();
+      behavior.getTarget().select();
     }
   }
 

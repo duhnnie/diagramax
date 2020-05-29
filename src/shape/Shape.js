@@ -431,16 +431,35 @@ class Shape extends Component {
     this.setPosition(x, y);
   }
 
-  getConnectionPort(shape, mode) {
-    const { x: overlapX, y: overlapY } = Geometry.getOverlappedDimensions(
-      this.getBounds(),
-      shape.getBounds(),
-    );
+  getConnectionPort(target, mode) {
+    const isShape = target instanceof Shape;
+    const otherPosition = isShape ? target.getPosition() : target.point;
+    const bounds = this.getBounds();
     let relativePosition = Geometry.getNormalizedPosition(
-      mode === PORT_MODE.OUT ? this.getPosition() : shape.getPosition(),
-      mode === PORT_MODE.OUT ? shape.getPosition() : this.getPosition(),
+      mode === PORT_MODE.OUT ? this.getPosition() : otherPosition,
+      mode === PORT_MODE.OUT ? otherPosition : this.getPosition(),
     );
+    let overlapX = false;
+    let overlapY = false;
     let orientation;
+
+    if (isShape) {
+      const overlap = Geometry.getOverlappedDimensions(
+        bounds,
+        target.getBounds(),
+      );
+
+      overlapX = overlap.x;
+      overlapY = overlap.y;
+    } else {
+      if (Geometry.isInBetween(target.point.x, bounds.left, bounds.right)) {
+        overlapX = true;
+      }
+
+      if (Geometry.isInBetween(target.point.y, bounds.top, bounds.bottom)) {
+        overlapY = true;
+      }
+    }
 
     if (overlapX && overlapY) {
       orientation = mode === PORT_MODE.OUT ? PORT_ORIENTATION.X : PORT_ORIENTATION.Y;
@@ -463,9 +482,8 @@ class Shape extends Component {
       }
     }
 
-
     const ports = getPortPriorityOrder(orientation, relativePosition);
-    const portIndex = ports.find((portIndex) => this.hasAvailablePortFor(portIndex, mode));
+    const portIndex = ports.find((port) => this.hasAvailablePortFor(port, mode));
 
     return portIndex !== null ? this.getPort(portIndex) : null;
   }

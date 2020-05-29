@@ -49,6 +49,10 @@ class Behavior {
     this._disabled = false;
   }
 
+  getTarget() {
+    return this._target;
+  }
+
   isDisabled() {
     return this._disabled;
   }

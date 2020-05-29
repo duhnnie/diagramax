@@ -1,86 +1,116 @@
 import Behavior from './Behavior';
 import Element from '../core/Element';
 import { EVENT as CONNECTION_EVENT, POINT as CONNECTION_POINT } from '../connection/Connection';
-import { ORIENTATION } from '../connection/Port';
+import { ORIENTATION, MODE } from '../connection/Port';
 import Geometry from '../utils/Geometry';
-
-function getFakeDescriptor(portDescription, point) {
-  const position = Geometry.getNormalizedPosition(portDescription.point, point);
-  let direction;
-
-  // if (portDescription.orientation === ORIENTATION.X) {
-  //   if (position.x === portDescription.direction) {
-  //     direction = portDescription.direction * -1;
-  //   } else {
-  //     direction = portDescription.direction;
-  //   }
-  // } else {
-  //   if (position.y === portDescription.direction) {
-  //     direction = portDescription.direction * -1;
-  //   } else {
-  //     direction = portDescription.direction;
-  //   }
-  // }
-
-  if ((portDescription.orientation === ORIENTATION.X && position.x === portDescription.direction) ||
-  (portDescription.orientation === ORIENTATION.Y && position.y === portDescription.direction)) {
-    direction = portDescription.direction * -1;
-  } else {
-    direction = portDescription.direction;
-  }
-
-  return {
-    ...portDescription,
-    point,
-    direction,
-  };
-}
+import { PRODUCTS } from '../connection/WaypointStrategyRepository';
 
 // TODO: next two lines and createHandler are duplicated in ResizeBehavior, an infraestructure for
 // handle handlers could be created
 const resizeHandlerRadius = 4;
 let resizeHandler;
 class ReconnectionBehavior extends Behavior {
-  static createHandler(x, y) {
+  static createHandler() {
     if (!resizeHandler) {
       resizeHandler = Element.createSVG('circle');
       resizeHandler.setAttribute('r', resizeHandlerRadius);
       resizeHandler.setAttribute('fill', '#f44336');
     }
 
-    const handlerClone = resizeHandler.cloneNode(true);
-
-    handlerClone.setAttribute('cx', x);
-    handlerClone.setAttribute('cy', y);
-
-    return handlerClone;
+    return resizeHandler.cloneNode(true);
   }
 
   constructor(target, settings) {
     super(target, settings);
 
     this._dom = {};
+    this._origShape = null;
+    this._destShape = null;
+    // this._lastPosition = null;
     this._onHandlerClick = this._onHandlerClick.bind(this);
   }
 
   startDrag(position, options) {
-    console.log(position, options);
+    this._dom.origHandler.setAttribute('pointer-events', 'none');
+    this._dom.destHandler.setAttribute('pointer-events', 'none');
+    // TODO: next line is a workaround, find a way to allow click into canvas with a Connection.
+    this._target.getHTML().setAttribute('pointer-events', 'none');
+    // this._lastPosition = position;
+  }
+
+  start(shape) {
+    this._origShape = shape;
+    this._target.getCanvas().setDraggingConnection(this._target, CONNECTION_POINT.DEST);
+  }
+
+  endDrag() {
+    const { _target } = this;
+    const canvas = _target.getCanvas();
+
+    // canvas.startConnection(null);
+
+    if (_target.getOrigShape() && _target.getDestShape()) {
+      _target.make();
+    } else {
+      _target.remove();
+    }
+  }
+
+  _getFakeDescription(position) {
+    const diff = Geometry.getNormalizedPosition(position, this._origShape.getPosition());
+    const bounds = this._origShape.getBounds();
+    let orientation = ORIENTATION.X;
+    let direction;
+
+    if (Geometry.isInBetween(position.x, bounds.left, bounds.right)) {
+      orientation = ORIENTATION.Y;
+    }
+
+    if (orientation === ORIENTATION.Y) {
+      direction = diff.y;
+    } else {
+      direction = diff.x;
+    }
+
+    return {
+      direction,
+      orientation,
+      point: position,
+      mode: MODE.IN,
+    };
+  }
+
+  _getOtherPort(position, isOrigin) {
+    const { _target } = this;
+    const otherPort = isOrigin ? this._target.getDestPort() : this._target.getOrigPort();
+
+    if (!otherPort) {
+      return this._target._portPriorityStrategy(this._origShape, );
+    }
   }
 
   updatePosition(position, options, modifiers) {
-    const isOrigin = Number(options.connectionPoint) === CONNECTION_POINT.ORIG;
-    const currentHandler = isOrigin ? this._dom.origHandler : this._dom.destHandler;
-    const otherPort = isOrigin ? this._target.getDestPort() : this._target.getOrigPort();
+    // console.log(position, this._lastPosition);
+    // const isOrigin = Number(options.connectionPoint) === CONNECTION_POINT.ORIG;
+    const description = this._destShape ? this._destShape.getConnectionPort(this._origShape, MODE.IN).getDescription() : this._getFakeDescription(position, this._origShape.getPosition());
+    // const currentHandler = isOrigin ? this._dom.origHandler : this._dom.destHandler;
+    const otherPort = this._origShape.getConnectionPort(description, 1);
     const otherDescription = otherPort.getDescription();
+    // const otherDescription = otherPort.getDescription();
 
-    currentHandler.setAttribute('cx', position.x);
-    currentHandler.setAttribute('cy', position.y);
+    // currentHandler.setAttribute('cx', position.x);
+    // currentHandler.setAttribute('cy', position.y);
 
-    if (isOrigin) {
-      this._target._draw(getFakeDescriptor(otherDescription, position), otherDescription);
-    } else {
-      this._target._draw(otherDescription, getFakeDescriptor(otherDescription, position));
-    }
+    // if (isOrigin) {
+      //   this._target._draw(_getFakeDescription(otherDescription, position), otherDescription);
+      // } else {
+        //   this._target._draw(otherDescription, _getFakeDescription(otherDescription, position));
+        // }
+
+
+    this._updateHandlers();
+    this._target._draw(otherDescription, description);
+    // this._lastPosition = position;
   }
 
   _onHandlerClick(event) {
@@ -90,43 +120,61 @@ class ReconnectionBehavior extends Behavior {
     _target.getCanvas().setDraggingConnection(_target, point);
   }
 
+  onShape(shape) {
+    this._destShape = shape;
+  }
+
+  outShape(shape) {
+    this._destShape = null;
+  }
+
   _updateHandlers() {
     const { _target } = this;
     const origPort = _target.getOrigPort();
     const destPort = _target.getDestPort();
     const { point: origPoint = null } = (origPort && origPort.getDescription()) || {};
     const { point: destPoint = null } = (destPort && destPort.getDescription()) || {};
-
-    if ([origPort, destPort].includes(null)) return;
+    // const { point: origPoint = null } = origDescription;
+    // const { point: destPoint = null } = destDescription;
 
     if (!this._dom.origHandler) {
       const commonClass = 'connection-handler';
 
-      this._dom.origHandler = ReconnectionBehavior.createHandler(origPoint.x, origPoint.y);
-      this._dom.destHandler = ReconnectionBehavior.createHandler(destPoint.x, destPoint.y);
+      this._dom.origHandler = ReconnectionBehavior.createHandler();
+      this._dom.destHandler = ReconnectionBehavior.createHandler();
       this._dom.origHandler.classList.add(commonClass);
       this._dom.destHandler.classList.add(commonClass);
       this._dom.origHandler.dataset.point = CONNECTION_POINT.ORIG;
       this._dom.destHandler.dataset.point = CONNECTION_POINT.DEST;
+
+      // TODO: Fix this access to private member
+      _target._addControl(this._dom.origHandler, {
+        click: this._onHandlerClick,
+      });
+      _target._addControl(this._dom.destHandler, {
+        click: this._onHandlerClick,
+      });
     }
+
+    if ([origPoint, destPoint].includes(null)) return;
 
     this._dom.origHandler.setAttribute('cx', origPoint.x);
     this._dom.origHandler.setAttribute('cy', origPoint.y);
     this._dom.destHandler.setAttribute('cx', destPoint.x);
     this._dom.destHandler.setAttribute('cy', destPoint.y);
-
-    // TODO: Fix this access to private member
-    _target._addControl(this._dom.origHandler, {
-      click: this._onHandlerClick,
-    });
-    _target._addControl(this._dom.destHandler, {
-      click: this._onHandlerClick,
-    });
   }
 
   attachBehavior() {
-    this._target.getCanvas().addEventListener(CONNECTION_EVENT.PORT_CHANGE, this._target, this._updateHandlers,
+    const { _target } = this;
+    const origPort = _target.getOrigPort();
+    const destPort = _target.getDestPort();
+
+    _target.getCanvas().addEventListener(CONNECTION_EVENT.PORT_CHANGE, _target, this._updateHandlers,
       this);
+
+    // if (origPort && destPort) {
+      this._updateHandlers();
+    // }
   }
 }
 
