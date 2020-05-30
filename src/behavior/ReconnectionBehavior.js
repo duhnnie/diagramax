@@ -26,7 +26,6 @@ class ReconnectionBehavior extends Behavior {
     this._dom = {};
     this._origShape = null;
     this._destShape = null;
-    // this._lastPosition = null;
     this._onHandlerClick = this._onHandlerClick.bind(this);
   }
 
@@ -35,7 +34,6 @@ class ReconnectionBehavior extends Behavior {
     this._dom.destHandler.setAttribute('pointer-events', 'none');
     // TODO: next line is a workaround, find a way to allow click into canvas with a Connection.
     this._target.getHTML().setAttribute('pointer-events', 'none');
-    // this._lastPosition = position;
   }
 
   start(shape) {
@@ -45,9 +43,11 @@ class ReconnectionBehavior extends Behavior {
 
   endDrag() {
     const { _target } = this;
-    const canvas = _target.getCanvas();
 
-    // canvas.startConnection(null);
+    this._dom.origHandler.removeAttribute('pointer-events');
+    this._dom.destHandler.removeAttribute('pointer-events');
+    // TODO: next line is a workaround, find a way to allow click into canvas with a Connection.
+    this._target.getHTML().removeAttribute('pointer-events');
 
     if (_target.getOrigShape() && _target.getDestShape()) {
       _target.make();
@@ -80,37 +80,13 @@ class ReconnectionBehavior extends Behavior {
     };
   }
 
-  _getOtherPort(position, isOrigin) {
-    const { _target } = this;
-    const otherPort = isOrigin ? this._target.getDestPort() : this._target.getOrigPort();
-
-    if (!otherPort) {
-      return this._target._portPriorityStrategy(this._origShape, );
-    }
-  }
-
   updatePosition(position, options, modifiers) {
-    // console.log(position, this._lastPosition);
-    // const isOrigin = Number(options.connectionPoint) === CONNECTION_POINT.ORIG;
     const description = this._destShape ? this._destShape.getConnectionPort(this._origShape, MODE.IN).getDescription() : this._getFakeDescription(position, this._origShape.getPosition());
-    // const currentHandler = isOrigin ? this._dom.origHandler : this._dom.destHandler;
     const otherPort = this._origShape.getConnectionPort(description, 1);
     const otherDescription = otherPort.getDescription();
-    // const otherDescription = otherPort.getDescription();
-
-    // currentHandler.setAttribute('cx', position.x);
-    // currentHandler.setAttribute('cy', position.y);
-
-    // if (isOrigin) {
-      //   this._target._draw(_getFakeDescription(otherDescription, position), otherDescription);
-      // } else {
-        //   this._target._draw(otherDescription, _getFakeDescription(otherDescription, position));
-        // }
-
 
     this._updateHandlers();
     this._target._draw(otherDescription, description);
-    // this._lastPosition = position;
   }
 
   _onHandlerClick(event) {
@@ -134,8 +110,6 @@ class ReconnectionBehavior extends Behavior {
     const destPort = _target.getDestPort();
     const { point: origPoint = null } = (origPort && origPort.getDescription()) || {};
     const { point: destPoint = null } = (destPort && destPort.getDescription()) || {};
-    // const { point: origPoint = null } = origDescription;
-    // const { point: destPoint = null } = destDescription;
 
     if (!this._dom.origHandler) {
       const commonClass = 'connection-handler';
@@ -166,15 +140,11 @@ class ReconnectionBehavior extends Behavior {
 
   attachBehavior() {
     const { _target } = this;
-    const origPort = _target.getOrigPort();
-    const destPort = _target.getDestPort();
 
     _target.getCanvas().addEventListener(CONNECTION_EVENT.PORT_CHANGE, _target, this._updateHandlers,
       this);
 
-    // if (origPort && destPort) {
-      this._updateHandlers();
-    // }
+    this._updateHandlers();
   }
 }
 
