@@ -33,6 +33,7 @@ class ConnectivityAreaBehavior extends Behavior {
       this._connection = connection;
       this._shape = shape;
 
+      connection.select();
       connection.start(shape);
     }
   }
@@ -44,6 +45,7 @@ class ConnectivityAreaBehavior extends Behavior {
     }
 
     // TODO: Should next 3 lines should be replaced by a call to end()?
+    // or maybe this should be ended by the reconnection behavior itself
     this._target.setDraggingConnection(null);
     this._shape = null;
     this._connection = null;

@@ -26,6 +26,7 @@ class ReconnectionBehavior extends Behavior {
     this._dom = {};
     this._origShape = null;
     this._destShape = null;
+    this._onPortChange = this._onPortChange.bind(this);
     this._onHandlerClick = this._onHandlerClick.bind(this);
   }
 
@@ -85,7 +86,7 @@ class ReconnectionBehavior extends Behavior {
     const otherPort = this._origShape.getConnectionPort(description, 1);
     const otherDescription = otherPort.getDescription();
 
-    this._updateHandlers();
+    this._updateHandlers(otherDescription, description);
     this._target._draw(otherDescription, description);
   }
 
@@ -104,12 +105,8 @@ class ReconnectionBehavior extends Behavior {
     this._destShape = null;
   }
 
-  _updateHandlers() {
+  _createHandlers() {
     const { _target } = this;
-    const origPort = _target.getOrigPort();
-    const destPort = _target.getDestPort();
-    const { point: origPoint = null } = (origPort && origPort.getDescription()) || {};
-    const { point: destPoint = null } = (destPort && destPort.getDescription()) || {};
 
     if (!this._dom.origHandler) {
       const commonClass = 'connection-handler';
@@ -129,7 +126,9 @@ class ReconnectionBehavior extends Behavior {
         click: this._onHandlerClick,
       });
     }
+  }
 
+  _updateHandlers({ point: origPoint }, { point: destPoint }) {
     if ([origPoint, destPoint].includes(null)) return;
 
     this._dom.origHandler.setAttribute('cx', origPoint.x);
@@ -138,13 +137,19 @@ class ReconnectionBehavior extends Behavior {
     this._dom.destHandler.setAttribute('cy', destPoint.y);
   }
 
+  _onPortChange(customEvent, { origPort, destPort }) {
+    if (origPort && destPort) {
+      this._updateHandlers(origPort.getDescription(), destPort.getDescription());
+    }
+  }
+
   attachBehavior() {
     const { _target } = this;
 
-    _target.getCanvas().addEventListener(CONNECTION_EVENT.PORT_CHANGE, _target, this._updateHandlers,
+    _target.getCanvas().addEventListener(CONNECTION_EVENT.PORT_CHANGE, _target, this._onPortChange,
       this);
 
-    this._updateHandlers();
+    this._createHandlers();
   }
 }
 
