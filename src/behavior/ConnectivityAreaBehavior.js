@@ -54,21 +54,21 @@ class ConnectivityAreaBehavior extends Behavior {
 
   enterShape(shape) {
     if (this._connection) {
-      this._connection._reconnectionBehavior.onShape(shape);
+      this._connection._dragBehavior.onShape(shape);
     }
   }
 
   leaveShape(shape) {
     if (this._connection) {
-      this._connection._reconnectionBehavior.outShape(shape);
+      this._connection._dragBehavior.outShape(shape);
     }
   }
 
   getCurrentProcess() {
     if (this._connection) {
       // TODO: Fix several access to private members in next line.
-      const origShape = this._connection._reconnectionBehavior._origShape;
-      const destShape = this._connection._reconnectionBehavior._destShape;
+      const origShape = this._connection._dragBehavior._origShape;
+      const destShape = this._connection._dragBehavior._destShape;
 
       return [origShape || destShape, this._connection, origShape ? PORT_MODE.DEST : PORT_MODE.ORIG];
     }

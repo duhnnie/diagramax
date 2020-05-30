@@ -196,7 +196,7 @@ class Canvas extends Element {
   }
 
   setDraggingConnection(connection, connectionPoint = null) {
-    const behavior = connection && connection._reconnectionBehavior;
+    const behavior = connection && connection._dragBehavior;
 
     return this._connectToDragAreaBehavior(behavior, { connectionPoint });
   }

@@ -17,6 +17,7 @@ class DragBehavior extends Behavior {
 
     this._grabbed = true;
 
+    // TODO: Do we use _lastPosition?
     this._lastPosition = this._target.getCanvas().clientToCanvas({ x, y });
   }
 

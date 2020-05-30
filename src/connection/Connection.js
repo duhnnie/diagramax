@@ -10,7 +10,7 @@ import WaypointStrategyRepository, { PRODUCTS as WAYPOINT_STRATEGY } from './Way
 import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY } from './LineStrategyRepository';
 import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY } from './VertexStrategyRepository';
 import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY } from './IntersectionStrategyRepository';
-import ReconnectionBehavior from '../behavior/ReconnectionBehavior';
+import DraggableConnectionBehavior from '../behavior/DraggableConnectionBehavior';
 import ComponentUI from '../component/ComponentUI';
 
 export const EVENT = Object.freeze({
@@ -84,13 +84,13 @@ class Connection extends Component {
     this._interceptors = new Set();
     this._intersections = new Map();
     this._selectBehavior = new SelectBehavior(this);
+  // TODO: Sibling class has also a _dragBehavior property, they could be lift up to parent class.
+    this._dragBehavior = new DraggableConnectionBehavior(this);
     this._waypointStrategy = WaypointStrategyRepository.get(settings.waypoint);
     this._lineStrategy = LineStrategyRepository.get(settings.line);
     this._vertexStrategy = VertexStrategyRepository.get(settings.vertex);
     this._vertexSize = settings.vertexSize;
     this._intersectionStrategy = IntersectionStrategyRepository.get(settings.intersection);
-    // TODO: maybe rename it to dragBehavior since it will connect with Canvas' DraggingAreaBehavior
-    this._reconnectionBehavior = new ReconnectionBehavior(this);
 
     // TODO: is this useful? anyway it's redundant
     this.setCanvas(settings.canvas);
@@ -244,11 +244,11 @@ class Connection extends Component {
   }
 
   start(shape) {
-    this._reconnectionBehavior.start(shape);
+    this._dragBehavior.start(shape);
   }
 
   end(shape) {
-    this._reconnectionBehavior.end();
+    this._dragBehavior.end();
   }
 
   connect(origShape, destShape) {
@@ -588,7 +588,7 @@ class Connection extends Component {
     this._dom.arrow = arrowWrapper;
     this._dom.arrowRotateContainer = arrowWrapper2;
     this._selectBehavior.attachBehavior();
-    this._reconnectionBehavior.attachBehavior();
+    this._dragBehavior.attachBehavior();
 
     return this;
   }

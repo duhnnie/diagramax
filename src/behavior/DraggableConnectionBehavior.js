@@ -9,7 +9,7 @@ import Geometry from '../utils/Geometry';
 const resizeHandlerRadius = 4;
 let resizeHandler;
 
-class ReconnectionBehavior extends DragBehavior {
+class DraggableConnectionBehavior extends DragBehavior {
   static createHandler() {
     if (!resizeHandler) {
       resizeHandler = Element.createSVG('circle');
@@ -124,8 +124,8 @@ class ReconnectionBehavior extends DragBehavior {
     if (!this._dom.origHandler) {
       const commonClass = 'connection-handler';
 
-      this._dom.origHandler = ReconnectionBehavior.createHandler();
-      this._dom.destHandler = ReconnectionBehavior.createHandler();
+      this._dom.origHandler = DraggableConnectionBehavior.createHandler();
+      this._dom.destHandler = DraggableConnectionBehavior.createHandler();
       this._dom.origHandler.classList.add(commonClass);
       this._dom.destHandler.classList.add(commonClass);
       this._dom.origHandler.dataset.point = PORT_MODE.ORIG;
@@ -162,4 +162,4 @@ class ReconnectionBehavior extends DragBehavior {
   }
 }
 
-export default ReconnectionBehavior;
+export default DraggableConnectionBehavior;
