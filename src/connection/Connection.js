@@ -19,11 +19,6 @@ export const EVENT = Object.freeze({
   DISCONNECT: 'disconnect',
 });
 
-export const POINT = Object.freeze({
-  ORIG: 0,
-  DEST: 1,
-});
-
 const DEFAULTS = {
   origShape: null,
   destShape: null,
@@ -252,9 +247,13 @@ class Connection extends Component {
     this._reconnectionBehavior.start(shape);
   }
 
+  end(shape) {
+    this._reconnectionBehavior.end();
+  }
+
   connect(origShape, destShape) {
-    if (origShape.canAcceptConnection(PORT_MODE.OUT, destShape)
-      && destShape.canAcceptConnection(PORT_MODE.IN, origShape)) {
+    if (origShape.canAcceptConnection(PORT_MODE.ORIG, destShape)
+      && destShape.canAcceptConnection(PORT_MODE.DEST, origShape)) {
       const { _origShape: oldOrigShape, _destShape: oldDestShape } = this;
       const changeOrigShape = origShape !== oldOrigShape;
       const changeDestShape = destShape !== oldDestShape;
@@ -515,13 +514,13 @@ class Connection extends Component {
   make() {
     if (!this._origShape || !this._destShape) return;
 
-    const origPort = this._origShape.getConnectionPort(this._destShape, PORT_MODE.OUT);
-    const destPort = this._destShape.getConnectionPort(this._origShape, PORT_MODE.IN);
+    const origPort = this._origShape.getConnectionPort(this._destShape, PORT_MODE.ORIG);
+    const destPort = this._destShape.getConnectionPort(this._origShape, PORT_MODE.DEST);
     const origPortDescriptor = origPort.getDescription();
     const destPortDescriptor = destPort.getDescription();
 
-    this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex, PORT_MODE.OUT);
-    this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex, PORT_MODE.IN);
+    this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex, PORT_MODE.ORIG);
+    this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex, PORT_MODE.DEST);
     this._setPorts(origPort, destPort);
 
     this._draw(origPortDescriptor, destPortDescriptor);

@@ -1,6 +1,7 @@
 import Behavior from './Behavior';
 import Shape from '../shape/Shape';
 import Connection from '../connection/Connection';
+import { MODE as PORT_MODE } from '../connection/Port';
 
 class ConnectivityAreaBehavior extends Behavior {
   constructor(target, settings) {
@@ -16,7 +17,7 @@ class ConnectivityAreaBehavior extends Behavior {
 
   end() {
     if (this._connection) {
-      this._connection._reconnectionBehavior.end();
+      this._connection.end();
       this._connection = null;
     }
     this._shape = null;
@@ -61,6 +62,18 @@ class ConnectivityAreaBehavior extends Behavior {
     if (this._connection) {
       this._connection._reconnectionBehavior.outShape(shape);
     }
+  }
+
+  getCurrentProcess() {
+    if (this._connection) {
+      // TODO: Fix several access to private members in next line.
+      const origShape = this._connection._reconnectionBehavior._origShape;
+      const destShape = this._connection._reconnectionBehavior._destShape;
+
+      return [origShape || destShape, this._connection, origShape ? PORT_MODE.DEST : PORT_MODE.ORIG];
+    }
+
+    return null;
   }
 
   _updateCanvasOffset() {

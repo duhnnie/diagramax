@@ -16,9 +16,10 @@ export const DIRECTION = Object.freeze({
   POSITIVE: 1,
 });
 
+// TODO: It is not the same as Connection.POINT?
 export const MODE = Object.freeze({
-  IN: 0,
-  OUT: 1,
+  ORIG: 0,
+  DEST: 1,
 });
 
 export const POSITION = Object.freeze({
@@ -127,8 +128,8 @@ class Port {
       throw new Error('addConnection(): Invalid parameter.');
     } else if (!this._shape.isUsingConnection(connection)) {
       throw new Error('addConnection(): the supplied connection doesn\'t belong to this shape.');
-    } else if ((mode === MODE.IN && connection.getDestShape() !== this._shape)
-     || (mode === MODE.OUT && connection.getOrigShape() !== this._shape)) {
+    } else if ((mode === MODE.DEST && connection.getDestShape() !== this._shape)
+     || (mode === MODE.ORIG && connection.getOrigShape() !== this._shape)) {
       throw new Error('addConnection(): mode doesn\'t match with connection direction.');
     }
 

@@ -215,6 +215,10 @@ class Canvas extends Element {
     }
   }
 
+  cancelConnection() {
+    this._connectivityAreaBehavior.end();
+  }
+
   completeConnection(shape) {
     if (this._shapes.has(shape)) {
       this._connectivityAreaBehavior.complete(shape);

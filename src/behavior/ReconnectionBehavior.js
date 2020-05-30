@@ -1,15 +1,15 @@
-import Behavior from './Behavior';
+import DragBehavior from './DragBehavior';
 import Element from '../core/Element';
-import { EVENT as CONNECTION_EVENT, POINT as CONNECTION_POINT } from '../connection/Connection';
-import { ORIENTATION, MODE } from '../connection/Port';
+import { EVENT as CONNECTION_EVENT } from '../connection/Connection';
+import { ORIENTATION, MODE as PORT_MODE } from '../connection/Port';
 import Geometry from '../utils/Geometry';
-import { PRODUCTS } from '../connection/WaypointStrategyRepository';
 
 // TODO: next two lines and createHandler are duplicated in ResizeBehavior, an infraestructure for
 // handle handlers could be created
 const resizeHandlerRadius = 4;
 let resizeHandler;
-class ReconnectionBehavior extends Behavior {
+
+class ReconnectionBehavior extends DragBehavior {
   static createHandler() {
     if (!resizeHandler) {
       resizeHandler = Element.createSVG('circle');
@@ -27,7 +27,6 @@ class ReconnectionBehavior extends Behavior {
     this._origShape = null;
     this._destShape = null;
     this._onPortChange = this._onPortChange.bind(this);
-    this._onHandlerClick = this._onHandlerClick.bind(this);
   }
 
   startDrag(position, options) {
@@ -39,10 +38,10 @@ class ReconnectionBehavior extends Behavior {
 
   start(shape) {
     this._origShape = shape;
-    this._target.getCanvas().setDraggingConnection(this._target, CONNECTION_POINT.DEST);
+    this._target.getCanvas().setDraggingConnection(this._target, PORT_MODE.DEST);
   }
 
-  endDrag() {
+  end() {
     const { _target } = this;
 
     this._dom.origHandler.removeAttribute('pointer-events');
@@ -55,6 +54,11 @@ class ReconnectionBehavior extends Behavior {
     } else {
       _target.remove();
     }
+  }
+
+  // TODO: Consider remove endDrag() method in favor of end().
+  endDrag() {
+    this.end();
   }
 
   _getFakeDescription(position) {
@@ -77,22 +81,24 @@ class ReconnectionBehavior extends Behavior {
       direction,
       orientation,
       point: position,
-      mode: MODE.IN,
+      mode: PORT_MODE.DEST,
     };
   }
 
   updatePosition(position, options, modifiers) {
-    const description = this._destShape ? this._destShape.getConnectionPort(this._origShape, MODE.IN).getDescription() : this._getFakeDescription(position, this._origShape.getPosition());
-    const otherPort = this._origShape.getConnectionPort(description, 1);
+    const description = this._destShape ? this._destShape.getConnectionPort(this._origShape, PORT_MODE.DEST).getDescription() : this._getFakeDescription(position, this._origShape.getPosition());
+    const otherPort = this._origShape.getConnectionPort(description, PORT_MODE.ORIG);
     const otherDescription = otherPort.getDescription();
 
     this._updateHandlers(otherDescription, description);
     this._target._draw(otherDescription, description);
   }
 
-  _onHandlerClick(event) {
+  _onGrab(event) {
     const { _target } = this;
     const { point } = event.target.dataset;
+
+    super._onGrab(event);
 
     _target.getCanvas().setDraggingConnection(_target, point);
   }
@@ -105,6 +111,13 @@ class ReconnectionBehavior extends Behavior {
     this._destShape = null;
   }
 
+  _getControlsListeners() {
+    return {
+      mousedown: this._onGrab,
+      mouseup: this._onRelease,
+    };
+  }
+
   _createHandlers() {
     const { _target } = this;
 
@@ -115,16 +128,12 @@ class ReconnectionBehavior extends Behavior {
       this._dom.destHandler = ReconnectionBehavior.createHandler();
       this._dom.origHandler.classList.add(commonClass);
       this._dom.destHandler.classList.add(commonClass);
-      this._dom.origHandler.dataset.point = CONNECTION_POINT.ORIG;
-      this._dom.destHandler.dataset.point = CONNECTION_POINT.DEST;
+      this._dom.origHandler.dataset.point = PORT_MODE.ORIG;
+      this._dom.destHandler.dataset.point = PORT_MODE.DEST;
 
       // TODO: Fix this access to private member
-      _target._addControl(this._dom.origHandler, {
-        click: this._onHandlerClick,
-      });
-      _target._addControl(this._dom.destHandler, {
-        click: this._onHandlerClick,
-      });
+      _target._addControl(this._dom.origHandler, this._getControlsListeners());
+      _target._addControl(this._dom.destHandler, this._getControlsListeners());
     }
   }
 

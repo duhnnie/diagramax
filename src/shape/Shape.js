@@ -271,7 +271,7 @@ class Shape extends Component {
     const otherShape = connection.getDestShape();
     let result = false;
 
-    if (this.canAcceptConnection(PORT_MODE.OUT, otherShape)) {
+    if (this.canAcceptConnection(PORT_MODE.ORIG, otherShape)) {
       result = connection.getOrigShape() !== this ? connection.connect(this, otherShape) : true;
 
       if (result) {
@@ -294,7 +294,7 @@ class Shape extends Component {
     const otherShape = connection.getOrigShape();
     let result = false;
 
-    if (this.canAcceptConnection(PORT_MODE.IN, otherShape)) {
+    if (this.canAcceptConnection(PORT_MODE.DEST, otherShape)) {
       result = connection.getDestShape() !== this ? connection.connect(otherShape, this) : true;
 
       if (result) {
@@ -436,8 +436,8 @@ class Shape extends Component {
     const otherPosition = isShape ? target.getPosition() : target.point;
     const bounds = this.getBounds();
     let relativePosition = Geometry.getNormalizedPosition(
-      mode === PORT_MODE.OUT ? this.getPosition() : otherPosition,
-      mode === PORT_MODE.OUT ? otherPosition : this.getPosition(),
+      mode === PORT_MODE.ORIG ? this.getPosition() : otherPosition,
+      mode === PORT_MODE.ORIG ? otherPosition : this.getPosition(),
     );
     let overlapX = false;
     let overlapY = false;
@@ -462,9 +462,9 @@ class Shape extends Component {
     }
 
     if (overlapX && overlapY) {
-      orientation = mode === PORT_MODE.OUT ? PORT_ORIENTATION.X : PORT_ORIENTATION.Y;
+      orientation = mode === PORT_MODE.ORIG ? PORT_ORIENTATION.X : PORT_ORIENTATION.Y;
     } else {
-      if (mode === PORT_MODE.IN) {
+      if (mode === PORT_MODE.DEST) {
         relativePosition = {
           x: relativePosition.x * -1,
           y: relativePosition.y * -1,
@@ -472,7 +472,7 @@ class Shape extends Component {
       }
 
       if (overlapX === overlapY) {
-        orientation = mode === PORT_MODE.OUT ? ORIENTATION.Y : ORIENTATION.X;
+        orientation = mode === PORT_MODE.ORIG ? ORIENTATION.Y : ORIENTATION.X;
       } else if (relativePosition.x === 0) {
         orientation = PORT_ORIENTATION.Y;
       } else if (relativePosition.y === 0) {

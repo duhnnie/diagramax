@@ -20,6 +20,10 @@
   outline-offset: 0;
 }
 
+.shape.cant-connect > * {
+  cursor: no-drop;
+}
+
 .controls-layer.active {
   display: initial;
 }
