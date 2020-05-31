@@ -217,12 +217,16 @@ class Connection extends Component {
   }
 
   _removeDragListeners(shape) {
-    this._canvas.removeEventListener(SHAPE_EVENT.DRAG_START, shape, this._onShapeDragStart,
-      this);
-    this._canvas.removeEventListener(SHAPE_EVENT.DRAG_END, shape, this._onShapeDragEnd,
-      this);
-    this._canvas.removeEventListener(RESIZE_EVENT.START, shape, this._onShapeDragEnd, this);
-    this._canvas.removeEventListener(RESIZE_EVENT.END, shape, this._onShapeDragEnd, this);
+    const { _canvas } = this;
+
+    if (_canvas) {
+      this._canvas.removeEventListener(SHAPE_EVENT.DRAG_START, shape, this._onShapeDragStart,
+        this);
+      this._canvas.removeEventListener(SHAPE_EVENT.DRAG_END, shape, this._onShapeDragEnd,
+        this);
+      this._canvas.removeEventListener(RESIZE_EVENT.START, shape, this._onShapeDragEnd, this);
+      this._canvas.removeEventListener(RESIZE_EVENT.END, shape, this._onShapeDragEnd, this);
+    }
 
     return this;
   }
