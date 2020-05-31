@@ -9,6 +9,29 @@ import Geometry from '../utils/Geometry';
 const resizeHandlerRadius = 4;
 let resizeHandler;
 
+function getFakeDescription (position, shape) {
+  const diff = Geometry.getNormalizedPosition(position, shape.getPosition());
+  const bounds = shape.getBounds();
+  let orientation = ORIENTATION.X;
+  let direction;
+
+  if (Geometry.isInBetween(position.x, bounds.left, bounds.right)) {
+    orientation = ORIENTATION.Y;
+  }
+
+  if (orientation === ORIENTATION.Y) {
+    direction = diff.y;
+  } else {
+    direction = diff.x;
+  }
+
+  return {
+    direction,
+    orientation,
+    point: position,
+    mode: PORT_MODE.DEST,
+  };
+}
 class DraggableConnectionBehavior extends DragBehavior {
   static createHandler() {
     if (!resizeHandler) {
@@ -24,8 +47,8 @@ class DraggableConnectionBehavior extends DragBehavior {
     super(target, settings);
 
     this._dom = {};
-    this._origShape = null;
-    this._destShape = null;
+    this._shape = null;
+    this._otherShape = null;
     this._onPortChange = this._onPortChange.bind(this);
   }
 
@@ -36,14 +59,25 @@ class DraggableConnectionBehavior extends DragBehavior {
     this._target.getHTML().setAttribute('pointer-events', 'none');
   }
 
-  start(shape) {
-    this._origShape = shape;
-    this._target.getCanvas().setDraggingConnection(this._target, PORT_MODE.DEST);
+  start(shape, draggingPoint) {
+    this._shape = shape;
+    this._target.getCanvas().setDraggingConnection(this._target, draggingPoint);
+  }
+
+  _onGrab(event) {
+    const { _target } = this;
+    const draggingPoint = Number(event.target.dataset.point);
+
+    super._onGrab(event);
+
+    _target.getCanvas().startReconnection(_target, draggingPoint);
   }
 
   end() {
     const { _target } = this;
 
+    this._shape = null;
+    this._otherShape = null;
     this._dom.origHandler.removeAttribute('pointer-events');
     this._dom.destHandler.removeAttribute('pointer-events');
     // TODO: next line is a workaround, find a way to allow click into canvas with a Connection.
@@ -61,54 +95,29 @@ class DraggableConnectionBehavior extends DragBehavior {
     this.end();
   }
 
-  _getFakeDescription(position) {
-    const diff = Geometry.getNormalizedPosition(position, this._origShape.getPosition());
-    const bounds = this._origShape.getBounds();
-    let orientation = ORIENTATION.X;
-    let direction;
+  updatePosition(position, { draggingPoint }, modifiers) {
+    const shape = this._shape;
+    const draggingOrig = draggingPoint === PORT_MODE.ORIG;
+    const mode = draggingOrig ? PORT_MODE.DEST : PORT_MODE.ORIG;
+    const fakeDescription = this._otherShape ? this._otherShape.getConnectionPort(shape, draggingPoint).getDescription() : getFakeDescription(position, shape);
+    const shapePort = shape.getConnectionPort(fakeDescription, mode);
+    const description = shapePort.getDescription();
 
-    if (Geometry.isInBetween(position.x, bounds.left, bounds.right)) {
-      orientation = ORIENTATION.Y;
-    }
-
-    if (orientation === ORIENTATION.Y) {
-      direction = diff.y;
+    if (draggingOrig) {
+      this._updateHandlers(fakeDescription, description);
+      this._target._draw(fakeDescription, description);
     } else {
-      direction = diff.x;
+      this._updateHandlers(description, fakeDescription);
+      this._target._draw(description, fakeDescription);
     }
-
-    return {
-      direction,
-      orientation,
-      point: position,
-      mode: PORT_MODE.DEST,
-    };
-  }
-
-  updatePosition(position, options, modifiers) {
-    const description = this._destShape ? this._destShape.getConnectionPort(this._origShape, PORT_MODE.DEST).getDescription() : this._getFakeDescription(position, this._origShape.getPosition());
-    const otherPort = this._origShape.getConnectionPort(description, PORT_MODE.ORIG);
-    const otherDescription = otherPort.getDescription();
-
-    this._updateHandlers(otherDescription, description);
-    this._target._draw(otherDescription, description);
-  }
-
-  _onGrab(event) {
-    const { _target } = this;
-    const { point } = event.target.dataset;
-
-    super._onGrab(event);
-
-    _target.getCanvas().setDraggingConnection(_target, point);
   }
 
   onShape(shape) {
-    this._destShape = shape;
+    this._otherShape = shape;
   }
 
   outShape(shape) {
-    this._destShape = null;
+    this._otherShape = null;
   }
 
   _getControlsListeners() {

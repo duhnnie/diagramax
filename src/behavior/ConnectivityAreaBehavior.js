@@ -18,38 +18,43 @@ class ConnectivityAreaBehavior extends Behavior {
   end() {
     if (this._connection) {
       this._connection.end();
-      this._connection = null;
     }
     this._shape = null;
+    this._connection = null;
+    this._direction = null;
   }
 
-  start(shape) {
+  start(shape, connection = null, direction = PORT_MODE.DEST) {
     if (!this._shape) {
       this.complete();
 
-      const connection = this._connection || new Connection({
+      connection = connection || new Connection({
         canvas: this._target,
       });
 
       this._connection = connection;
       this._shape = shape;
+      this._direction = direction;
 
       connection.select();
-      connection.start(shape);
+      connection.start(shape, direction);
     }
   }
 
   complete(shape) {
     if (this._shape && shape) {
       // TODO: connection process should be responsability of ReconnectionBehavior
-      this._connection.connect(this._shape, shape);
+      if (this._direction === PORT_MODE.ORIG) {
+        this._connection.connect(shape, this._shape);
+      } else {
+        this._connection.connect(this._shape, shape);
+      }
     }
 
     // TODO: Should next 3 lines should be replaced by a call to end()?
     // or maybe this should be ended by the reconnection behavior itself
     this._target.setDraggingConnection(null);
-    this._shape = null;
-    this._connection = null;
+    this.end();
   }
 
   enterShape(shape) {

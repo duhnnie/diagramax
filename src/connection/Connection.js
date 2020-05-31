@@ -247,8 +247,8 @@ class Connection extends Component {
     return this._destPort;
   }
 
-  start(shape) {
-    this._dragBehavior.start(shape);
+  start(shape, direction) {
+    this._dragBehavior.start(shape, direction);
   }
 
   end(shape) {

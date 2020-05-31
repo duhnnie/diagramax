@@ -4,6 +4,7 @@ import FluidDraggingAreaBehavior from '../behavior/FluidDraggingAreaBehavior';
 import ConnectivityAreaBehavior from '../behavior/ConnectivityAreaBehavior';
 import Shape from '../shape/Shape';
 import Connection from '../connection/Connection';
+import { MODE as PORT_MODE } from '../connection/Port';
 import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
 
 class Canvas extends Element {
@@ -151,19 +152,6 @@ class Canvas extends Element {
     return this.dispatchEvent(eventName, this, ...args);
   }
 
-  _connectToDragAreaBehavior(behavior, options = {}) {
-    if (this._draggingAreaBehavior) {
-      if (!behavior) {
-        this._draggingAreaBehavior.removeDragBehavior();
-      } else {
-        // TODO: find a better way to do this, _dragBehavior is protected
-        this._draggingAreaBehavior.setDragBehavior(behavior, options);
-      }
-    }
-
-    return this;
-  }
-
   clientToCanvas(clientPosition) {
     const html = this._html;
 
@@ -178,6 +166,19 @@ class Canvas extends Element {
     }
 
     return { x: 0, y: 0 };
+  }
+
+  _connectToDragAreaBehavior(behavior, options = {}) {
+    if (this._draggingAreaBehavior) {
+      if (!behavior) {
+        this._draggingAreaBehavior.removeDragBehavior();
+      } else {
+        // TODO: find a better way to do this, _dragBehavior is protected
+        this._draggingAreaBehavior.setDragBehavior(behavior, options);
+      }
+    }
+
+    return this;
   }
 
   setResizingShape(shape, direction) {
@@ -195,10 +196,13 @@ class Canvas extends Element {
     return this._connectToDragAreaBehavior(behavior);
   }
 
-  setDraggingConnection(connection, connectionPoint = null) {
+  // TODO: this method is used for both set a connection to be dragged and to remove it.
+  // maybe there should be  a dedicated method for removing.
+  setDraggingConnection(connection, draggingPoint = null) {
     const behavior = connection && connection._dragBehavior;
+    const options = { draggingPoint };
 
-    return this._connectToDragAreaBehavior(behavior, { connectionPoint });
+    return this._connectToDragAreaBehavior(behavior, options);
   }
 
   // TODO: Does make sense to have this method?
@@ -213,6 +217,18 @@ class Canvas extends Element {
     if (this._shapes.has(shape)) {
       this._connectivityAreaBehavior.start(shape);
     }
+  }
+
+  startReconnection(connection, connectionPoint) {
+    let shape;
+
+    if (connectionPoint === PORT_MODE.ORIG) {
+      shape = connection.getDestShape();
+    } else {
+      shape = connection.getOrigShape();
+    }
+
+    this._connectivityAreaBehavior.start(shape, connection, connectionPoint);
   }
 
   cancelConnection() {
