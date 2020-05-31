@@ -9,7 +9,7 @@ import Geometry from '../utils/Geometry';
 const resizeHandlerRadius = 4;
 let resizeHandler;
 
-function getFakeDescription (position, shape) {
+function getFakeDescription(position, shape) {
   const diff = Geometry.getNormalizedPosition(position, shape.getPosition());
   const bounds = shape.getBounds();
   let orientation = ORIENTATION.X;
@@ -53,6 +53,7 @@ class DraggableConnectionBehavior extends DragBehavior {
   }
 
   startDrag(position, options) {
+    super.startDrag();
     this._dom.origHandler.setAttribute('pointer-events', 'none');
     this._dom.destHandler.setAttribute('pointer-events', 'none');
     // TODO: next line is a workaround, find a way to allow click into canvas with a Connection.
@@ -75,6 +76,8 @@ class DraggableConnectionBehavior extends DragBehavior {
 
   end() {
     const { _target } = this;
+
+    super.endDrag();
 
     this._shape = null;
     this._otherShape = null;
@@ -161,6 +164,10 @@ class DraggableConnectionBehavior extends DragBehavior {
     }
   }
 
+  _getDraggableElement() {
+    return [this._dom.origHandler, this._dom.destHandler];
+  }
+
   attachBehavior() {
     const { _target } = this;
 
@@ -168,6 +175,8 @@ class DraggableConnectionBehavior extends DragBehavior {
       this);
 
     this._createHandlers();
+
+    super.attachBehavior();
   }
 }
 
