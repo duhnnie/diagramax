@@ -1,5 +1,4 @@
 import Element from '../core/Element';
-import EditableTextBehavior from '../behavior/EditableTextBehavior';
 
 const DEFAULTS = {
   text: '',
@@ -10,7 +9,6 @@ class ComponentText extends Element {
     super(settings);
 
     this._text = '';
-    this._editableBehavior = new EditableTextBehavior(this);
     this._dom = {};
 
     settings = {
@@ -59,6 +57,7 @@ class ComponentText extends Element {
     tspan.style.userSelect = 'none';
     text.setAttribute('text-anchor', 'middle');
     text.setAttribute('y', '0.5em');
+    wrapper.setAttribute('pointer-events', 'none');
     wrapper.appendChild(text);
     text.appendChild(tspan);
 
@@ -66,7 +65,6 @@ class ComponentText extends Element {
     this.setText(this._text);
 
     this._html = wrapper;
-    this._editableBehavior.attachBehavior();
 
     return this;
   }

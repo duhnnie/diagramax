@@ -1,6 +1,7 @@
 import Component from '../component/Component';
 import Port, { getPositionProps, MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION, ORIENTATION } from '../connection/Port';
 import Connection from '../connection/Connection';
+import EditableTextBehavior from '../behavior/EditableTextBehavior';
 import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
 import ResizeBehavior, { EVENT as RESIZE_EVENT, DIRECTION } from '../behavior/ResizeBehavior';
@@ -50,6 +51,7 @@ class Shape extends Component {
     this._y = null;
     this._connections = new Set();
     this._ports = [];
+    this._editableBehavior = new EditableTextBehavior(this);
     this._dragBehavior = new RegularDraggableShapeBehavior(this);
     this._connectivityBehavior = new ConnectivityBehavior(this);
     this._resizeBehavior = new ResizeBehavior(this);
@@ -509,6 +511,7 @@ class Shape extends Component {
     this._connectivityBehavior.attachBehavior();
     this._dragBehavior.attachBehavior();
     this._resizeBehavior.attachBehavior();
+    this._editableBehavior.attachBehavior();
 
     return this;
   }
