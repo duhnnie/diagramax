@@ -85,10 +85,12 @@ export default {
     const segments = [];
 
     otherConnections.forEach((otherConnection) => {
+      const origShape = otherConnection.getOrigShape();
+      const destShape = otherConnection.getDestShape();
       let otherBounds;
 
-      if (otherConnection.getOrigShape().isBeingDragged()
-        || otherConnection.getDestShape().isBeingDragged()) {
+      if ((origShape && origShape.isBeingDragged())
+        || (destShape && destShape.isBeingDragged())) {
         return;
       }
 
