@@ -84,7 +84,7 @@ class Connection extends Component {
     this._interceptors = new Set();
     this._intersections = new Map();
     this._selectBehavior = new SelectBehavior(this);
-  // TODO: Sibling class has also a _dragBehavior property, they could be lift up to parent class.
+    // TODO: Sibling class has also a _dragBehavior property, they could be lift up to parent class.
     this._dragBehavior = new DraggableConnectionBehavior(this);
     this._waypointStrategy = WaypointStrategyRepository.get(settings.waypoint);
     this._lineStrategy = LineStrategyRepository.get(settings.line);
@@ -196,6 +196,8 @@ class Connection extends Component {
   }
 
   _onShapeDragStart() {
+    // TODO: The opacity is being set by a css class in DraggableConnectionBehavior,
+    // move this that place.
     this._html.setAttribute('opacity', 0.3);
 
     this._removeInterceptors();
