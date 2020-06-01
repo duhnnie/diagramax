@@ -15,7 +15,6 @@ class DraggableShapeBehavior extends DragBehavior {
       y: 0,
     };
     this._lastPosition = null;
-
     this.updatePosition = this._bind(this.updatePosition);
   }
 
@@ -23,7 +22,6 @@ class DraggableShapeBehavior extends DragBehavior {
     const canvas = this._target.getCanvas();
 
     super._onGrab(event);
-
     canvas.setDraggingShape(this._target);
   }
 
@@ -86,7 +84,6 @@ class DraggableShapeBehavior extends DragBehavior {
 
     _target._getMainElement().addEventListener('mousedown', this._onGrab, false);
     _target._getMainElement().addEventListener('click', this._onRelease, false);
-
     super.attachBehavior();
   }
 

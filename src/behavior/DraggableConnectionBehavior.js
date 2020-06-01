@@ -32,6 +32,7 @@ function getFakeDescription(position, shape) {
     mode: PORT_MODE.DEST,
   };
 }
+
 class DraggableConnectionBehavior extends DragBehavior {
   static createHandler() {
     if (!resizeHandler) {
@@ -70,7 +71,6 @@ class DraggableConnectionBehavior extends DragBehavior {
     const draggingPoint = Number(event.target.dataset.point);
 
     super._onGrab(event);
-
     _target.getCanvas().startReconnection(_target, draggingPoint);
   }
 
