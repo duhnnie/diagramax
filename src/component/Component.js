@@ -2,7 +2,6 @@ import Element from '../core/Element';
 import Canvas from '../canvas/Canvas';
 import ComponentText from './ComponentText';
 import SelectBehavior from '../behavior/SelectBehavior';
-import KeyboardControlledBehavior from '../behavior/KeyboardControlledBehavior';
 
 const DEFAULTS = {
   canvas: null,

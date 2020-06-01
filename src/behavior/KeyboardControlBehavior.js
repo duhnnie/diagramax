@@ -1,6 +1,6 @@
 import Behavior from './Behavior';
 
-class KeyboardControlledBehavior extends Behavior {
+class KeyboardControlBehavior extends Behavior {
   constructor(target, settings) {
     super(target, settings);
 
@@ -25,4 +25,4 @@ class KeyboardControlledBehavior extends Behavior {
   }
 }
 
-export default KeyboardControlledBehavior;
+export default KeyboardControlBehavior;

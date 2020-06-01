@@ -6,7 +6,7 @@ import Shape from '../shape/Shape';
 import Connection from '../connection/Connection';
 import { MODE as PORT_MODE } from '../connection/Port';
 import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
-import KeyboardControlledBehavior from '../behavior/KeyboardControlledBehavior';
+import KeyboardControlBehavior from '../behavior/KeyboardControlBehavior';
 
 class Canvas extends Element {
   constructor(settings) {
@@ -21,7 +21,7 @@ class Canvas extends Element {
     this._selectionBehavior = new SelectionAreaBehavior(this);
     this._draggingAreaBehavior = new FluidDraggingAreaBehavior(this);
     this._connectivityAreaBehavior = new ConnectivityAreaBehavior(this);
-    this._keyboardBehavior = new KeyboardControlledBehavior(this);
+    this._keyboardBehavior = new KeyboardControlBehavior(this);
 
     settings = {
       width: 800,
