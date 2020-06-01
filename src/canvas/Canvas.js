@@ -173,7 +173,6 @@ class Canvas extends Element {
       if (!behavior) {
         this._draggingAreaBehavior.removeDragBehavior();
       } else {
-        // TODO: find a better way to do this, _dragBehavior is protected
         this._draggingAreaBehavior.setDragBehavior(behavior, options);
       }
     }
@@ -199,6 +198,7 @@ class Canvas extends Element {
   // TODO: this method is used for both set a connection to be dragged and to remove it.
   // maybe there should be  a dedicated method for removing.
   setDraggingConnection(connection, draggingPoint = null) {
+    // TODO: Fix access to protected member
     const behavior = connection && connection._dragBehavior;
     const options = { draggingPoint };
 

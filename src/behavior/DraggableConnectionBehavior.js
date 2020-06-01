@@ -175,7 +175,6 @@ class DraggableConnectionBehavior extends DragBehavior {
       this);
 
     this._createHandlers();
-
     super.attachBehavior();
   }
 }

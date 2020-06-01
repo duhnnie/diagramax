@@ -87,23 +87,25 @@ class ConnectivityBehavior extends Behavior {
 
   attachBehavior() {
     const { _target } = this;
+    const html = _target.getHTML();
     const canvas = _target.getCanvas();
 
-    _target.getHTML().addEventListener('mousedown', this._onMouseDown, false);
-    _target.getHTML().addEventListener('mouseup', this._onMouseUp, false);
-    _target.getHTML().addEventListener('mouseenter', this._onConnectionEnter, false);
-    _target.getHTML().addEventListener('mouseleave', this._onConnectionLeave, false);
+    html.addEventListener('mousedown', this._onMouseDown, false);
+    html.addEventListener('mouseup', this._onMouseUp, false);
+    html.addEventListener('mouseenter', this._onConnectionEnter, false);
+    html.addEventListener('mouseleave', this._onConnectionLeave, false);
     canvas.addEventListener(SHAPE_EVENT.DRAG_START, _target, this.end);
   }
 
   detachBehavior() {
     const { _target } = this;
+    const html = _target.getHTML();
     const canvas = _target.getCanvas();
 
-    _target.getHTML().removeEventListener('mousedown', this._onMouseDown, false);
-    _target.getHTML().removeEventListener('mouseup', this._onMouseUp, false);
-    _target.getHTML().removeEventListener('mouseenter', this._onConnectionEnter, false);
-    _target.getHTML().removeEventListener('mouseleave', this._onConnectionLeave, false);
+    html.removeEventListener('mousedown', this._onMouseDown, false);
+    html.removeEventListener('mouseup', this._onMouseUp, false);
+    html.removeEventListener('mouseenter', this._onConnectionEnter, false);
+    html.removeEventListener('mouseleave', this._onConnectionLeave, false);
     canvas.removeEventListener(SHAPE_EVENT.DRAG_START, _target, this.end);
     super.detachBehavior();
   }

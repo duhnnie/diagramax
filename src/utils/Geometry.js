@@ -126,20 +126,6 @@ export default {
     return { x, y };
   },
   /**
-   * Get the difference between two points in absolute values.
-   * @param {Point} origPoint Orig point.
-   * @param {Point} destPoint Dest point.
-   * @return {Point}
-   */
-  // getAbsDiff(origPoint, destPoint) {
-  //   const { x, y } = this.getDiff(origPoint, destPoint);
-
-  //   return {
-  //     x: Math.abs(x),
-  //     y: Math.abs(y),
-  //   };
-  // },
-  /**
    * Returns an object that specifies the normalized relative position between an origin Shape
    * and a destination Shape.
    * If destination Shape is on the origin Shape's right side the relative position on x is 1.

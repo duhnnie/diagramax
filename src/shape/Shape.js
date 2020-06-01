@@ -248,17 +248,6 @@ class Shape extends Component {
     };
   }
 
-  // TODO: Remove thid method
-  getPortDescription(index) {
-    const port = this._ports[index];
-
-    if (port) {
-      return port.getDescription();
-    }
-
-    return null;
-  }
-
   getPort(position) {
     return this._ports[position];
   }

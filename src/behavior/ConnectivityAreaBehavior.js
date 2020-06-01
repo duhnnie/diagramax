@@ -12,11 +12,16 @@ class ConnectivityAreaBehavior extends Behavior {
     this._canvasOffset = null;
     this._shape = null;
     this._updateCanvasOffset = this._updateCanvasOffset.bind(this);
+    this.start = this._bind(this.start);
+    this.complete = this._bind(this.complete);
+    this.enterShape = this._bind(this.enterShape);
+    this.leaveShape = this._bind(this.leaveShape);
     this.end = this._bind(this.end);
   }
 
   end() {
     if (this._connection) {
+      this._target.setDraggingConnection(null);
       this._connection.end();
     }
     this._shape = null;
@@ -43,7 +48,6 @@ class ConnectivityAreaBehavior extends Behavior {
 
   complete(shape) {
     if (this._shape && shape) {
-      // TODO: connection process should be responsability of ReconnectionBehavior
       if (this._direction === PORT_MODE.ORIG) {
         this._connection.connect(shape, this._shape);
       } else {
@@ -51,9 +55,6 @@ class ConnectivityAreaBehavior extends Behavior {
       }
     }
 
-    // TODO: Should next 3 lines should be replaced by a call to end()?
-    // or maybe this should be ended by the reconnection behavior itself
-    this._target.setDraggingConnection(null);
     this.end();
   }
 
@@ -85,7 +86,7 @@ class ConnectivityAreaBehavior extends Behavior {
     this._canvasOffset = this._target.getHTML().getBoundingClientRect();
   }
 
-  // TODO: is this deprected?
+  // TODO: maybe this should be replaced by the call canvas' startConnection() and completeConnection();
   connect(origin, destination) {
     const target = this._target;
 

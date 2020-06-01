@@ -144,7 +144,6 @@ class Component extends Element {
     title.textContent = this._text.getText();
     wrapper.classList.add('component');
     wrapper.setAttribute('focusable', false);
-    // wrapper.appendChild(this._componentUI.getHTML());
     wrapper.appendChild(title);
     wrapper.appendChild(this._text.getHTML());
 
