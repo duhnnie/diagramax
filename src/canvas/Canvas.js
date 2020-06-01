@@ -6,6 +6,7 @@ import Shape from '../shape/Shape';
 import Connection from '../connection/Connection';
 import { MODE as PORT_MODE } from '../connection/Port';
 import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
+import KeyboardControlledBehavior from '../behavior/KeyboardControlledBehavior';
 
 class Canvas extends Element {
   constructor(settings) {
@@ -20,6 +21,7 @@ class Canvas extends Element {
     this._selectionBehavior = new SelectionAreaBehavior(this);
     this._draggingAreaBehavior = new FluidDraggingAreaBehavior(this);
     this._connectivityAreaBehavior = new ConnectivityAreaBehavior(this);
+    this._keyboardBehavior = new KeyboardControlledBehavior(this);
 
     settings = {
       width: 800,
@@ -248,6 +250,10 @@ class Canvas extends Element {
     this._selectionBehavior.select(item);
   }
 
+  getSelection() {
+    return this._selectionBehavior.get();
+  }
+
   _createHTML() {
     if (this._html) {
       return this;
@@ -283,6 +289,7 @@ class Canvas extends Element {
     this._selectionBehavior.attachBehavior();
     this._connectivityAreaBehavior.attachBehavior();
     this._draggingAreaBehavior.attachBehavior();
+    this._keyboardBehavior.attachBehavior();
     // TODO: When migrate to EventTarget dispatch and event an make the attachment on
     // the behavior itself.
     // TODO: When migrate to WebComponents attach behavior on connecting.

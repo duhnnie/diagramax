@@ -9,7 +9,9 @@ class KeyboardControlledBehavior extends Behavior {
 
   _onKeyDown(event) {
     // TODO: Is there a native constant for this?
-    if (event.code === 'Delete') this._target.remove();
+    if (event.code === 'Delete') {
+      this._target.getSelection().forEach((element) => element.remove());
+    }
   }
 
   attachBehavior() {
@@ -18,7 +20,7 @@ class KeyboardControlledBehavior extends Behavior {
   }
 
   detachBehavior() {
-    this._target.getHTML().addEventListener('keydown', this._onKeyDown);
+    this._target.getHTML().removeEventListener('keydown', this._onKeyDown, false);
     super.detachBehavior();
   }
 }
