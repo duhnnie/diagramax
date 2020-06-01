@@ -1,4 +1,4 @@
-import { ORIENTATION as PORT_ORIENTATION } from '../connection/Port';
+import { ORIENTATION as PORT_ORIENTATION, getPositionProps } from '../connection/Port';
 import Polygon from './Polygon';
 
 const DEFAULTS = Object.freeze({
@@ -71,9 +71,9 @@ class Triangle extends Polygon {
     return this.setBase(width, keepProportion);
   }
 
-  _getPortPoint(port) {
-    const { x, y } = super._getPortPoint(port);
-    const { orientation, direction } = port;
+  getPortPoint(position) {
+    const { x, y } = super.getPortPoint(position);
+    const { orientation, direction } = getPositionProps(position);
     const xOffset = orientation === PORT_ORIENTATION.X ? this.getWidth() / 4 : 0;
 
     return {

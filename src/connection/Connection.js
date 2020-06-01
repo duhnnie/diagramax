@@ -1,37 +1,38 @@
 import Element from '../core/Element';
 import Component from '../component/Component';
-import ConnectionManager from './ConnectionManager';
 import { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE, ORIENTATION } from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
-import { EVENT as DRAG_EVENT } from '../behavior/DraggableShapeBehavior';
+import { EVENT as SHAPE_EVENT } from '../shape/Shape';
 import { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
 import SelectBehavior from '../behavior/SelectBehavior';
-import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY_PRODUCTS } from './LineStrategyRepository';
-import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY_PRODUCTS } from './VertexStrategyRepository';
-import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY_PRODUCTS } from './IntersectionStrategyRepository';
+import WaypointStrategyRepository, { PRODUCTS as WAYPOINT_STRATEGY } from './WaypointStrategyRepository';
+import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY } from './LineStrategyRepository';
+import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY } from './VertexStrategyRepository';
+import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY } from './IntersectionStrategyRepository';
+import DraggableConnectionBehavior from '../behavior/DraggableConnectionBehavior';
+import ComponentUI from '../component/ComponentUI';
+
+export const EVENT = Object.freeze({
+  CONNECT: 'connect',
+  PORT_CHANGE: 'portchange',
+  DISCONNECT: 'disconnect',
+});
 
 const DEFAULTS = {
   origShape: null,
   destShape: null,
-  line: LINE_STRATEGY_PRODUCTS.STRAIGHT,
-  vertex: VERTEX_STRATEGY_PRODUCTS.ARC,
+  waypoint: WAYPOINT_STRATEGY.RECT,
+  line: LINE_STRATEGY.STRAIGHT,
+  vertex: VERTEX_STRATEGY.ARC,
   vertexSize: 10,
-  intersection: INTERSECTION_STRATEGY_PRODUCTS.ARC,
+  intersection: INTERSECTION_STRATEGY.ARC,
 };
 
 const INTERSECTION_SIZE = Object.freeze({
   WIDTH: 10,
   HEIGHT: 8,
 });
-
-const toPointForX = function (mainValue, secondaryValue) {
-  return Geometry.toPoint(mainValue, secondaryValue);
-};
-
-const toPointForY = function (mainValue, secondaryValue) {
-  return Geometry.toPoint(secondaryValue, mainValue);
-};
 
 class Connection extends Component {
   static get ARROW_SEGMENT_LENGTH() {
@@ -78,18 +79,29 @@ class Connection extends Component {
     this._points = [];
     this._origShape = null;
     this._destShape = null;
+    this._origPort = null;
+    this._destPort = null;
     this._interceptors = new Set();
     this._intersections = new Map();
     this._selectBehavior = new SelectBehavior(this);
+    // TODO: Sibling class has also a _dragBehavior property, they could be lift up to parent class.
+    this._dragBehavior = new DraggableConnectionBehavior(this);
+    this._waypointStrategy = WaypointStrategyRepository.get(settings.waypoint);
     this._lineStrategy = LineStrategyRepository.get(settings.line);
     this._vertexStrategy = VertexStrategyRepository.get(settings.vertex);
     this._vertexSize = settings.vertexSize;
     this._intersectionStrategy = IntersectionStrategyRepository.get(settings.intersection);
 
-    this
-      // TODO: is this useful? anyway it's redundant
-      .setCanvas(settings.canvas)
-      .connect(settings.origShape, settings.destShape);
+    // TODO: is this useful? anyway it's redundant
+    this.setCanvas(settings.canvas);
+
+    if (settings.origShape && settings.destShape) {
+      this.connect(settings.origShape, settings.destShape);
+    }
+  }
+
+  _getComponentUI() {
+    return new ComponentUI(this);
   }
 
   addInterceptor(connection) {
@@ -170,19 +182,22 @@ class Connection extends Component {
   }
 
   _removeIntersections(connection = null) {
-    if (connection) {
+    // TODO: intersections and interceptors adding removal should be handled with events (DS-132)
+    if (connection && this._origPort && this._destPort) {
       this._intersections.forEach((intersections, key) => {
         this._intersections.set(key,
           intersections.filter((intersection) => intersection.connection !== connection));
       });
 
-      this._draw();
+      this._draw(this._origPort.getDescription(), this._destPort.getDescription());
     } else {
       this._intersections.clear();
     }
   }
 
   _onShapeDragStart() {
+    // TODO: The opacity is being set by a css class in DraggableConnectionBehavior,
+    // move this that place.
     this._html.setAttribute('opacity', 0.3);
 
     this._removeInterceptors();
@@ -195,8 +210,8 @@ class Connection extends Component {
   }
 
   _addDragListeners(shape) {
-    this._canvas.addEventListener(DRAG_EVENT.START, shape, this._onShapeDragStart, this);
-    this._canvas.addEventListener(DRAG_EVENT.END, shape, this._onShapeDragEnd, this);
+    this._canvas.addEventListener(SHAPE_EVENT.DRAG_START, shape, this._onShapeDragStart, this);
+    this._canvas.addEventListener(SHAPE_EVENT.DRAG_END, shape, this._onShapeDragEnd, this);
     this._canvas.addEventListener(RESIZE_EVENT.START, shape, this._onShapeDragStart, this);
     this._canvas.addEventListener(RESIZE_EVENT.END, shape, this._onShapeDragEnd, this);
 
@@ -204,12 +219,16 @@ class Connection extends Component {
   }
 
   _removeDragListeners(shape) {
-    this._canvas.removeEventListener(DRAG_EVENT.START, shape, this._onShapeDragStart,
-      this);
-    this._canvas.removeEventListener(DRAG_EVENT.END, shape, this._onShapeDragEnd,
-      this);
-    this._canvas.removeEventListener(RESIZE_EVENT.START, shape, this._onShapeDragEnd, this);
-    this._canvas.removeEventListener(RESIZE_EVENT.END, shape, this._onShapeDragEnd, this);
+    const { _canvas } = this;
+
+    if (_canvas) {
+      this._canvas.removeEventListener(SHAPE_EVENT.DRAG_START, shape, this._onShapeDragStart,
+        this);
+      this._canvas.removeEventListener(SHAPE_EVENT.DRAG_END, shape, this._onShapeDragEnd,
+        this);
+      this._canvas.removeEventListener(RESIZE_EVENT.START, shape, this._onShapeDragEnd, this);
+      this._canvas.removeEventListener(RESIZE_EVENT.END, shape, this._onShapeDragEnd, this);
+    }
 
     return this;
   }
@@ -222,16 +241,34 @@ class Connection extends Component {
     return this._destShape;
   }
 
+  getOrigPort() {
+    return this._origPort;
+  }
+
+  getDestPort() {
+    return this._destPort;
+  }
+
+  start(shape, direction) {
+    this._dragBehavior.start(shape, direction);
+  }
+
+  end(shape) {
+    this._dragBehavior.end();
+  }
+
   connect(origShape, destShape) {
-    if (origShape.canAcceptConnection(destShape, PORT_MODE.OUT)
-      && destShape.canAcceptConnection(origShape, PORT_MODE.IN)) {
+    if (origShape.canAcceptConnection(PORT_MODE.ORIG, destShape)
+      && destShape.canAcceptConnection(PORT_MODE.DEST, origShape)) {
       const { _origShape: oldOrigShape, _destShape: oldDestShape } = this;
+      const changeOrigShape = origShape !== oldOrigShape;
+      const changeDestShape = destShape !== oldDestShape;
       let result = true;
 
       this._origShape = origShape;
       this._destShape = destShape;
 
-      if (origShape !== oldOrigShape) {
+      if (changeOrigShape) {
         if (oldOrigShape) {
           oldOrigShape.removeConnection(this);
           this._removeDragListeners(oldOrigShape);
@@ -242,7 +279,7 @@ class Connection extends Component {
         if (result) this._addDragListeners(origShape);
       }
 
-      if (destShape !== oldDestShape && result) {
+      if (changeDestShape && result) {
         if (oldDestShape) {
           oldDestShape.removeConnection(this);
           this._removeDragListeners(oldDestShape);
@@ -254,6 +291,12 @@ class Connection extends Component {
       }
 
       if (result) {
+        if (changeOrigShape || changeDestShape) {
+          this._canvas.dispatchEvent(EVENT.CONNECT, this, {
+            origShape,
+            destShape,
+          });
+        }
         this.make();
       } else {
         this.disconnect();
@@ -276,10 +319,10 @@ class Connection extends Component {
         };
       }
 
-      bounds.top = y < bounds.top ? y : bounds.top;
-      bounds.right = x > bounds.right ? x : bounds.right;
-      bounds.bottom = y > bounds.bottom ? y : bounds.bottom;
-      bounds.left = x < bounds.left ? x : bounds.left;
+      bounds.top = Math.min(y, bounds.top);
+      bounds.right = Math.max(x, bounds.right);
+      bounds.bottom = Math.max(y, bounds.bottom);
+      bounds.left = Math.min(x, bounds.left);
 
       return bounds;
     }, null) || {};
@@ -378,8 +421,22 @@ class Connection extends Component {
       .concat(this._lineStrategy(from, to)).join(' ');
   }
 
-  _draw() {
-    const points = this._points.slice(0);
+  _draw(origPortDescriptor, destPortDescriptor) {
+    let points = [];
+
+    if (origPortDescriptor) {
+      points = this._waypointStrategy(origPortDescriptor, destPortDescriptor);
+    }
+    this._points = points;
+
+    // TODO: this validation should be removed since it was added just for test a thing.
+    if (this._origShape && this._destShape) {
+      if (!(this._origShape.isBeingDragged() || this._destShape.isBeingDragged()
+        || this._origShape.isBeingResized() || this._destShape.isBeingResized())) {
+        this._updateIntersectionPoints();
+      }
+    }
+
     let vertex;
 
     const pathString = points.map((point, index, array) => {
@@ -422,56 +479,57 @@ class Connection extends Component {
       this._dom.arrowRotateContainer.setAttribute('transform', `scale(0.5, 0.5) rotate(${90 * arrowAngle})`);
     }
 
-    this._dom.arrow.style.display = pathString ? '' : 'none';
+    this._dom.mainElement.style.display = pathString ? '' : 'none';
     this._dom.path.setAttribute('d', pathString);
-    this._html.appendChild(this._dom.arrow);
 
     return this;
   }
 
-  _calculatePoints() {
-    if (!this._origShape || !this._destShape) return this;
+  _setPorts(origPort, destPort) {
+    const { _origPort: oldOrigPort, _destPort: oldDestPort } = this;
+    const atLeastOneNewPort = origPort !== oldOrigPort || destPort !== oldDestPort;
+    let changed = false;
 
-    const portIndexes = ConnectionManager.getConnectionPorts(this._origShape, this._destShape);
-    const origPortDescriptor = this._origShape.getPortDescriptor(portIndexes.orig);
-    const destPortDescriptor = this._destShape.getPortDescriptor(portIndexes.dest);
-
-    if (origPortDescriptor) {
-      this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex, PORT_MODE.OUT);
-      this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex, PORT_MODE.IN);
-
-      const waypoints = ConnectionManager.getWaypoints(origPortDescriptor, destPortDescriptor);
-
-      waypoints.push({
-        x: destPortDescriptor.point.x,
-        y: destPortDescriptor.point.y,
-      });
-
-      waypoints.unshift({
-        x: origPortDescriptor.point.x,
-        y: origPortDescriptor.point.y,
-      });
-
-      this._points = waypoints || [];
+    if (atLeastOneNewPort) {
+      this._origPort = origPort;
+      this._destPort = destPort;
+      changed = true;
     }
 
-    return this;
+    if (!changed && origPort && destPort) {
+      const origDesc = origPort.getDescription();
+      const destDesc = destPort.getDescription();
+      const oldOrigDesc = oldOrigPort.getDescription();
+      const oldDestDesc = oldDestPort.getDescription();
+
+      if (!Geometry.areSamePoint(origDesc.point, oldOrigDesc.point) || Geometry.areSamePoint(destDesc.point, oldDestDesc.point)) {
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      this._canvas.dispatchEvent(EVENT.PORT_CHANGE, this, {
+        origPort,
+        destPort,
+        oldOrigPort,
+        oldDestPort,
+      });
+    }
   }
 
   make() {
     if (!this._origShape || !this._destShape) return;
 
-    if (!this._points.length) {
-      this._calculatePoints();
-      this._updateIntersectionPoints();
-    } else if (this._origShape.isBeingDragged() || this._destShape.isBeingDragged()
-      || this._origShape.isBeingResized() || this._destShape.isBeingResized()) {
-      this._calculatePoints();
-    } else {
-      this._updateIntersectionPoints();
-    }
+    const origPort = this._origShape.getConnectionPort(this._destShape, PORT_MODE.ORIG);
+    const destPort = this._destShape.getConnectionPort(this._origShape, PORT_MODE.DEST);
+    const origPortDescriptor = origPort.getDescription();
+    const destPortDescriptor = destPort.getDescription();
 
-    return this._draw();
+    this._origShape.assignConnectionToPort(this, origPortDescriptor.portIndex, PORT_MODE.ORIG);
+    this._destShape.assignConnectionToPort(this, destPortDescriptor.portIndex, PORT_MODE.DEST);
+    this._setPorts(origPort, destPort);
+
+    this._draw(origPortDescriptor, destPortDescriptor);
   }
 
   remove() {
@@ -492,7 +550,12 @@ class Connection extends Component {
         this._removeDragListeners(destShape);
       }
 
+      this._setPorts(null, null);
       this._removeInterceptors();
+      oldCanvas.dispatchEvent(EVENT.DISCONNECT, this, {
+        origShape,
+        destShape,
+      });
       super.remove();
     }
 
@@ -504,6 +567,7 @@ class Connection extends Component {
       return this;
     }
 
+    const mainElement = Element.createSVG('g');
     const arrowWrapper = Element.createSVG('g');
     const arrowWrapper2 = Element.createSVG('g');
     const arrow = Element.createSVG('path');
@@ -518,16 +582,19 @@ class Connection extends Component {
 
     arrowWrapper2.appendChild(arrow);
     arrowWrapper.appendChild(arrowWrapper2);
-    this._dom.mainElement = path;
+    mainElement.appendChild(arrowWrapper);
+    mainElement.appendChild(path);
+    this._dom.mainElement = mainElement;
 
     super._createHTML();
 
     this._html.classList.add('connection');
-    this._html.appendChild(path);
+    this._html.appendChild(this._dom.mainElement);
     this._dom.path = path;
     this._dom.arrow = arrowWrapper;
     this._dom.arrowRotateContainer = arrowWrapper2;
     this._selectBehavior.attachBehavior();
+    this._dragBehavior.attachBehavior();
 
     return this;
   }

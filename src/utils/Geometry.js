@@ -114,10 +114,22 @@ export default {
     return { x, y };
   },
   /**
+   * Get the difference between two points.
+   * @param {Point} origPoint Orig point.
+   * @param {Point} destPoint Dest point.
+   * @return {Point}
+   */
+  getDiff(origPoint, destPoint) {
+    const x = destPoint.x - origPoint.x;
+    const y = destPoint.y - origPoint.y;
+
+    return { x, y };
+  },
+  /**
    * Returns an object that specifies the normalized relative position between an origin Shape
    * and a destination Shape.
-   * If destination Shape is on the origin Shape's right the relative position on x is 1.
-   * If destination Shape is on the origin Shape's left the relative position on x is -1.
+   * If destination Shape is on the origin Shape's right side the relative position on x is 1.
+   * If destination Shape is on the origin Shape's left side the relative position on x is -1.
    * If destination Shape is on the same x position than origin Shape,
    * then the relative postiion on x is 0.
    * If destination Shape is down the origin Shape the relative position on y is 1.
@@ -130,12 +142,11 @@ export default {
    * relative position for those axis.
    */
   getNormalizedPosition(origPoint, destPoint) {
-    const diffX = destPoint.x - origPoint.x;
-    const diffY = destPoint.y - origPoint.y;
+    const { x, y } = this.getDiff(origPoint, destPoint);
 
     return {
-      x: diffX ? diffX / Math.abs(diffX) : 0,
-      y: diffY ? diffY / Math.abs(diffY) : 0,
+      x: x ? x / Math.abs(x) : 0,
+      y: y ? y / Math.abs(y) : 0,
     };
   },
   /**

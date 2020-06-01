@@ -1,90 +1,92 @@
 import Behavior from './Behavior';
-import Element from '../core/Element';
 import Shape from '../shape/Shape';
 import Connection from '../connection/Connection';
+import { MODE as PORT_MODE } from '../connection/Port';
 
 class ConnectivityAreaBehavior extends Behavior {
   constructor(target, settings) {
     super(target, settings);
 
-    this._origin = null;
-    this._destiny = null;
     this._dom = {};
+    this._connection = null;
     this._canvasOffset = null;
-    this._onClick = this._onClick.bind(this);
-    this.addShape = this._bind(this.addShape);
-    this._onMouseMove = this._bind(this._onMouseMove);
-    this.connect = this._bind(this.connect);
+    this._shape = null;
     this._updateCanvasOffset = this._updateCanvasOffset.bind(this);
-  }
-
-  _getDestPoint(x, y) {
-    return {
-      x: x - this._canvasOffset.left - 1,
-      y: y - this._canvasOffset.top - 1,
-    };
-  }
-
-  _onClick() {
-    this.end();
-  }
-
-  _onMouseMove(event) {
-    if (this._origin) {
-      const { x, y } = this._getDestPoint(event.clientX, event.clientY);
-
-      this._dom.line.setAttribute('x2', x);
-      this._dom.line.setAttribute('y2', y);
-    }
-  }
-
-  _setConnectionLinePath({ x: x1, y: y1 }, { x: x2, y: y2 }) {
-    this._dom.line.setAttribute('x1', x1);
-    this._dom.line.setAttribute('y1', y1);
-    this._dom.line.setAttribute('x2', x2);
-    this._dom.line.setAttribute('y2', y2);
+    this.start = this._bind(this.start);
+    this.complete = this._bind(this.complete);
+    this.enterShape = this._bind(this.enterShape);
+    this.leaveShape = this._bind(this.leaveShape);
+    this.end = this._bind(this.end);
   }
 
   end() {
-    this._origin = null;
-    this._destiny = null;
-    this._dom.line.setAttribute('stroke', '');
-  }
-
-  _setOrigin(shape, point) {
-    this._origin = shape;
-    this._setConnectionLinePath(shape.getPosition(), this._getDestPoint(point.x, point.y));
-    this._dom.line.setAttribute('stroke', 'black');
-    if (!this._dom.line.isConnected) this._target.getContainer().appendChild(this._dom.line);
-  }
-
-  /**
-   * Adds a shape to the connection process. If there isn't any shapes set yet it will be set as
-   * origin, otherwise the shape will be taken as destiny and the connection will be applied
-   * (if it's valid).
-   * @param {Shape} shape An instance of Shape
-   * @param {Point} point The point in which
-   */
-  addShape(shape, point, chain) {
-    if (this._origin) {
-      this._destiny = shape;
-      this.connect(this._origin, shape);
-
-      if (chain) {
-        this._setOrigin(this._destiny, point);
-        this._destiny = null;
-      } else {
-        this.end();
-      }
-    } else {
-      this._setOrigin(shape, point);
+    if (this._connection) {
+      this._target.setDraggingConnection(null);
+      this._connection.end();
     }
+    this._shape = null;
+    this._connection = null;
+    this._direction = null;
+  }
+
+  start(shape, connection = null, direction = PORT_MODE.DEST) {
+    if (!this._shape) {
+      this.complete();
+
+      connection = connection || new Connection({
+        canvas: this._target,
+      });
+
+      this._connection = connection;
+      this._shape = shape;
+      this._direction = direction;
+
+      connection.select();
+      connection.start(shape, direction);
+    }
+  }
+
+  complete(shape) {
+    if (this._shape && shape) {
+      if (this._direction === PORT_MODE.ORIG) {
+        this._connection.connect(shape, this._shape);
+      } else {
+        this._connection.connect(this._shape, shape);
+      }
+    }
+
+    this.end();
+  }
+
+  enterShape(shape) {
+    if (this._connection) {
+      this._connection._dragBehavior.onShape(shape);
+    }
+  }
+
+  leaveShape(shape) {
+    if (this._connection) {
+      this._connection._dragBehavior.outShape(shape);
+    }
+  }
+
+  getCurrentProcess() {
+    if (this._connection) {
+      // TODO: Fix several access to private members in next line.
+      const origShape = this._connection._dragBehavior._origShape;
+      const destShape = this._connection._dragBehavior._destShape;
+
+      return [origShape || destShape, this._connection, origShape ? PORT_MODE.DEST : PORT_MODE.ORIG];
+    }
+
+    return null;
   }
 
   _updateCanvasOffset() {
     this._canvasOffset = this._target.getHTML().getBoundingClientRect();
   }
 
+  // TODO: maybe this should be replaced by the call canvas' startConnection() and completeConnection();
   connect(origin, destination) {
     const target = this._target;
 
@@ -110,9 +112,7 @@ class ConnectivityAreaBehavior extends Behavior {
     // This method should be called after the Canvas' HTML has been created and set to
     // its _html property.
     // TODO: make sure to call this method only once
-    this._dom.line = Element.createSVG('line');
-    _target.getHTML().addEventListener('click', this._onClick, false);
-    _target.getHTML().addEventListener('mousemove', this._onMouseMove, false);
+    _target.getHTML().addEventListener('click', this.end, false);
     this._updateCanvasOffset();
 
     // TODO: Canvas should provide a way to return a position relative to it and this method should be
@@ -123,8 +123,7 @@ class ConnectivityAreaBehavior extends Behavior {
   detachBehavior() {
     const { _target } = this;
 
-    _target.getHTML().removeEventListener('click', this._onClick, false);
-    _target.getHTML().removeEventListener('mousemove', this._onMouseMove, false);
+    _target.getHTML().removeEventListener('click', this.end, false);
     window.removeEventListener('scroll', this._updateCanvasOffset, false);
 
     super.detachBehavior();

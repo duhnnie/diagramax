@@ -1,10 +1,33 @@
 import Component from '../component/Component';
-import Port, { MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION } from '../connection/Port';
+import Port, { getPositionProps, MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION, ORIENTATION } from '../connection/Port';
 import Connection from '../connection/Connection';
 import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
 import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
 import ResizeBehavior, { EVENT as RESIZE_EVENT, DIRECTION } from '../behavior/ResizeBehavior';
 import Geometry from '../utils/Geometry';
+import ShapeUI from './ShapeUI';
+
+/*
+ * Returns and array with the port indexes sorted in priority order for elegibility based on a
+ * primary orientation.
+ * @param {Number} mainOrientation The orientation index that will be the assumed as the
+ * prioritized one.
+ * @param {Object} Object containing the relative position, x and y respect to destination in
+ * respective axis.
+ * @returns {Array}
+ */
+function getPortPriorityOrder(mainOrientation, { x, y }) {
+  const crossOrientation = mainOrientation === PORT_ORIENTATION.X
+    ? PORT_ORIENTATION.Y : PORT_ORIENTATION.X;
+  const mainPorts = Port.getPriority(mainOrientation, mainOrientation === PORT_ORIENTATION.X
+    ? x : y);
+  const crossPorts = Port.getPriority(crossOrientation, crossOrientation === PORT_ORIENTATION.X
+    ? x : y);
+
+  mainPorts.splice(1, 0, ...crossPorts);
+
+  return mainPorts;
+}
 
 const DEFAULTS = {
   position: {
@@ -12,6 +35,13 @@ const DEFAULTS = {
     y: 0,
   },
 };
+
+export const EVENT = Object.freeze({
+  POSITION_CHANGE: 'position:change',
+  DRAG_START: 'drag:start',
+  DRAG: 'position:change',
+  DRAG_END: 'drag:end',
+});
 
 class Shape extends Component {
   constructor(settings) {
@@ -32,6 +62,10 @@ class Shape extends Component {
 
     this._initPorts()
       .setPosition(settings.position.x, settings.position.y);
+  }
+
+  _getComponentUI() {
+    return new ShapeUI(this);
   }
 
   _initPorts() {
@@ -61,7 +95,15 @@ class Shape extends Component {
     }
   }
 
+  _triggerPositionChange(x, y) {
+    const canvas = this.getCanvas();
+
+    if (canvas) canvas.dispatchEvent(EVENT.POSITION_CHANGE, this, this.getPosition(), { x, y });
+  }
+
   setX(x) {
+    const oldX = this._x;
+
     this._x = x;
 
     if (this._html) {
@@ -69,6 +111,7 @@ class Shape extends Component {
 
       if (!this.__bulkAction) {
         this._drawConnections();
+        this._triggerPositionChange(oldX, this._y);
       }
     }
 
@@ -80,6 +123,8 @@ class Shape extends Component {
   }
 
   setY(y) {
+    const oldY = this._y;
+
     this._y = y;
 
     if (this._html) {
@@ -87,6 +132,7 @@ class Shape extends Component {
 
       if (!this.__bulkAction) {
         this._drawConnections();
+        this._triggerPositionChange(this._x, oldY);
       }
     }
 
@@ -98,6 +144,9 @@ class Shape extends Component {
   }
 
   setPosition(x, y) {
+    const oldX = this._x;
+    const oldY = this._y;
+
     this.__bulkAction = true;
 
     this.setX(x)
@@ -105,7 +154,8 @@ class Shape extends Component {
 
     this.__bulkAction = false;
 
-    return this._drawConnections();
+    this._drawConnections();
+    this._triggerPositionChange(oldX, oldY);
   }
 
   getPosition() {
@@ -178,17 +228,17 @@ class Shape extends Component {
 
   /**
    * If the current shape can be connected with other shape.
-   * @param {Shape} otherShape The shape to be connected with.
    * @param {Port.MODE} mode The connection mode.
+   * @param {Shape} [otherShape = null] The shape to be connected with. If it's not provided the evaluation will be made bsed on the direction for any kind of Shape.
    */
   // eslint-disable-next-line class-methods-use-this, no-unused-vars
-  canAcceptConnection(shape, mode) {
+  canAcceptConnection(mode, shape = null) {
     return true;
   }
 
-  _getPortPoint(port) {
-    const { orientation, direction } = port;
+  getPortPoint(position) {
     const { x, y } = this.getPosition();
+    const { orientation, direction } = getPositionProps(position);
     const xOffset = orientation === PORT_ORIENTATION.X ? this.getWidth() / 2 : 0;
     const yOffset = orientation === PORT_ORIENTATION.Y ? this.getHeight() / 2 : 0;
 
@@ -198,24 +248,8 @@ class Shape extends Component {
     };
   }
 
-  getPortDescriptor(index) {
-    const port = this._ports[index];
-
-    if (port) {
-      return {
-        orientation: port.orientation,
-        direction: port.direction,
-        mode: port.mode,
-        point: this._getPortPoint(port),
-        portIndex: index,
-      };
-    }
-
-    return null;
-  }
-
-  getPorts() {
-    return this._ports.map((port, index) => this.getPortDescriptor(index));
+  getPort(position) {
+    return this._ports[position];
   }
 
   addOutgoingConnection(connection) {
@@ -226,7 +260,7 @@ class Shape extends Component {
     const otherShape = connection.getDestShape();
     let result = false;
 
-    if (this.canAcceptConnection(otherShape, PORT_MODE.OUT)) {
+    if (this.canAcceptConnection(PORT_MODE.ORIG, otherShape)) {
       result = connection.getOrigShape() !== this ? connection.connect(this, otherShape) : true;
 
       if (result) {
@@ -249,7 +283,7 @@ class Shape extends Component {
     const otherShape = connection.getOrigShape();
     let result = false;
 
-    if (this.canAcceptConnection(otherShape, PORT_MODE.IN)) {
+    if (this.canAcceptConnection(PORT_MODE.DEST, otherShape)) {
       result = connection.getDestShape() !== this ? connection.connect(otherShape, this) : true;
 
       if (result) {
@@ -384,6 +418,63 @@ class Shape extends Component {
     }
 
     this.setPosition(x, y);
+  }
+
+  getConnectionPort(target, mode) {
+    const isShape = target instanceof Shape;
+    const otherPosition = isShape ? target.getPosition() : target.point;
+    const bounds = this.getBounds();
+    let relativePosition = Geometry.getNormalizedPosition(
+      mode === PORT_MODE.ORIG ? this.getPosition() : otherPosition,
+      mode === PORT_MODE.ORIG ? otherPosition : this.getPosition(),
+    );
+    let overlapX = false;
+    let overlapY = false;
+    let orientation;
+
+    if (isShape) {
+      const overlap = Geometry.getOverlappedDimensions(
+        bounds,
+        target.getBounds(),
+      );
+
+      overlapX = overlap.x;
+      overlapY = overlap.y;
+    } else {
+      if (Geometry.isInBetween(target.point.x, bounds.left, bounds.right)) {
+        overlapX = true;
+      }
+
+      if (Geometry.isInBetween(target.point.y, bounds.top, bounds.bottom)) {
+        overlapY = true;
+      }
+    }
+
+    if (overlapX && overlapY) {
+      orientation = mode === PORT_MODE.ORIG ? PORT_ORIENTATION.X : PORT_ORIENTATION.Y;
+    } else {
+      if (mode === PORT_MODE.DEST) {
+        relativePosition = {
+          x: relativePosition.x * -1,
+          y: relativePosition.y * -1,
+        };
+      }
+
+      if (overlapX === overlapY) {
+        orientation = mode === PORT_MODE.ORIG ? ORIENTATION.Y : ORIENTATION.X;
+      } else if (relativePosition.x === 0) {
+        orientation = PORT_ORIENTATION.Y;
+      } else if (relativePosition.y === 0) {
+        orientation = PORT_ORIENTATION.X;
+      } else {
+        orientation = overlapX ? PORT_ORIENTATION.Y : PORT_ORIENTATION.X;
+      }
+    }
+
+    const ports = getPortPriorityOrder(orientation, relativePosition);
+    const portIndex = ports.find((port) => this.hasAvailablePortFor(port, mode));
+
+    return portIndex !== null ? this.getPort(portIndex) : null;
   }
 
   _resetPorts() {

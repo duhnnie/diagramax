@@ -1,10 +1,11 @@
 import Element from '../core/Element';
+import { stopPropagation } from '../canvas/EventBus';
 
-class ComponentControlsLayer extends Element {
-  constructor(settings) {
-    super(settings);
+class ComponentUI extends Element {
+  constructor(target) {
+    super();
 
-    this._target = (settings && settings.target) || null;
+    this._target = target || null;
     this._events = new Map();
     this._handleEvent = this._handleEvent.bind(this);
   }
@@ -75,13 +76,11 @@ class ComponentControlsLayer extends Element {
   _createHTML() {
     const layer = Element.createSVG('g');
 
-    layer.setAttribute('pointer-events', 'bounding-box');
     layer.classList.add('controls-layer');
-
     this._html = layer;
 
     return this;
   }
 }
 
-export default ComponentControlsLayer;
+export default ComponentUI;

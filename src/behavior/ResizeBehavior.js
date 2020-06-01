@@ -127,7 +127,7 @@ class ResizeBehavior extends DragBehavior {
     }
 
     // TODO: fix this access to a protected member.
-    _target._controlsLayer.setActive();
+    _target._componentUI.setActive();
 
     super.startDrag(position, options);
     // TODO: When Element inherits from EventTarget, the method
@@ -143,8 +143,6 @@ class ResizeBehavior extends DragBehavior {
       const canvas = _target.getCanvas();
 
       this._updateHandlers();
-      // TODO fix this access to protected member.
-      _target._controlsLayer.setActive(false);
       super.endDrag(event);
       canvas.setResizingShape(null);
       canvas.dispatchEvent(EVENT.END, _target);
@@ -155,8 +153,8 @@ class ResizeBehavior extends DragBehavior {
     const { width: targetWidth, height: targetHeight } = newSize || this._target.getSize();
     const xPoints = [-1, 0, 1];
     const yPoints = [-1, 0, 1];
-    const hOffset = (targetWidth * 0.5) + (resizeHandlerRadius * 1.5);
-    const vOffset = (targetHeight * 0.5) + (resizeHandlerRadius * 1.5);
+    const hOffset = (targetWidth * 0.5);
+    const vOffset = (targetHeight * 0.5);
     let index = 0;
 
     yPoints.forEach((y) => {
@@ -178,6 +176,7 @@ class ResizeBehavior extends DragBehavior {
           newHandler.classList.add(`handler-resize-${className}`);
           newHandler.dataset.direction = direction;
 
+          // TODO: Fix this access to private member
           this._target._addControl(newHandler, {
             mousedown: this._onGrab,
             mouseup: this.endDrag,
@@ -198,13 +197,12 @@ class ResizeBehavior extends DragBehavior {
       case DIRECTION.W:
       case DIRECTION.NW:
       case DIRECTION.SW:
-        // TODO: fix this hardcoded value
-        bounds.left = x + 6;
+        bounds.left = x;
         break;
       case DIRECTION.E:
       case DIRECTION.NE:
       case DIRECTION.SE:
-        bounds.right = x - 6;
+        bounds.right = x;
         break;
       default:
     }
@@ -213,14 +211,12 @@ class ResizeBehavior extends DragBehavior {
       case DIRECTION.N:
       case DIRECTION.NW:
       case DIRECTION.NE:
-        // TODO: fix this hardcoded value
-        bounds.top = y + 6;
+        bounds.top = y;
         break;
       case DIRECTION.S:
       case DIRECTION.SW:
       case DIRECTION.SE:
-        // TODO: fix this hardcoded value
-        bounds.bottom = y - 6;
+        bounds.bottom = y;
         break;
       default:
     }

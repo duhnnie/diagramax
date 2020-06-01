@@ -45,6 +45,12 @@ class Element {
     }
     return this._html;
   }
+
+  remove() {
+    if (this._html) {
+      this._html.remove();
+    }
+  }
 }
 
 export default Element;

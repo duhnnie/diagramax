@@ -87,6 +87,11 @@ export default {
     otherConnections.forEach((otherConnection) => {
       let otherBounds;
 
+      if (otherConnection.getOrigShape().isBeingDragged()
+        || otherConnection.getDestShape().isBeingDragged()) {
+        return;
+      }
+
       if (otherConnection !== connection) {
         otherBounds = otherConnection.getBounds();
 

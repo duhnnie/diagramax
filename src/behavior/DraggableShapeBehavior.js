@@ -1,11 +1,6 @@
 import DragBehavior from './DragBehavior';
-import Shape from '../shape/Shape';
+import Shape, { EVENT as SHAPE_EVENT } from '../shape/Shape';
 
-export const EVENT = Object.freeze({
-  START: 'dragstart',
-  DRAG: 'drag',
-  END: 'dragend',
-});
 class DraggableShapeBehavior extends DragBehavior {
   constructor(target, settings) {
     if (!(target instanceof Shape)) {
@@ -20,7 +15,6 @@ class DraggableShapeBehavior extends DragBehavior {
       y: 0,
     };
     this._lastPosition = null;
-
     this.updatePosition = this._bind(this.updatePosition);
   }
 
@@ -28,7 +22,6 @@ class DraggableShapeBehavior extends DragBehavior {
     const canvas = this._target.getCanvas();
 
     super._onGrab(event);
-
     canvas.setDraggingShape(this._target);
   }
 
@@ -37,18 +30,20 @@ class DraggableShapeBehavior extends DragBehavior {
       super.startDrag(point);
       // TODO: When Element inherits from EventTarget, the method
       // should trigger the event from itself.
-      this._target.getCanvas().dispatchEvent(EVENT.START, this._target);
+      this._target.getCanvas().dispatchEvent(SHAPE_EVENT.DRAG_START, this._target);
     }
   }
 
   endDrag(event) {
     if (this._grabbed || this._dragging) {
-      const { _target } = this;
+      const { _target, _dragging } = this;
       const canvas = _target.getCanvas();
 
       super.endDrag(event);
       canvas.setDraggingShape(null);
-      canvas.dispatchEvent(EVENT.END, _target);
+      if (_dragging) {
+        canvas.dispatchEvent(SHAPE_EVENT.DRAG_END, _target);
+      }
     }
   }
 
@@ -82,7 +77,6 @@ class DraggableShapeBehavior extends DragBehavior {
     }
 
     super.updatePosition({ x, y });
-    this._target.getCanvas().dispatchEvent(EVENT.DRAG, this._target);
   }
 
   attachBehavior() {
@@ -90,6 +84,7 @@ class DraggableShapeBehavior extends DragBehavior {
 
     _target._getMainElement().addEventListener('mousedown', this._onGrab, false);
     _target._getMainElement().addEventListener('click', this._onRelease, false);
+    super.attachBehavior();
   }
 
   detachBehavior() {

@@ -1,9 +1,10 @@
 import Element from '../core/Element';
-import EventBus from './EventBus';
+import EventBus, { stopPropagation } from './EventBus';
 import FluidDraggingAreaBehavior from '../behavior/FluidDraggingAreaBehavior';
 import ConnectivityAreaBehavior from '../behavior/ConnectivityAreaBehavior';
 import Shape from '../shape/Shape';
 import Connection from '../connection/Connection';
+import { MODE as PORT_MODE } from '../connection/Port';
 import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
 
 class Canvas extends Element {
@@ -81,11 +82,8 @@ class Canvas extends Element {
       element.setCanvas(this);
 
       if (this._html) {
-        if (element instanceof Connection) {
-          this._dom.container.prepend(element.getHTML());
-        } else {
-          this._dom.container.appendChild(element.getHTML());
-        }
+        this._dom.componentsLayer.appendChild(element.getHTML());
+        this._dom.uiLayer.appendChild(element.getUIHTML());
       }
     }
 
@@ -154,19 +152,6 @@ class Canvas extends Element {
     return this.dispatchEvent(eventName, this, ...args);
   }
 
-  _connectToDragAreaBehavior(behavior, options = {}) {
-    if (this._draggingAreaBehavior) {
-      if (!behavior) {
-        this._draggingAreaBehavior.removeDragBehavior();
-      } else {
-        // TODO: find a better way to do this, _dragBehavior is protected
-        this._draggingAreaBehavior.setDragBehavior(behavior, options);
-      }
-    }
-
-    return this;
-  }
-
   clientToCanvas(clientPosition) {
     const html = this._html;
 
@@ -181,6 +166,18 @@ class Canvas extends Element {
     }
 
     return { x: 0, y: 0 };
+  }
+
+  _connectToDragAreaBehavior(behavior, options = {}) {
+    if (this._draggingAreaBehavior) {
+      if (!behavior) {
+        this._draggingAreaBehavior.removeDragBehavior();
+      } else {
+        this._draggingAreaBehavior.setDragBehavior(behavior, options);
+      }
+    }
+
+    return this;
   }
 
   setResizingShape(shape, direction) {
@@ -198,13 +195,50 @@ class Canvas extends Element {
     return this._connectToDragAreaBehavior(behavior);
   }
 
+  // TODO: this method is used for both set a connection to be dragged and to remove it.
+  // maybe there should be  a dedicated method for removing.
+  setDraggingConnection(connection, draggingPoint = null) {
+    // TODO: Fix access to protected member
+    const behavior = connection && connection._dragBehavior;
+    const options = { draggingPoint };
+
+    return this._connectToDragAreaBehavior(behavior, options);
+  }
+
   // TODO: Does make sense to have this method?
+  /**
+   * @deprecated
+   */
   getConnectivityAreaBehavior() {
     return this._connectivityAreaBehavior;
   }
 
-  getContainer() {
-    return this._dom.container;
+  startConnection(shape) {
+    if (this._shapes.has(shape)) {
+      this._connectivityAreaBehavior.start(shape);
+    }
+  }
+
+  startReconnection(connection, connectionPoint) {
+    let shape;
+
+    if (connectionPoint === PORT_MODE.ORIG) {
+      shape = connection.getDestShape();
+    } else {
+      shape = connection.getOrigShape();
+    }
+
+    this._connectivityAreaBehavior.start(shape, connection, connectionPoint);
+  }
+
+  cancelConnection() {
+    this._connectivityAreaBehavior.end();
+  }
+
+  completeConnection(shape) {
+    if (this._shapes.has(shape)) {
+      this._connectivityAreaBehavior.complete(shape);
+    }
   }
 
   selectItem(item) {
@@ -215,26 +249,32 @@ class Canvas extends Element {
   }
 
   _createHTML() {
-    let svg;
-    let g;
-
     if (this._html) {
       return this;
     }
 
-    svg = Element.createSVG('svg');
+    const svg = Element.createSVG('svg');
+    const root = Element.createSVG('g');
+    const componentsLayer = Element.createSVG('g');
+    const uiLayer = Element.createSVG('g');
+
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
     svg.setAttribute('version', '1.1');
     svg.setAttribute('class', 'bpmn-canvas');
     svg.style.background = '#F0F0F0';
 
-    g = Element.createSVG('g');
-    g.setAttribute('transform', 'scale(1, 1)');
+    root.setAttribute('transform', 'scale(1, 1)');
+    root.append(componentsLayer, uiLayer);
+    svg.appendChild(root);
 
-    svg.appendChild(g);
+    uiLayer.addEventListener('click', stopPropagation, false);
+    uiLayer.addEventListener('dblClick', stopPropagation, false);
+    componentsLayer.addEventListener('click', stopPropagation, false);
+    componentsLayer.addEventListener('dblClick', stopPropagation, false);
 
-    this._dom.container = g;
+    this._dom.uiLayer = uiLayer;
+    this._dom.componentsLayer = componentsLayer;
     this._html = svg;
 
     this.setWidth(this._width)

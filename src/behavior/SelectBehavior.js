@@ -51,7 +51,7 @@ class SelectBehavior extends Behavior {
 
         this._isSelected = true;
         target._dom.mainElement.classList.add('selected');
-        target._controlsLayer.setActive();
+        target._componentUI.setActive();
         canvas.dispatchEvent(EVENT.SELECT, target);
       }
     }
@@ -67,7 +67,7 @@ class SelectBehavior extends Behavior {
 
       this._isSelected = false;
       // TODO: fix this access to a protected member.
-      target._controlsLayer.setActive(false);
+      target._componentUI.setActive(false);
       target._dom.mainElement.classList.remove('selected');
       canvas.dispatchEvent(EVENT.UNSELECT, target);
     }
