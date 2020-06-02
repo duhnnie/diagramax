@@ -2,7 +2,6 @@ import Element from '../core/Element';
 import Canvas from '../canvas/Canvas';
 import ComponentText from './ComponentText';
 import SelectBehavior from '../behavior/SelectBehavior';
-import KeyboardControlledBehavior from '../behavior/KeyboardControlledBehavior';
 
 const DEFAULTS = {
   canvas: null,
@@ -24,7 +23,6 @@ class Component extends Element {
     this._dom = {};
     this._componentUI = this._getComponentUI();
     this._selectBehavior = new SelectBehavior(this);
-    this._keyboardBehavior = new KeyboardControlledBehavior(this);
 
     settings = {
       ...DEFAULTS,
@@ -159,7 +157,6 @@ class Component extends Element {
     }
 
     this._selectBehavior.attachBehavior();
-    this._keyboardBehavior.attachBehavior();
 
     return this.setID(this._id);
   }

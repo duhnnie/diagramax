@@ -1,5 +1,4 @@
 import Element from '../core/Element';
-import { stopPropagation } from '../canvas/EventBus';
 
 class ComponentUI extends Element {
   constructor(target) {
