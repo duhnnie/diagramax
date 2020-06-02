@@ -91,6 +91,10 @@ class DraggableConnectionBehavior extends DragBehavior {
     } else {
       _target.remove();
     }
+
+    // TODO: Check if all inherited classes from DragBehavior make following call,
+    // if they do, so it could be move to its end() method.
+    this._target.getCanvas().setDraggingConnection(null);
   }
 
   // TODO: Consider remove endDrag() method in favor of end().
