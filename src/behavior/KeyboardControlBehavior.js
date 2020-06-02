@@ -9,8 +9,16 @@ class KeyboardControlBehavior extends Behavior {
 
   _onKeyDown(event) {
     // TODO: Is there a native constant for this?
-    if (event.code === 'Delete') {
-      this._target.getSelection().forEach((element) => element.remove());
+    switch (event.code) {
+      case 'Delete':
+        this._target.getSelection().forEach((element) => element.remove());
+        break;
+      case 'Escape':
+        this._target._draggingAreaBehavior.end();
+        this._target._connectivityAreaBehavior.end();
+        this._target._selectionBehavior.end();
+        break;
+      default:
     }
   }
 
