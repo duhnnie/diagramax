@@ -12,7 +12,7 @@ const prodConfig = {};
 module.exports = (env, argv) => {
   const { mode } = argv;
   const base = {
-    entry: './src/index.js',
+    entry: './src/js/index.js',
     output: {
       filename: 'designer.js',
       path: path.resolve(__dirname, 'dist'),
