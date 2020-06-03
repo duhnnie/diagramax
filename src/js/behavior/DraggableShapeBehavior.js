@@ -22,6 +22,7 @@ class DraggableShapeBehavior extends DragBehavior {
     const canvas = this._target.getCanvas();
 
     super._onGrab(event);
+    // TODO: can this be generalized in DragBehavior?
     canvas.setDraggingShape(this._target);
   }
 
@@ -40,6 +41,7 @@ class DraggableShapeBehavior extends DragBehavior {
       const canvas = _target.getCanvas();
 
       super.endDrag(event);
+      // TODO: Can this be generalized in DragBehavior?
       canvas.setDraggingShape(null);
       if (_dragging) {
         canvas.dispatchEvent(SHAPE_EVENT.DRAG_END, _target);

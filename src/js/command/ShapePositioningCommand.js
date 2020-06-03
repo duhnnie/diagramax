@@ -1,15 +1,15 @@
 import Command from './Command';
 
 class ShapePositioningCommand extends Command {
-  constructor(shape, position) {
+  constructor(shape, ...position) {
     super(shape);
 
     this._before = shape.getPosition();
-    this._after = { ...position };
+    this._after = position;
   }
 
   execute() {
-    this._receiver.setPosition(this._after);
+    this._receiver.setPosition(...this._after);
   }
 
   undo() {

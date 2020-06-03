@@ -4,7 +4,7 @@ class CommandManager {
   constructor(settings) {
     settings = { ...settings };
 
-    this._size = settings._size;
+    this._size = settings.size;
     this._stack = null;
     this._index = null;
     this.clear();

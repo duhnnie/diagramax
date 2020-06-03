@@ -145,11 +145,25 @@ class Shape extends Component {
     return this._y;
   }
 
-  setPosition(x, y) {
+  /**
+   * Set's the shape's position.
+   * @param {Number} x The x coordinate.
+   * @param {Number} y The y coordinate.
+   *//**
+   * Set's the shape's position.
+   * @param {Point} point An object containing Number values in its x and y properties.
+   */
+  setPosition(...args) {
     const oldX = this._x;
     const oldY = this._y;
+    let [x, y] = args;
 
     this.__bulkAction = true;
+
+    if (args.length === 1) {
+      x = args[0].x;
+      y = args[0].y;
+    }
 
     this.setX(x)
       .setY(y);

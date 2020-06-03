@@ -7,10 +7,17 @@ import Connection from '../connection/Connection';
 import { MODE as PORT_MODE } from '../connection/Port';
 import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
 import KeyboardControlBehavior from '../behavior/KeyboardControlBehavior';
+import CommandFactory, { PRODUCTS as COMMAND_PRODUCTS } from '../command/CommandFactory';
+import CommandManager from '../command/CommandManager';
+
+const DEFAULTS = Object.freeze({
+  stackSize: 10,
+});
 
 class Canvas extends Element {
   constructor(settings) {
     super(settings);
+    settings = { ...settings, ...DEFAULTS };
     this._width = null;
     this._height = null;
     this._shapes = new Set();
@@ -22,6 +29,7 @@ class Canvas extends Element {
     this._draggingAreaBehavior = new FluidDraggingAreaBehavior(this);
     this._connectivityAreaBehavior = new ConnectivityAreaBehavior(this);
     this._keyboardBehavior = new KeyboardControlBehavior(this);
+    this._commandManager = new CommandManager({ size: settings.stackSize });
 
     settings = {
       width: 800,
@@ -252,6 +260,20 @@ class Canvas extends Element {
 
   getSelection() {
     return this._selectionBehavior.get();
+  }
+
+  setShapePosition(shape, ...position) {
+    const command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_POSITION, shape, ...position);
+
+    this._commandManager.executeCommand(command);
+  }
+
+  undo() {
+    this._commandManager.undo();
+  }
+
+  redo() {
+    this._commandManager.redo();
   }
 
   _createHTML() {
