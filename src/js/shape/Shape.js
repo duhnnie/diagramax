@@ -40,7 +40,7 @@ const DEFAULTS = {
 export const EVENT = Object.freeze({
   POSITION_CHANGE: 'position:change',
   DRAG_START: 'drag:start',
-  DRAG: 'position:change',
+  DRAG: 'drag',
   DRAG_END: 'drag:end',
 });
 
@@ -49,6 +49,8 @@ class Shape extends Component {
     super(settings);
     this._x = null;
     this._y = null;
+    this._cx = null;
+    this._cy = null;
     this._connections = new Set();
     this._ports = [];
     this._editableBehavior = new EditableTextBehavior(this);
@@ -103,21 +105,19 @@ class Shape extends Component {
     if (canvas) canvas.dispatchEvent(EVENT.POSITION_CHANGE, this, this.getPosition(), { x, y });
   }
 
-  setX(x) {
-    const oldX = this._x;
-
-    this._x = x;
+  _updatePosition(x, y) {
+    this._cx = x;
+    this._cy = y;
 
     if (this._html) {
-      this._html.setAttribute('transform', `translate(${x}, ${this._y})`);
-
-      if (!this.__bulkAction) {
-        this._drawConnections();
-        this._triggerPositionChange(oldX, this._y);
-      }
+      this._html.setAttribute('transform', `translate(${x}, ${y})`);
+      // TODO: Connections should be drawn from Connection itself at listening Shape's drag and position change event.
+      this._drawConnections();
     }
+  }
 
-    return this;
+  setX(x) {
+    this.setPosition(x, this._y);
   }
 
   getX() {
@@ -125,24 +125,15 @@ class Shape extends Component {
   }
 
   setY(y) {
-    const oldY = this._y;
-
-    this._y = y;
-
-    if (this._html) {
-      this._html.setAttribute('transform', `translate(${this._x}, ${y})`);
-
-      if (!this.__bulkAction) {
-        this._drawConnections();
-        this._triggerPositionChange(this._x, oldY);
-      }
-    }
-
-    return this;
+    this.setPosition(this._x, y);
   }
 
   getY() {
     return this._y;
+  }
+
+  getCurrentPosition() {
+    return { x: this._cx, y: this._cy };
   }
 
   /**
@@ -158,19 +149,14 @@ class Shape extends Component {
     const oldY = this._y;
     let [x, y] = args;
 
-    this.__bulkAction = true;
-
     if (args.length === 1) {
       x = args[0].x;
       y = args[0].y;
     }
 
-    this.setX(x)
-      .setY(y);
-
-    this.__bulkAction = false;
-
-    this._drawConnections();
+    this._x = x;
+    this._y = y;
+    this._updatePosition(x, y);
     this._triggerPositionChange(oldX, oldY);
   }
 
@@ -253,7 +239,7 @@ class Shape extends Component {
   }
 
   getPortPoint(position) {
-    const { x, y } = this.getPosition();
+    const { x, y } = this.getCurrentPosition();
     const { orientation, direction } = getPositionProps(position);
     const xOffset = orientation === PORT_ORIENTATION.X ? this.getWidth() / 2 : 0;
     const yOffset = orientation === PORT_ORIENTATION.Y ? this.getHeight() / 2 : 0;
@@ -440,9 +426,10 @@ class Shape extends Component {
     const isShape = target instanceof Shape;
     const otherPosition = isShape ? target.getPosition() : target.point;
     const bounds = this.getBounds();
+    const position = this.getCurrentPosition();
     let relativePosition = Geometry.getNormalizedPosition(
-      mode === PORT_MODE.ORIG ? this.getPosition() : otherPosition,
-      mode === PORT_MODE.ORIG ? otherPosition : this.getPosition(),
+      mode === PORT_MODE.ORIG ? position : otherPosition,
+      mode === PORT_MODE.ORIG ? otherPosition : position,
     );
     let overlapX = false;
     let overlapY = false;

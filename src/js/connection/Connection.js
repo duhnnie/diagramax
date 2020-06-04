@@ -204,8 +204,16 @@ class Connection extends Component {
     this._removeIntersections();
   }
 
+  _onShapeDrag() {
+    this.make();
+  }
+
   _onShapeDragEnd() {
     this._html.setAttribute('opacity', 1);
+    this.make();
+  }
+
+  _onShapePositionChange() {
     this.make();
   }
 
@@ -222,6 +230,8 @@ class Connection extends Component {
     const { _canvas } = this;
 
     if (_canvas) {
+      // TODO: here we have that some event are defined in Shape and other in resize behavior, maybe Drag events should
+      // be defined in drag behavior, the same way the resize behaviors are in the ResizeBehavior
       this._canvas.removeEventListener(SHAPE_EVENT.DRAG_START, shape, this._onShapeDragStart,
         this);
       this._canvas.removeEventListener(SHAPE_EVENT.DRAG_END, shape, this._onShapeDragEnd,

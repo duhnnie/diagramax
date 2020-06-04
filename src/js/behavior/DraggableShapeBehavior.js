@@ -1,6 +1,5 @@
 import DragBehavior from './DragBehavior';
 import Shape, { EVENT as SHAPE_EVENT } from '../shape/Shape';
-
 class DraggableShapeBehavior extends DragBehavior {
   constructor(target, settings) {
     if (!(target instanceof Shape)) {
@@ -15,6 +14,7 @@ class DraggableShapeBehavior extends DragBehavior {
       y: 0,
     };
     this._lastPosition = null;
+    this._lastDragPosition = null;
     this.updatePosition = this._bind(this.updatePosition);
   }
 
@@ -44,6 +44,7 @@ class DraggableShapeBehavior extends DragBehavior {
       // TODO: Can this be generalized in DragBehavior?
       canvas.setDraggingShape(null);
       if (_dragging) {
+        canvas.setShapePosition(_target, this._lastDragPosition);
         canvas.dispatchEvent(SHAPE_EVENT.DRAG_END, _target);
       }
     }
@@ -66,16 +67,22 @@ class DraggableShapeBehavior extends DragBehavior {
 
     if (diff) {
       const target = this._target;
-      let { x: posX, y: posY } = target.getPosition();
-
-      posX += this._diff.x;
-      posY += this._diff.y;
+      const canvas = target.getCanvas();
+      const { x: posX, y: posY } = this._lastDragPosition || target.getPosition();
+      const dragPosition = {
+        x: posX + this._diff.x,
+        y: posY + this._diff.y,
+      };
 
       this._lastPosition = { x, y };
       this._diff.x = 0;
       this._diff.y = 0;
 
-      this._target.setPosition(posX, posY);
+      target._updatePosition(dragPosition.x, dragPosition.y);
+      this._lastDragPosition = dragPosition;
+
+      // TODO: this event should return at least current drag position.
+      canvas.dispatchEvent(SHAPE_EVENT.DRAG, this._target, dragPosition);
     }
 
     super.updatePosition({ x, y });

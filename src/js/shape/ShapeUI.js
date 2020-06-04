@@ -8,16 +8,14 @@ class ShapeUI extends ComponentUI {
     this._handleTargetMove = this._handleTargetMove.bind(this);
   }
 
-  _updatePosition() {
-    const { x, y } = this._target.getPosition();
-
+  _updatePosition({ x, y }) {
     if (this._html) {
       this._html.setAttribute('transform', `translate(${x}, ${y})`);
     }
   }
 
-  _handleTargetMove() {
-    this._updatePosition();
+  _handleTargetMove(event, position) {
+    this._updatePosition(position);
   }
 
   _createHTML() {
@@ -27,8 +25,9 @@ class ShapeUI extends ComponentUI {
 
     _html.classList.add('shape-ui');
     _target.getCanvas()._dom.uiLayer.append(this._html);
-    this._updatePosition();
+    this._updatePosition(_target.getPosition());
     _target.getCanvas().addEventListener(SHAPE_EVENT.POSITION_CHANGE, _target, _handleTargetMove);
+    _target.getCanvas().addEventListener(SHAPE_EVENT.DRAG, _target, _handleTargetMove);
 
     return this;
   }
@@ -37,6 +36,7 @@ class ShapeUI extends ComponentUI {
     const { _target, _handleTargetMove } = this;
 
     _target.getCanvas().removeEventListener(SHAPE_EVENT.POSITION_CHANGE, _target, _handleTargetMove);
+    _target.getCanvas().removeEventListener(SHAPE_EVENT.DRAG, _target, _handleTargetMove);
     super.remove();
   }
 }
