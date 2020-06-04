@@ -8,16 +8,26 @@ class KeyboardControlBehavior extends Behavior {
   }
 
   _onKeyDown(event) {
+    const { _target } = this;
+
     // TODO: Is there a native constant for this?
     switch (event.code) {
       case 'Delete':
-        this._target.getSelection().forEach((element) => element.remove());
+        _target.getSelection().forEach((element) => element.remove());
         break;
       case 'Escape':
-        this._target._draggingAreaBehavior.end();
-        this._target._connectivityAreaBehavior.end();
-        this._target._selectionBehavior.end();
+        _target._draggingAreaBehavior.end();
+        _target._connectivityAreaBehavior.end();
+        _target._selectionBehavior.end();
         break;
+      case 'KeyZ':
+        if (event.ctrlKey) {
+          if (event.shiftKey) {
+            _target.redo();
+          } else {
+            _target.undo();
+          }
+        }
       default:
     }
   }
