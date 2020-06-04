@@ -13,9 +13,11 @@ class KeyboardControlBehavior extends Behavior {
     // TODO: Is there a native constant for this?
     switch (event.code) {
       case 'Delete':
+        // TODO: this could be a Canvas' function, like removeSelection();
         _target.getSelection().forEach((element) => element.remove());
         break;
       case 'Escape':
+        // TODO: this could be a Canvas' method, like endCurrentProcess():
         _target._draggingAreaBehavior.end();
         _target._connectivityAreaBehavior.end();
         _target._selectionBehavior.end();

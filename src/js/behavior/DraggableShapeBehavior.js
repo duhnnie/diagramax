@@ -47,6 +47,8 @@ class DraggableShapeBehavior extends DragBehavior {
         canvas.setShapePosition(_target, this._lastDragPosition);
         canvas.dispatchEvent(SHAPE_EVENT.DRAG_END, _target);
       }
+      this._lastPosition = null;
+      this._lastDragPosition = null;
     }
   }
 
