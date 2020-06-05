@@ -20,66 +20,33 @@ class Rectangle extends Shape {
     this.setSize(settings.width, settings.height);
   }
 
-  _updateSize() {
+  _updateSize(width, height) {
     const { mainElement } = this._dom;
-    const { _width, _height } = this;
+
+    super._updateSize(width, height);
 
     if (mainElement) {
-      mainElement.setAttribute('width', _width);
-      mainElement.setAttribute('x', _width * -0.5);
-      mainElement.setAttribute('height', _height);
-      mainElement.setAttribute('y', _height * -0.5);
+      mainElement.setAttribute('width', width);
+      mainElement.setAttribute('x', width * -0.5);
+      mainElement.setAttribute('height', height);
+      mainElement.setAttribute('y', height * -0.5);
     }
   }
 
-  setWidth(width, keepProportion = false) {
-    if (typeof width !== 'number') {
-      throw new Error('setWidth(): invalid parameter.');
-    }
+  setWidth(width) {
+    const height = this.getHeight();
 
-    const size = this.getSize();
-
-    if (keepProportion) {
-      const height = width / this.getRatio();
-
-      return this.setSize(width, height);
-    }
-
-    this._width = width;
-
-    if (!this.__bulkAction) {
-      this._updateSize();
-      this._sizeHasChanged(size);
-    }
-
-    return this;
+    return this.setSize(width, height);
   }
 
   getWidth() {
     return this._width;
   }
 
-  setHeight(height, keepProportion = false) {
-    if (typeof height !== 'number') {
-      throw new Error('setHeight(): invalid parameter.');
-    }
+  setHeight(height) {
+    const width = this.getWidth();
 
-    const size = this.getSize();
-
-    if (keepProportion) {
-      const width = this.getRatio() * height;
-
-      return this.setSize(width, height);
-    }
-
-    this._height = height;
-
-    if (!this.__bulkAction) {
-      this._updateSize();
-      this._sizeHasChanged(size);
-    }
-
-    return this;
+    return this.setSize(width, height);
   }
 
   getHeight() {
@@ -91,6 +58,11 @@ class Rectangle extends Shape {
       width: this._width,
       height: this._height,
     };
+  }
+
+  _mapSize(width, height) {
+    this._width = width;
+    this._height = height;
   }
 
   getBounds() {

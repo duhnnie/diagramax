@@ -12,8 +12,10 @@ class Polygon extends Shape {
     throw new Error('_getPoints(): This method should be implemented.');
   }
 
-  _updateSize() {
+  _updateSize(width, height) {
     const { mainElement } = this._dom;
+
+    super._updateSize(width, height);
 
     if (mainElement) {
       mainElement.setAttribute('points', Polygon.toPointsString(this._getPoints()));

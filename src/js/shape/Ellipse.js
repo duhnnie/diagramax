@@ -21,33 +21,23 @@ class Ellipse extends Shape {
     this.setSize(settings.radiusX, settings.radiusY);
   }
 
-  _updateSize() {
+  _updateSize(width, height) {
     const { mainElement } = this._dom;
 
+    this._cWidth = width;
+    this._cHeigth = height;
+
     if (mainElement) {
-      mainElement.setAttribute('rx', this._radiusX);
-      mainElement.setAttribute('ry', this._radiusY);
+      mainElement.setAttribute('rx', this._cWidth / 2);
+      mainElement.setAttribute('ry', this._cHeigth / 2);
     }
   }
 
   // TODO: this method is pretty similar to the one in Rectangle, Triangle
-  setRadiusX(radiusX, keepProportion = false) {
-    if (keepProportion) {
-      const radiusY = radiusX / this.getRatio();
+  setRadiusX(radiusX) {
+    const height = this.getHeight();
 
-      return this.setSize(radiusX, radiusY);
-    }
-
-    const size = this.getSize();
-
-    this._radiusX = radiusX;
-
-    if (!this.__bulkAction) {
-      this._updateSize();
-      this._sizeHasChanged(size);
-    }
-
-    return this;
+    return this.setSize(radiusX * 2, height);
   }
 
   getRadiusX() {
@@ -59,23 +49,10 @@ class Ellipse extends Shape {
   }
 
   // TODO: this method is pretty similar to the one in Rectangle, Triangle
-  setRadiusY(radiusY, keepProportion = false) {
-    if (keepProportion) {
-      const radiusX = this.getRatio() * radiusY;
+  setRadiusY(radiusY) {
+    const width = this.getWidth();
 
-      return this.setSize(radiusX, radiusY);
-    }
-
-    const size = this.getSize();
-
-    this._radiusY = radiusY;
-
-    if (!this.__bulkAction) {
-      this._updateSize();
-      this._sizeHasChanged(size);
-    }
-
-    return this;
+    return this.setSize(width, radiusY * 2);
   }
 
   getRadiusY() {
@@ -84,6 +61,11 @@ class Ellipse extends Shape {
 
   setHeight(height, keepProportion) {
     return this.setRadiusY(height / 2, keepProportion);
+  }
+
+  _mapSize(width, height) {
+    this._radiusX = width / 2;
+    this._radiusY = height / 2;
   }
 
   getBounds() {

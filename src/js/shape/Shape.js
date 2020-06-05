@@ -51,6 +51,8 @@ class Shape extends Component {
     this._y = null;
     this._cx = null;
     this._cy = null;
+    this._cWidth = null;
+    this._cHeight = null;
     this._connections = new Set();
     this._ports = [];
     // TODO: component's text is defined in Component, so this behavior should be defined in that class.
@@ -168,9 +170,9 @@ class Shape extends Component {
     };
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  _updateSize() {
-    throw new Error('updateSize(): This method should be implemented.');
+  _updateSize(width, height) {
+    this._cWidth = width;
+    this._cHeight = height;
   }
 
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
@@ -191,24 +193,31 @@ class Shape extends Component {
     return this.getSize().height;
   }
 
+  // TODO: is this useful?
   getRatio() {
     return this.getWidth() / this.getHeight();
+  }
+
+  _mapSize(width, height) {
+    this._width = width;
+    this._height = height;
   }
 
   setSize(width, height) {
     const size = this.getSize();
 
-    this.__bulkAction = true;
-
-    this.setWidth(width)
-      .setHeight(height);
-
-    this._updateSize();
+    this._mapSize(width, height);
+    this._updateSize(width, height);
     this._sizeHasChanged(size);
 
-    this.__bulkAction = false;
-
     return this._drawConnections();
+  }
+
+  getCurrentSize() {
+    return {
+      width: this._cWidth,
+      height: this._cHeight,
+    };
   }
 
   // eslint-disable-next-line class-methods-use-this
