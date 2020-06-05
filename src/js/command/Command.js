@@ -1,8 +1,8 @@
 class Command {
   constructor(receiver) {
     this._receiver = receiver;
-    this._before = {};
-    this._after = {};
+    this._before = null;
+    this._after = null;
   }
 
   // eslint-disable-next-line class-methods-use-this

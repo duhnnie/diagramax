@@ -262,10 +262,18 @@ class Canvas extends Element {
     return this._selectionBehavior.get();
   }
 
+  _executeCommand(command) {
+    this._commandManager.executeCommand(command);
+  }
+
   setShapePosition(shape, ...position) {
     const command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_POSITION, shape, ...position);
+    this._executeCommand(command);
+  }
 
-    this._commandManager.executeCommand(command);
+  setShapeText(shape, text) {
+    const command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_TEXT, shape, text);
+    this._executeCommand(command);
   }
 
   undo() {

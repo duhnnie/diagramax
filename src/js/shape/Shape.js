@@ -53,6 +53,7 @@ class Shape extends Component {
     this._cy = null;
     this._connections = new Set();
     this._ports = [];
+    // TODO: component's text is defined in Component, so this behavior should be defined in that class.
     this._editableBehavior = new EditableTextBehavior(this);
     this._dragBehavior = new RegularDraggableShapeBehavior(this);
     this._connectivityBehavior = new ConnectivityBehavior(this);

@@ -7,7 +7,7 @@ import Behavior from './Behavior';
  * @type {ShapeText}
  * The current ShapeText that is in edition.
  */
-let currentShapeText = null;
+let currentTarget = null;
 /**
  * @private
  * @static
@@ -49,7 +49,9 @@ const removeInput = () => {
  * @param {Event} A change event comming from the input.
  */
 const updateText = (event) => {
-  currentShapeText.setText(event.target.value);
+  const canvas = currentTarget.getCanvas();
+
+  canvas.setShapeText(currentTarget, event.target.value);
   removeInput();
 };
 
@@ -71,7 +73,7 @@ const onKeyDown = (event) => {
 
   switch (code) {
     case 'Escape':
-      inputText.value = currentShapeText.getText();
+      inputText.value = currentTarget.getText();
       removeInput();
       break;
     default:
@@ -98,14 +100,14 @@ class EditableTextBehavior extends Behavior {
 
     event.stopPropagation();
 
-    currentShapeText = _target;
+    currentTarget = _target;
     inputText.value = _target.getText();
     _target.getHTML().appendChild(wrapper);
     inputText.select();
   }
 
   end() {
-    if (currentShapeText === this._target) {
+    if (currentTarget === this._target) {
       removeInput();
     }
   }
