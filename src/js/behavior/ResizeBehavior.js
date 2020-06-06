@@ -6,6 +6,7 @@ export const EVENT = Object.freeze({
   START: 'resizestart',
   RESIZE: 'resize',
   END: 'resizeend',
+  SIZE_CHANGE: 'size:change',
 });
 
 export const DIRECTION = {
@@ -142,6 +143,8 @@ class ResizeBehavior extends DragBehavior {
       const { _target } = this;
       const canvas = _target.getCanvas();
 
+      _target.setSize(_target.getCurrentSize());
+      _target.setPosition(_target.getCurrentPosition());
       this._updateHandlers();
       super.endDrag(event);
       canvas.setResizingShape(null);
@@ -149,8 +152,9 @@ class ResizeBehavior extends DragBehavior {
     }
   }
 
-  _updateHandlers(newSize) {
-    const { width: targetWidth, height: targetHeight } = newSize || this._target.getSize();
+  // TODO: Maybe the handlers should be updated in ShapeUI.
+  _updateHandlers() {
+    const { width: targetWidth, height: targetHeight } = this._target.getCurrentSize();
     const xPoints = [-1, 0, 1];
     const yPoints = [-1, 0, 1];
     const hOffset = (targetWidth * 0.5);
@@ -331,13 +335,11 @@ class ResizeBehavior extends DragBehavior {
     switch (direction) {
       case DIRECTION.W:
       case DIRECTION.E:
-        _target.setHeight(height);
-        _target.setWidth(width);
+        _target._updateWidth(width);
         break;
       case DIRECTION.N:
       case DIRECTION.S:
-        _target.setWidth(width);
-        _target.setHeight(height);
+        _target._updateHeight(height);
         break;
       default:
         _target.setSize(width, height);
@@ -352,6 +354,7 @@ class ResizeBehavior extends DragBehavior {
     }
 
     super.updatePosition(position);
+    _target.getCanvas().dispatchEvent(EVENT.RESIZE, _target, { width, height }, _target.getCurrentPosition());
   }
 
   getCurrentDirection() {

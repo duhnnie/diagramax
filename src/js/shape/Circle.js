@@ -23,11 +23,19 @@ class Circle extends Shape {
     const { mainElement } = this._dom;
     const diameter = Math.min(width, height);
 
-    super._updateSize(width, height);
-
     if (mainElement) {
       mainElement.setAttribute('r', diameter / 2);
     }
+
+    super._updateSize(diameter, diameter);
+  }
+
+  _updateWidth(width) {
+    this._updateSize(width, width);
+  }
+
+  _updateHeight(height) {
+    this._updateSize(height, height);
   }
 
   setRadius(radius) {

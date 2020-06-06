@@ -41,8 +41,8 @@ class Triangle extends Polygon {
     return this._height;
   }
 
-  setWidth(width, keepProportion = false) {
-    return this.setBase(width, keepProportion);
+  setWidth(width) {
+    return this.setBase(width);
   }
 
   _mapSize(width, height) {

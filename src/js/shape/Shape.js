@@ -38,10 +38,10 @@ const DEFAULTS = {
 };
 
 export const EVENT = Object.freeze({
-  POSITION_CHANGE: 'position:change',
   DRAG_START: 'drag:start',
   DRAG: 'drag',
   DRAG_END: 'drag:end',
+  POSITION_CHANGE: 'position:change',
 });
 
 class Shape extends Component {
@@ -95,7 +95,7 @@ class Shape extends Component {
     const canvas = this.getCanvas();
 
     if (canvas && (width !== oldWidth || height !== oldHeight)) {
-      canvas.dispatchEvent(RESIZE_EVENT.RESIZE, this, {
+      canvas.dispatchEvent(RESIZE_EVENT.SIZE_CHANGE, this, {
         previous: oldSize,
         current: size,
       });
@@ -173,6 +173,20 @@ class Shape extends Component {
   _updateSize(width, height) {
     this._cWidth = width;
     this._cHeight = height;
+
+    return this._drawConnections();
+  }
+
+  _updateWidth(width) {
+    const { height } = this.getCurrentSize();
+
+    this._updateSize(width, height);
+  }
+
+  _updateHeight(height) {
+    const { width } = this.getCurrentSize();
+
+    this._updateSize(width, height);
   }
 
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
@@ -203,14 +217,18 @@ class Shape extends Component {
     this._height = height;
   }
 
-  setSize(width, height) {
+  setSize(...args) {
     const size = this.getSize();
+    let [width, height] = args;
+
+    if (args.length === 1) {
+      width = args[0].width;
+      height = args[0].height;
+    }
 
     this._mapSize(width, height);
     this._updateSize(width, height);
     this._sizeHasChanged(size);
-
-    return this._drawConnections();
   }
 
   getCurrentSize() {
@@ -251,8 +269,9 @@ class Shape extends Component {
   getPortPoint(position) {
     const { x, y } = this.getCurrentPosition();
     const { orientation, direction } = getPositionProps(position);
-    const xOffset = orientation === PORT_ORIENTATION.X ? this.getWidth() / 2 : 0;
-    const yOffset = orientation === PORT_ORIENTATION.Y ? this.getHeight() / 2 : 0;
+    const { width, height } = this.getCurrentSize();
+    const xOffset = orientation === PORT_ORIENTATION.X ? width / 2 : 0;
+    const yOffset = orientation === PORT_ORIENTATION.Y ? height / 2 : 0;
 
     return {
       x: x + (xOffset * direction),
@@ -399,7 +418,7 @@ class Shape extends Component {
    * @param {ResizeBehavior.DIRECTION} alignment The direction to align the Shape to.
    */
   align(boundary, alignment = null) {
-    const { width, height } = this.getSize();
+    const { width, height } = this.getCurrentSize();
     let { x, y } = Geometry.getBoundSizeAndPos(boundary);
 
     switch (alignment) {
@@ -429,7 +448,7 @@ class Shape extends Component {
       default:
     }
 
-    this.setPosition(x, y);
+    this._updatePosition(x, y);
   }
 
   getConnectionPort(target, mode) {

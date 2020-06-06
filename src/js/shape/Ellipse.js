@@ -25,11 +25,11 @@ class Ellipse extends Shape {
     const { mainElement } = this._dom;
 
     this._cWidth = width;
-    this._cHeigth = height;
+    this._cHeight = height;
 
     if (mainElement) {
       mainElement.setAttribute('rx', this._cWidth / 2);
-      mainElement.setAttribute('ry', this._cHeigth / 2);
+      mainElement.setAttribute('ry', this._cHeight / 2);
     }
   }
 
@@ -44,8 +44,8 @@ class Ellipse extends Shape {
     return this._radiusX;
   }
 
-  setWidth(width, keepProportion) {
-    return this.setRadiusX(width / 2, keepProportion);
+  setWidth(width) {
+    return this.setRadiusX(width / 2);
   }
 
   // TODO: this method is pretty similar to the one in Rectangle, Triangle
@@ -59,8 +59,8 @@ class Ellipse extends Shape {
     return this._radiusY;
   }
 
-  setHeight(height, keepProportion) {
-    return this.setRadiusY(height / 2, keepProportion);
+  setHeight(height) {
+    return this.setRadiusY(height / 2);
   }
 
   _mapSize(width, height) {
