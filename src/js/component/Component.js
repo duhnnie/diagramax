@@ -86,12 +86,10 @@ class Component extends Element {
   remove() {
     const { _canvas } = this;
 
-    this.unselect();
-
     if (_canvas) {
+      this.unselect();
       this._componentUI.remove();
       this._canvas = null;
-      _canvas.removeElement(this);
       super.remove();
       _canvas.dispatchEvent(EVENT.REMOVE, this);
     }

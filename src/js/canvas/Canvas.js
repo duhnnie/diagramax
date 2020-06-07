@@ -9,6 +9,7 @@ import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
 import KeyboardControlBehavior from '../behavior/KeyboardControlBehavior';
 import CommandFactory, { PRODUCTS as COMMAND_PRODUCTS } from '../command/CommandFactory';
 import CommandManager from '../command/CommandManager';
+import { EVENT as COMPONENT_EVENT } from '../component/Component';
 
 const DEFAULTS = Object.freeze({
   stackSize: 10,
@@ -79,6 +80,15 @@ class Canvas extends Element {
     return this._height;
   }
 
+  _onElementRemove(customEvent) {
+    const removedElement = customEvent.target;
+
+    if (this.hasElement(removedElement)) {
+      this._shapes.delete(removedElement) || this._connections.delete(removedElement);
+      this.removeEventListener(COMPONENT_EVENT.REMOVE, removedElement, this._onElementRemove, this);
+    }
+  }
+
   _drawElement(element) {
     if (this._html) {
       this._dom.componentsLayer.appendChild(element.getHTML());
@@ -98,6 +108,7 @@ class Canvas extends Element {
 
       element.setCanvas(this);
       this._drawElement(element);
+      this.addEventListener(COMPONENT_EVENT.REMOVE, element, this._onElementRemove, this);
     }
 
     return this;
@@ -105,15 +116,6 @@ class Canvas extends Element {
 
   hasElement(element) {
     return this._shapes.has(element) || this._connections.has(element);
-  }
-
-  removeElement(element) {
-    if (this.hasElement(element)) {
-      this._shapes.delete(element) || this._connections.delete(element);
-      element.remove();
-    }
-
-    return this;
   }
 
   clearElements() {
