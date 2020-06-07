@@ -271,6 +271,19 @@ class Canvas extends Element {
     this._executeCommand(command);
   }
 
+  setShapeSize(shape, ...args) {
+    let [width, height, direction] = args;
+
+    if (typeof args[0] === 'object') {
+      width = args[0].width;
+      height = args[0].height;
+      [, direction] = args;
+    }
+
+    const command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_RESIZE, shape, { width, height }, direction);
+    this._executeCommand(command);
+  }
+
   setShapeText(shape, text) {
     const command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_TEXT, shape, text);
     this._executeCommand(command);

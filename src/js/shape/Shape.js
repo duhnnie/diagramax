@@ -88,26 +88,6 @@ class Shape extends Component {
     return this;
   }
 
-  _sizeHasChanged(oldSize) {
-    const { oldWidth, oldHeight } = oldSize;
-    const size = this.getSize();
-    const { width, height } = size;
-    const canvas = this.getCanvas();
-
-    if (canvas && (width !== oldWidth || height !== oldHeight)) {
-      canvas.dispatchEvent(RESIZE_EVENT.SIZE_CHANGE, this, {
-        previous: oldSize,
-        current: size,
-      });
-    }
-  }
-
-  _triggerPositionChange(x, y) {
-    const canvas = this.getCanvas();
-
-    if (canvas) canvas.dispatchEvent(EVENT.POSITION_CHANGE, this, this.getPosition(), { x, y });
-  }
-
   _updatePosition(x, y) {
     this._cx = x;
     this._cy = y;
@@ -148,8 +128,8 @@ class Shape extends Component {
    * @param {Point} point An object containing Number values in its x and y properties.
    */
   setPosition(...args) {
-    const oldX = this._x;
-    const oldY = this._y;
+    const canvas = this.getCanvas();
+    const oldPosition = this.getPosition();
     let [x, y] = args;
 
     if (args.length === 1) {
@@ -160,7 +140,10 @@ class Shape extends Component {
     this._x = x;
     this._y = y;
     this._updatePosition(x, y);
-    this._triggerPositionChange(oldX, oldY);
+
+    if (canvas && (oldPosition.x !== x || oldPosition.y !== y)) {
+      canvas.dispatchEvent(EVENT.POSITION_CHANGE, this, this.getPosition(), oldPosition);
+    }
   }
 
   getPosition() {
@@ -218,7 +201,7 @@ class Shape extends Component {
   }
 
   setSize(...args) {
-    const size = this.getSize();
+    const oldSize = this.getSize();
     let [width, height] = args;
 
     if (args.length === 1) {
@@ -228,7 +211,15 @@ class Shape extends Component {
 
     this._mapSize(width, height);
     this._updateSize(width, height);
-    this._sizeHasChanged(size);
+
+    const canvas = this.getCanvas();
+
+    if (canvas && (width !== oldSize.width || height !== oldSize.height)) {
+      canvas.dispatchEvent(RESIZE_EVENT.SIZE_CHANGE, this, {
+        previous: oldSize,
+        current: { width, height },
+      });
+    }
   }
 
   getCurrentSize() {

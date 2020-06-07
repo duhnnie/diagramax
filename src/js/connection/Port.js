@@ -11,6 +11,7 @@ export const ORIENTATION = Object.freeze({
   Y: 'y',
 });
 
+// TOOD: this could be renamed to WAY and POSITION could be DIRECTION
 export const DIRECTION = Object.freeze({
   NEGATIVE: -1,
   POSITIVE: 1,
