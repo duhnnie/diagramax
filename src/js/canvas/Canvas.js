@@ -79,6 +79,13 @@ class Canvas extends Element {
     return this._height;
   }
 
+  _drawElement(element) {
+    if (this._html) {
+      this._dom.componentsLayer.appendChild(element.getHTML());
+      this._dom.uiLayer.appendChild(element.getUIHTML());
+    }
+  }
+
   addElement(element) {
     if (!this.hasElement(element)) {
       if (element instanceof Shape) {
@@ -90,11 +97,7 @@ class Canvas extends Element {
       }
 
       element.setCanvas(this);
-
-      if (this._html) {
-        this._dom.componentsLayer.appendChild(element.getHTML());
-        this._dom.uiLayer.appendChild(element.getUIHTML());
-      }
+      this._drawElement(element);
     }
 
     return this;
@@ -107,7 +110,6 @@ class Canvas extends Element {
   removeElement(element) {
     if (this.hasElement(element)) {
       this._shapes.delete(element) || this._connections.delete(element);
-      element.unselect();
       element.remove();
     }
 
@@ -329,16 +331,18 @@ class Canvas extends Element {
     this.setWidth(this._width)
       .setHeight(this._height);
 
+    // TODO: When migrate to EventTarget dispatch and event an make the attachment on
+    // the behavior itself.
+    // TODO: When migrate to WebComponents attach behavior on connecting.
     this._selectionBehavior.attachBehavior();
     this._connectivityAreaBehavior.attachBehavior();
     this._draggingAreaBehavior.attachBehavior();
     this._keyboardBehavior.attachBehavior();
-    // TODO: When migrate to EventTarget dispatch and event an make the attachment on
-    // the behavior itself.
-    // TODO: When migrate to WebComponents attach behavior on connecting.
 
-    return this.setElements([...this._shapes].slice(0))
-      .setID(this._id);
+    // TODO: This only draws Shapes, when working on DS-145 connections should be considered too.
+    this._shapes.forEach((element) => this._drawElement(element));
+
+    return this.setID(this._id);
   }
 }
 
