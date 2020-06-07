@@ -173,20 +173,6 @@ class ResizeBehavior extends DragBehavior {
         if (handler) {
           handler.setAttribute('cx', xPos);
           handler.setAttribute('cy', yPos);
-        } else {
-          const newHandler = ResizeBehavior.createHandler(xPos, yPos);
-          const { className, direction } = handlerDefs[index];
-
-          newHandler.classList.add(`handler-resize-${className}`);
-          newHandler.dataset.direction = direction;
-
-          // TODO: Fix this access to private member
-          this._target._addControl(newHandler, {
-            mousedown: this._onGrab,
-            mouseup: this.endDrag,
-          });
-
-          this._handlers[index] = newHandler;
         }
 
         index += 1;
@@ -369,11 +355,31 @@ class ResizeBehavior extends DragBehavior {
     this._updateHandlers();
   }
 
+  // TODO: handlers should be created in ShapeUI
+  _createHandlers() {
+    for (let i = 0; i < 8; i += 1) {
+      const newHandler = ResizeBehavior.createHandler(0, 0);
+      const { className, direction } = handlerDefs[i];
+
+      newHandler.classList.add(`handler-resize-${className}`);
+      newHandler.dataset.direction = direction;
+
+      // TODO: Fix this access to private member
+      this._target._addControl(newHandler, {
+        mousedown: this._onGrab,
+        mouseup: this.endDrag,
+      });
+
+      this._handlers[i] = newHandler;
+    }
+    this._updateHandlers();
+  }
+
   attachBehavior() {
     const { _target } = this;
     const canvas = _target.getCanvas();
 
-    this._updateHandlers();
+    this._createHandlers();
     canvas.addEventListener(EVENT.RESIZE, _target, this._onTargetResize);
     canvas.addEventListener(EVENT.SIZE_CHANGE, _target, this._onTargetResize);
   }

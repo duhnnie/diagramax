@@ -49,6 +49,7 @@ class Element {
   remove() {
     if (this._html) {
       this._html.remove();
+      this._html = null;
     }
   }
 }

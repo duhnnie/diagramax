@@ -236,7 +236,7 @@ class Connection extends Component {
         this);
       this._canvas.removeEventListener(SHAPE_EVENT.DRAG_END, shape, this._onShapeDragEnd,
         this);
-      this._canvas.removeEventListener(RESIZE_EVENT.START, shape, this._onShapeDragEnd, this);
+      this._canvas.removeEventListener(RESIZE_EVENT.START, shape, this._onShapeDragStart, this);
       this._canvas.removeEventListener(RESIZE_EVENT.END, shape, this._onShapeDragEnd, this);
     }
 

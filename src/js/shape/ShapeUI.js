@@ -39,6 +39,8 @@ class ShapeUI extends ComponentUI {
     return this;
   }
 
+  // TODO: Next lines were commented since this listeners are no set back at undo(), so maybe when moving to
+  // WebComponents it's not gonna be necessary to do this.
   remove() {
     const { _target, _handleTargetMove } = this;
 

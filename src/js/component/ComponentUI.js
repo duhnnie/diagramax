@@ -80,6 +80,11 @@ class ComponentUI extends Element {
 
     return this;
   }
+
+  remove() {
+    this._events.clear();
+    super.remove();
+  }
 }
 
 export default ComponentUI;
