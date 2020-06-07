@@ -321,10 +321,20 @@ class Shape extends Component {
   }
 
   getConnectedShapes() {
-    return {
-      prev: [...this.getIncomingConnections()].map((i) => i.getOrigShape()),
-      next: [...this.getOutgoingConnections()].map((i) => i.getDestShape()),
-    };
+    const connectedShapes = new Set();
+
+    this._connections.forEach((connection) => {
+      const origShape = connection.getOrigShape();
+      const isOrigShape = this === origShape;
+      const otherShape = isOrigShape ? connection.getDestShape() : origShape;
+
+      connectedShapes.add([
+        otherShape,
+        isOrigShape ? PORT_MODE.DEST : PORT_MODE.ORIG,
+      ]);
+    });
+
+    return connectedShapes;
   }
 
   _removeFromPorts(connection) {

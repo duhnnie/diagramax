@@ -14,7 +14,7 @@ class KeyboardControlBehavior extends Behavior {
     switch (event.code) {
       case 'Delete':
         // TODO: this could be a Canvas' function, like removeSelection();
-        _target.getSelection().forEach((element) => element.remove());
+        _target.getSelection().forEach((element) => _target.removeElement(element));
         break;
       case 'Escape':
         // TODO: this could be a Canvas' method, like endCurrentProcess():

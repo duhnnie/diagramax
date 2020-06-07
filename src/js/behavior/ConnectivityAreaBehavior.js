@@ -90,8 +90,8 @@ class ConnectivityAreaBehavior extends Behavior {
   connect(origin, destination) {
     const target = this._target;
 
-    origin = origin instanceof Shape ? origin : target.getElementById(origin);
-    destination = destination instanceof Shape ? destination : target.getElementById(destination);
+    origin = origin instanceof Shape ? origin : target.findShape(origin);
+    destination = destination instanceof Shape ? destination : target.findShape(destination);
 
     // TODO: This is hot fix, this shoudl be handled by proxied functions
     // a ticket for that was created #73

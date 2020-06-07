@@ -9,7 +9,7 @@ import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
 import KeyboardControlBehavior from '../behavior/KeyboardControlBehavior';
 import CommandFactory, { PRODUCTS as COMMAND_PRODUCTS } from '../command/CommandFactory';
 import CommandManager from '../command/CommandManager';
-import { EVENT as COMPONENT_EVENT } from '../component/Component';
+import Component, { EVENT as COMPONENT_EVENT } from '../component/Component';
 
 const DEFAULTS = Object.freeze({
   stackSize: 10,
@@ -96,6 +96,8 @@ class Canvas extends Element {
     }
   }
 
+  // TODO: addElement can add Connection instances too, does it make sense?
+  // Connections MAYBE should be created implicitly at creating a connection between two shapes.
   addElement(element) {
     if (!this.hasElement(element)) {
       if (element instanceof Shape) {
@@ -112,6 +114,21 @@ class Canvas extends Element {
     }
 
     return this;
+  }
+
+  removeElement(element) {
+    const elementToRemove = this.findShape(element) || this.findConnection(element);
+    let command;
+
+    if (elementToRemove && elementToRemove instanceof Shape) {
+      command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_REMOVE, elementToRemove);
+    } else if (elementToRemove && elementToRemove instanceof Connection) {
+
+    }
+
+    if (command) {
+      this._executeCommand(command);
+    }
   }
 
   hasElement(element) {
@@ -136,8 +153,28 @@ class Canvas extends Element {
     return [...this._connections];
   }
 
-  getElementById(id) {
-    return [...this._shapes].find((i) => i.getID() === id) || [...this._connections].find((i) => i.getID() === id);
+  findShape(shape) {
+    if (typeof shape === 'string') {
+      return [...this._shapes].find((i) => i.getID() === shape) || null;
+    }
+
+    if (shape instanceof Shape) {
+      return this._shapes.has(shape) ? shape : null;
+    }
+
+    throw new Error('findShape(): Invalid parameter.');
+  }
+
+  findConnection(connection) {
+    if (typeof connection === 'string') {
+      return [...this._connections].find((i) => i.getID() === connection) || null;
+    }
+
+    if (connection instanceof Connection) {
+      return this._connections.has(connection) ? connection : null;
+    }
+
+    throw new Error('findConnection(): Invalid parameter.');
   }
 
   addEventListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
