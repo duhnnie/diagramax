@@ -116,6 +116,18 @@ class Canvas extends Element {
     return this;
   }
 
+  // TODO: addElement and this method do the same, with the expection that this one execute de addition as a command,
+  // so for allow undo/redo this method should be used. In a future a canvas' wrapper should be applied (Diagram?) and
+  // move this method (and all the ones that execute commands to it).
+  addShape(shape) {
+    // TODO: make support shape as a string too.
+    if (!this.findShape(shape)) {
+      const command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_ADD, this, shape);
+
+      this._executeCommand(command);
+    }
+  }
+
   removeElement(element) {
     const elementToRemove = this.findShape(element) || this.findConnection(element);
     let command;

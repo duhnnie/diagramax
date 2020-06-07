@@ -109,34 +109,39 @@
 
                 document.querySelector('#add').addEventListener('click', () => {
                   const selection = document.querySelector('#shape-selector').value;
+                  const position = { x: 50, y: 50 };
                   let shape;
 
                   switch (selection) {
                     case 'Circle':
                       shape = new Designer.Circle({
-                        text: `Circle #${counter}`
+                        text: `Circle #${counter}`,
+                        position,
                       });
                       break;
                     case 'Rectangle':
                       shape = new Designer.Rectangle({
-                        text: `Rectangle #${counter}`
+                        text: `Rectangle #${counter}`,
+                        position,
                       });
                       break;
                     case 'Triangle':
                       shape = new Designer.Triangle({
-                        text: `Triangle #${counter}`
+                        text: `Triangle #${counter}`,
+                        position,
                       });
                       break;
                     case 'Ellipse':
                       shape = new Designer.Ellipse({
-                        text: `Ellipse #${counter}`
+                        text: `Ellipse #${counter}`,
+                        position,
                       });
                       break;
                     default:
                   }
 
                   if (shape) {
-                    canvas.addElement(shape);
+                    canvas.addShape(shape);
                     counter += 1;
                   }
                 }, false);

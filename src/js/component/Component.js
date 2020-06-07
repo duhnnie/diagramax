@@ -40,6 +40,8 @@ class Component extends Element {
   }
 
   // TODO: make this method internal.
+  // TODO: in this method a call to canvas.addElement(), this method adds the shape to the canvas, so maybe this method
+  // should be refactored, this method shouldn't add shape to canvas
   setCanvas(canvas) {
     if (!(canvas === null || canvas instanceof Canvas)) {
       throw new Error('setCanvas(): Invalid parameter.');
