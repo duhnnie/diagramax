@@ -129,16 +129,20 @@ class Canvas extends Element {
   }
 
   removeElement(element) {
-    const elementToRemove = this.findShape(element) || this.findConnection(element);
+    let elementToRemove;
+    let commandType;
     let command;
 
-    if (elementToRemove && elementToRemove instanceof Shape) {
-      command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_REMOVE, elementToRemove);
-    } else if (elementToRemove && elementToRemove instanceof Connection) {
-
+    if (element instanceof Shape) {
+      elementToRemove = this.findShape(element);
+      commandType = COMMAND_PRODUCTS.SHAPE_REMOVE;
+    } else if (element instanceof Connection) {
+      elementToRemove = this.findConnection(element);
+      commandType = COMMAND_PRODUCTS.CONNECTION_REMOVE;
     }
 
-    if (command) {
+    if (elementToRemove) {
+      command = CommandFactory.create(commandType, elementToRemove);
       this._executeCommand(command);
     }
   }
