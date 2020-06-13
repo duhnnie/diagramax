@@ -2,8 +2,8 @@ import Element from '../core/Element';
 import Shape from './Shape';
 
 const DEFAULTS = {
-  radiusX: 100,
-  radiusY: 80,
+  radiusX: 50,
+  radiusY: 40,
 };
 
 class Ellipse extends Shape {
@@ -90,7 +90,7 @@ class Ellipse extends Shape {
       ellipse.setAttribute('stroke-width', '4');
 
       this._dom.mainElement = ellipse;
-      this.setSize(this._radiusX, this._radiusY);
+      this.setSize(this._radiusX * 2, this._radiusY * 2);
 
       super._createHTML();
     }
