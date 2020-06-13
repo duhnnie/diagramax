@@ -267,6 +267,8 @@ class Connection extends Component {
     this._dragBehavior.end();
   }
 
+  // TODO: for robbustness we need to verify that connection, origShape and destShape
+  // are in the same canvas IMPORTANT!
   connect(origShape, destShape) {
     if (origShape.canAcceptConnection(PORT_MODE.ORIG, destShape)
       && destShape.canAcceptConnection(PORT_MODE.DEST, origShape)) {

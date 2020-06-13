@@ -5,6 +5,7 @@ import ShapeResizeCommand from './ShapeResizeCommand';
 import ShapeRemoveCommand from './ShapeRemoveCommand';
 import ShapeAddCommand from './ShapeAddCommand';
 import ConnectionRemoveCommand from './ConnectionRemoveCommand';
+import ConnectCommand from './ConnectCommand';
 
 const PRODUCTS = Object.freeze({
   SHAPE_ADD: 'shape_add',
@@ -12,6 +13,7 @@ const PRODUCTS = Object.freeze({
   SHAPE_POSITION: 'shape_position',
   SHAPE_RESIZE: 'shape_resize',
   SHAPE_REMOVE: 'shape_remove',
+  CONNECT: 'connect',
   CONNECTION_REMOVE: 'connection_remove',
 });
 
@@ -22,6 +24,7 @@ const CommandFactory = new Factory({
     [PRODUCTS.SHAPE_POSITION]: ShapePositioningCommand,
     [PRODUCTS.SHAPE_RESIZE]: ShapeResizeCommand,
     [PRODUCTS.SHAPE_REMOVE]: ShapeRemoveCommand,
+    [PRODUCTS.CONNECT]: ConnectCommand,
     [PRODUCTS.CONNECTION_REMOVE]: ConnectionRemoveCommand,
   },
 });

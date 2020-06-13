@@ -219,6 +219,7 @@ class Canvas extends Element {
       && !origin._connectivityBehavior._disabled && !destination._connectivityBehavior._disabled) {
 
       if (connection) {
+        connection.setCanvas(this);
         connection.connect(origin, destination);
       } else {
         connection = new Connection({
