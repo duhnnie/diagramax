@@ -209,10 +209,27 @@ class Canvas extends Element {
     return this;
   }
 
-  connect(origin, destination) {
-    this._connectivityAreaBehavior.connect(origin, destination);
+  connect(origin, destination, connection = null) {
+    origin = origin instanceof Shape ? origin : this.findShape(origin);
+    destination = destination instanceof Shape ? destination : this.findShape(destination);
 
-    return this;
+    // TODO: This is hot fix, this should be handled by proxied functions
+    // a ticket for that was created #73
+    if (origin && destination
+      && !origin._connectivityBehavior._disabled && !destination._connectivityBehavior._disabled) {
+
+      if (connection) {
+        connection.connect(origin, destination);
+      } else {
+        connection = new Connection({
+          canvas: this,
+          origShape: origin,
+          destShape: destination,
+        });
+      }
+    }
+
+    return connection;
   }
 
   trigger(eventName, ...args) {

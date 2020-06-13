@@ -86,15 +86,15 @@ class DraggableConnectionBehavior extends DragBehavior {
     // TODO: next line is a workaround, find a way to allow click into canvas with a Connection.
     this._target.getHTML().removeAttribute('pointer-events');
 
+    // TODO: Check if all inherited classes from DragBehavior make following call,
+    // if they do, so it could be move to its end() method.
+    this._target.getCanvas().setDraggingConnection(null);
+
     if (_target.getOrigShape() && _target.getDestShape()) {
       _target.make();
     } else {
       _target.remove();
     }
-
-    // TODO: Check if all inherited classes from DragBehavior make following call,
-    // if they do, so it could be move to its end() method.
-    this._target.getCanvas().setDraggingConnection(null);
   }
 
   // TODO: Consider remove endDrag() method in favor of end().

@@ -21,7 +21,6 @@ class ConnectivityAreaBehavior extends Behavior {
 
   end() {
     if (this._connection) {
-      this._target.setDraggingConnection(null);
       this._connection.end();
     }
     this._shape = null;
@@ -49,9 +48,9 @@ class ConnectivityAreaBehavior extends Behavior {
   complete(shape) {
     if (this._shape && shape) {
       if (this._direction === PORT_MODE.ORIG) {
-        this._connection.connect(shape, this._shape);
+        this._target.connect(shape, this._shape, this._connection);
       } else {
-        this._connection.connect(this._shape, shape);
+        this._target.connect(this._shape, shape, this._connection);
       }
     }
 
@@ -86,25 +85,10 @@ class ConnectivityAreaBehavior extends Behavior {
     this._canvasOffset = this._target.getHTML().getBoundingClientRect();
   }
 
-  // TODO: maybe this should be replaced by the call canvas' startConnection() and completeConnection();
+  // TODO: maybe this should be replaced by the call canvas' startConnection() and completeConnection() or think to
+  // move it back to Canvas;
   connect(origin, destination) {
-    const target = this._target;
-
-    origin = origin instanceof Shape ? origin : target.findShape(origin);
-    destination = destination instanceof Shape ? destination : target.findShape(destination);
-
-    // TODO: This is hot fix, this shoudl be handled by proxied functions
-    // a ticket for that was created #73
-    if (origin && destination
-      && !origin._connectivityBehavior._disabled && !destination._connectivityBehavior._disabled) {
-      const connection = new Connection({
-        canvas: target,
-        origShape: origin,
-        destShape: destination,
-      });
-    }
-
-    return this;
+    this._target.connect(origin, destination);
   }
 
   attachBehavior() {
