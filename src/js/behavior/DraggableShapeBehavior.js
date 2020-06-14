@@ -1,5 +1,8 @@
 import DragBehavior from './DragBehavior';
 import Shape, { EVENT as SHAPE_EVENT } from '../shape/Shape';
+import Geometry from '../utils/Geometry';
+import CommandFactory, { PRODUCTS as COMMANDS } from '../command/CommandFactory';
+
 class DraggableShapeBehavior extends DragBehavior {
   constructor(target, settings) {
     if (!(target instanceof Shape)) {
@@ -44,7 +47,17 @@ class DraggableShapeBehavior extends DragBehavior {
       // TODO: Can this be generalized in DragBehavior?
       canvas.setDraggingShape(null);
       if (_dragging) {
-        canvas.setShapePosition(_target, this._lastDragPosition);
+        const diff = Geometry.getDiff(_target.getPosition(), this._lastDragPosition);
+
+        if (diff.x > 0 || diff.y > 0) {
+          const command = CommandFactory.create(COMMANDS.SHAPE_POSITION, _target, this._lastDragPosition);
+
+          canvas._executeCommand(command);
+          // canvas.setShapePosition(_target, this._lastDragPosition);
+        } else {
+          _target.setPosition(this._lastDragPosition);
+        }
+
         canvas.dispatchEvent(SHAPE_EVENT.DRAG_END, _target);
       }
       this._lastPosition = null;

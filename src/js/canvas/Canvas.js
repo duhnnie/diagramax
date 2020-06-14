@@ -9,7 +9,7 @@ import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
 import KeyboardControlBehavior from '../behavior/KeyboardControlBehavior';
 import CommandFactory, { PRODUCTS as COMMAND_PRODUCTS } from '../command/CommandFactory';
 import CommandManager from '../command/CommandManager';
-import Component, { EVENT as COMPONENT_EVENT } from '../component/Component';
+import { EVENT as COMPONENT_EVENT } from '../component/Component';
 
 const DEFAULTS = Object.freeze({
   stackSize: 10,
@@ -339,11 +339,6 @@ class Canvas extends Element {
 
   _executeCommand(command) {
     this._commandManager.executeCommand(command);
-  }
-
-  setShapePosition(shape, ...position) {
-    const command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_POSITION, shape, ...position);
-    this._executeCommand(command);
   }
 
   setShapeSize(shape, ...args) {
