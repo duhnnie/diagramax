@@ -2,6 +2,8 @@ import Behavior from './Behavior';
 import Shape from '../shape/Shape';
 import Connection from '../connection/Connection';
 import { MODE as PORT_MODE } from '../connection/Port';
+// TODO: Simplify import alias in whole project, like next line:
+import CommandFactory, { PRODUCTS as COMMANDS } from '../command/CommandFactory';
 
 class ConnectivityAreaBehavior extends Behavior {
   constructor(target, settings) {
@@ -21,7 +23,6 @@ class ConnectivityAreaBehavior extends Behavior {
 
   end() {
     if (this._connection) {
-      this._target.setDraggingConnection(null);
       this._connection.end();
     }
     this._shape = null;
@@ -48,10 +49,23 @@ class ConnectivityAreaBehavior extends Behavior {
 
   complete(shape) {
     if (this._shape && shape) {
+      const currentOrig = this._connection.getOrigShape();
+      const currentDest = this._connection.getDestShape();
+      let orig;
+      let dest;
+
       if (this._direction === PORT_MODE.ORIG) {
-        this._connection.connect(shape, this._shape);
+        orig = shape;
+        dest = this._shape;
       } else {
-        this._connection.connect(this._shape, shape);
+        orig = this._shape;
+        dest = shape;
+      }
+
+      if (currentOrig !== orig || currentDest !== dest) {
+        const command = CommandFactory.create(COMMANDS.CONNECT, this._target, orig, dest, this._connection);
+        // TODO: Fix access to protected method.
+        this._target._executeCommand(command);
       }
     }
 
@@ -86,25 +100,10 @@ class ConnectivityAreaBehavior extends Behavior {
     this._canvasOffset = this._target.getHTML().getBoundingClientRect();
   }
 
-  // TODO: maybe this should be replaced by the call canvas' startConnection() and completeConnection();
+  // TODO: maybe this should be replaced by the call canvas' startConnection() and completeConnection() or think to
+  // move it back to Canvas;
   connect(origin, destination) {
-    const target = this._target;
-
-    origin = origin instanceof Shape ? origin : target.getElementById(origin);
-    destination = destination instanceof Shape ? destination : target.getElementById(destination);
-
-    // TODO: This is hot fix, this shoudl be handled by proxied functions
-    // a ticket for that was created #73
-    if (origin && destination
-      && !origin._connectivityBehavior._disabled && !destination._connectivityBehavior._disabled) {
-      const connection = new Connection({
-        canvas: target,
-        origShape: origin,
-        destShape: destination,
-      });
-    }
-
-    return this;
+    this._target.connect(origin, destination);
   }
 
   attachBehavior() {

@@ -19,41 +19,45 @@ class Circle extends Shape {
     this.setRadius(settings.radius);
   }
 
-  _updateSize() {
+  _updateSize(width, height) {
     const { mainElement } = this._dom;
+    const diameter = Math.min(width, height);
 
     if (mainElement) {
-      mainElement.setAttribute('r', this._radius);
+      mainElement.setAttribute('r', diameter / 2);
     }
+
+    super._updateSize(diameter, diameter);
+  }
+
+  _updateWidth(width) {
+    this._updateSize(width, width);
+  }
+
+  _updateHeight(height) {
+    this._updateSize(height, height);
   }
 
   setRadius(radius) {
-    const size = this.getSize();
+    const diameter = radius * 2;
 
-    this._radius = radius;
-
-    if (!this.__bulkAction) {
-      this._updateSize();
-      this._sizeHasChanged(size);
-    }
-
-    return this;
+    return this.setSize(diameter, diameter);
   }
 
   setWidth(width) {
-    return this.setRadius(width / 2);
+    return this.setSize(width, width);
   }
 
   setHeight(height) {
-    return this.setRadius(height / 2);
+    return this.setSize(height, height);
   }
 
   getRadius() {
     return this._radius;
   }
 
-  setSize(width, height) {
-    this.setWidth(Math.min(width, height));
+  _mapSize(width, height) {
+    this._radius = Math.min(width, height) / 2;
   }
 
   getBounds() {

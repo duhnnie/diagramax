@@ -38,10 +38,10 @@ const DEFAULTS = {
 };
 
 export const EVENT = Object.freeze({
-  POSITION_CHANGE: 'position:change',
   DRAG_START: 'drag:start',
-  DRAG: 'position:change',
+  DRAG: 'drag',
   DRAG_END: 'drag:end',
+  POSITION_CHANGE: 'position:change',
 });
 
 class Shape extends Component {
@@ -49,8 +49,13 @@ class Shape extends Component {
     super(settings);
     this._x = null;
     this._y = null;
+    this._cx = null;
+    this._cy = null;
+    this._cWidth = null;
+    this._cHeight = null;
     this._connections = new Set();
     this._ports = [];
+    // TODO: component's text is defined in Component, so this behavior should be defined in that class.
     this._editableBehavior = new EditableTextBehavior(this);
     this._dragBehavior = new RegularDraggableShapeBehavior(this);
     this._connectivityBehavior = new ConnectivityBehavior(this);
@@ -83,41 +88,19 @@ class Shape extends Component {
     return this;
   }
 
-  _sizeHasChanged(oldSize) {
-    const { oldWidth, oldHeight } = oldSize;
-    const size = this.getSize();
-    const { width, height } = size;
-    const canvas = this.getCanvas();
+  _updatePosition(x, y) {
+    this._cx = x;
+    this._cy = y;
 
-    if (canvas && (width !== oldWidth || height !== oldHeight)) {
-      canvas.dispatchEvent(RESIZE_EVENT.RESIZE, this, {
-        previous: oldSize,
-        current: size,
-      });
+    if (this._html) {
+      this._html.setAttribute('transform', `translate(${x}, ${y})`);
+      // TODO: Connections should be drawn from Connection itself at listening Shape's drag and position change event.
+      this._drawConnections();
     }
-  }
-
-  _triggerPositionChange(x, y) {
-    const canvas = this.getCanvas();
-
-    if (canvas) canvas.dispatchEvent(EVENT.POSITION_CHANGE, this, this.getPosition(), { x, y });
   }
 
   setX(x) {
-    const oldX = this._x;
-
-    this._x = x;
-
-    if (this._html) {
-      this._html.setAttribute('transform', `translate(${x}, ${this._y})`);
-
-      if (!this.__bulkAction) {
-        this._drawConnections();
-        this._triggerPositionChange(oldX, this._y);
-      }
-    }
-
-    return this;
+    this.setPosition(x, this._y);
   }
 
   getX() {
@@ -125,39 +108,42 @@ class Shape extends Component {
   }
 
   setY(y) {
-    const oldY = this._y;
-
-    this._y = y;
-
-    if (this._html) {
-      this._html.setAttribute('transform', `translate(${this._x}, ${y})`);
-
-      if (!this.__bulkAction) {
-        this._drawConnections();
-        this._triggerPositionChange(this._x, oldY);
-      }
-    }
-
-    return this;
+    this.setPosition(this._x, y);
   }
 
   getY() {
     return this._y;
   }
 
-  setPosition(x, y) {
-    const oldX = this._x;
-    const oldY = this._y;
+  getCurrentPosition() {
+    return { x: this._cx, y: this._cy };
+  }
 
-    this.__bulkAction = true;
+  /**
+   * Set's the shape's position.
+   * @param {Number} x The x coordinate.
+   * @param {Number} y The y coordinate.
+   *//**
+   * Set's the shape's position.
+   * @param {Point} point An object containing Number values in its x and y properties.
+   */
+  setPosition(...args) {
+    const canvas = this.getCanvas();
+    const oldPosition = this.getPosition();
+    let [x, y] = args;
 
-    this.setX(x)
-      .setY(y);
+    if (args.length === 1) {
+      x = args[0].x;
+      y = args[0].y;
+    }
 
-    this.__bulkAction = false;
+    this._x = x;
+    this._y = y;
+    this._updatePosition(x, y);
 
-    this._drawConnections();
-    this._triggerPositionChange(oldX, oldY);
+    if (canvas && (oldPosition.x !== x || oldPosition.y !== y)) {
+      canvas.dispatchEvent(EVENT.POSITION_CHANGE, this, this.getPosition(), oldPosition);
+    }
   }
 
   getPosition() {
@@ -167,9 +153,23 @@ class Shape extends Component {
     };
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  _updateSize() {
-    throw new Error('updateSize(): This method should be implemented.');
+  _updateSize(width, height) {
+    this._cWidth = width;
+    this._cHeight = height;
+
+    return this._drawConnections();
+  }
+
+  _updateWidth(width) {
+    const { height } = this.getCurrentSize();
+
+    this._updateSize(width, height);
+  }
+
+  _updateHeight(height) {
+    const { width } = this.getCurrentSize();
+
+    this._updateSize(width, height);
   }
 
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
@@ -190,24 +190,43 @@ class Shape extends Component {
     return this.getSize().height;
   }
 
+  // TODO: is this useful?
   getRatio() {
     return this.getWidth() / this.getHeight();
   }
 
-  setSize(width, height) {
-    const size = this.getSize();
+  _mapSize(width, height) {
+    this._width = width;
+    this._height = height;
+  }
 
-    this.__bulkAction = true;
+  setSize(...args) {
+    const oldSize = this.getSize();
+    let [width, height] = args;
 
-    this.setWidth(width)
-      .setHeight(height);
+    if (args.length === 1) {
+      width = args[0].width;
+      height = args[0].height;
+    }
 
-    this._updateSize();
-    this._sizeHasChanged(size);
+    this._mapSize(width, height);
+    this._updateSize(width, height);
 
-    this.__bulkAction = false;
+    const canvas = this.getCanvas();
 
-    return this._drawConnections();
+    if (canvas && (width !== oldSize.width || height !== oldSize.height)) {
+      canvas.dispatchEvent(RESIZE_EVENT.SIZE_CHANGE, this, {
+        previous: oldSize,
+        current: { width, height },
+      });
+    }
+  }
+
+  getCurrentSize() {
+    return {
+      width: this._cWidth,
+      height: this._cHeight,
+    };
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -239,10 +258,11 @@ class Shape extends Component {
   }
 
   getPortPoint(position) {
-    const { x, y } = this.getPosition();
+    const { x, y } = this.getCurrentPosition();
     const { orientation, direction } = getPositionProps(position);
-    const xOffset = orientation === PORT_ORIENTATION.X ? this.getWidth() / 2 : 0;
-    const yOffset = orientation === PORT_ORIENTATION.Y ? this.getHeight() / 2 : 0;
+    const { width, height } = this.getCurrentSize();
+    const xOffset = orientation === PORT_ORIENTATION.X ? width / 2 : 0;
+    const yOffset = orientation === PORT_ORIENTATION.Y ? height / 2 : 0;
 
     return {
       x: x + (xOffset * direction),
@@ -301,10 +321,20 @@ class Shape extends Component {
   }
 
   getConnectedShapes() {
-    return {
-      prev: [...this.getIncomingConnections()].map((i) => i.getOrigShape()),
-      next: [...this.getOutgoingConnections()].map((i) => i.getDestShape()),
-    };
+    const connectedShapes = new Set();
+
+    this._connections.forEach((connection) => {
+      const origShape = connection.getOrigShape();
+      const isOrigShape = this === origShape;
+      const otherShape = isOrigShape ? connection.getDestShape() : origShape;
+
+      connectedShapes.add([
+        otherShape,
+        isOrigShape ? PORT_MODE.DEST : PORT_MODE.ORIG,
+      ]);
+    });
+
+    return connectedShapes;
   }
 
   _removeFromPorts(connection) {
@@ -389,7 +419,7 @@ class Shape extends Component {
    * @param {ResizeBehavior.DIRECTION} alignment The direction to align the Shape to.
    */
   align(boundary, alignment = null) {
-    const { width, height } = this.getSize();
+    const { width, height } = this.getCurrentSize();
     let { x, y } = Geometry.getBoundSizeAndPos(boundary);
 
     switch (alignment) {
@@ -419,16 +449,17 @@ class Shape extends Component {
       default:
     }
 
-    this.setPosition(x, y);
+    this._updatePosition(x, y);
   }
 
   getConnectionPort(target, mode) {
     const isShape = target instanceof Shape;
     const otherPosition = isShape ? target.getPosition() : target.point;
     const bounds = this.getBounds();
+    const position = this.getCurrentPosition();
     let relativePosition = Geometry.getNormalizedPosition(
-      mode === PORT_MODE.ORIG ? this.getPosition() : otherPosition,
-      mode === PORT_MODE.ORIG ? otherPosition : this.getPosition(),
+      mode === PORT_MODE.ORIG ? position : otherPosition,
+      mode === PORT_MODE.ORIG ? otherPosition : position,
     );
     let overlapX = false;
     let overlapY = false;

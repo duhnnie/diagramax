@@ -6,6 +6,7 @@ export const EVENT = Object.freeze({
   START: 'resizestart',
   RESIZE: 'resize',
   END: 'resizeend',
+  SIZE_CHANGE: 'size:change',
 });
 
 export const DIRECTION = {
@@ -96,7 +97,8 @@ class ResizeBehavior extends DragBehavior {
     super(target, settings);
 
     this._handlers = [];
-    this._currentHandler = null;
+    this._direction = null;
+    this._centered = null;
     this._originalRatio = null;
     this._originalBound = null;
     this.endDrag = this.endDrag.bind(this);
@@ -106,25 +108,23 @@ class ResizeBehavior extends DragBehavior {
   _onGrab(event) {
     const { target: handler } = event;
     const { _target } = this;
-    const { width, height } = _target.getSize();
 
     super._onGrab(event);
 
-    this._originalRatio = width / height;
-    this._currentHandler = handler;
-    this._originalBound = _target.getBounds();
+    this._direction = handler.dataset.direction;
     _target.getCanvas().setResizingShape(_target);
   }
 
   startDrag(position, options) {
     const { _target } = this;
+    const { width, height } = _target.getSize();
 
-    if (!this._currentHandler) {
-      // eslint-disable-next-line arrow-body-style
-      this._currentHandler = this._handlers.find((handler) => {
-        return handler.dataset.direction === options.direction;
-      });
+    if (this._direction === null) {
+      this._direction = options.direction;
     }
+
+    this._originalRatio = width / height;
+    this._originalBound = _target.getBounds();
 
     // TODO: fix this access to a protected member.
     _target._componentUI.setActive();
@@ -136,12 +136,15 @@ class ResizeBehavior extends DragBehavior {
   }
 
   endDrag(event) {
-    this._currentHandler = null;
-
     if (this._dragging) {
       const { _target } = this;
       const canvas = _target.getCanvas();
 
+      canvas.setShapeSize(_target, _target.getCurrentSize(), this._centered ? null : this._direction);
+      this._direction = null;
+      this._centered = null;
+      this._originalBound = null;
+      this._originalRatio = null;
       this._updateHandlers();
       super.endDrag(event);
       canvas.setResizingShape(null);
@@ -149,8 +152,9 @@ class ResizeBehavior extends DragBehavior {
     }
   }
 
-  _updateHandlers(newSize) {
-    const { width: targetWidth, height: targetHeight } = newSize || this._target.getSize();
+  // TODO: Maybe the handlers should be updated in ShapeUI.
+  _updateHandlers() {
+    const { width: targetWidth, height: targetHeight } = this._target.getCurrentSize();
     const xPoints = [-1, 0, 1];
     const yPoints = [-1, 0, 1];
     const hOffset = (targetWidth * 0.5);
@@ -169,20 +173,6 @@ class ResizeBehavior extends DragBehavior {
         if (handler) {
           handler.setAttribute('cx', xPos);
           handler.setAttribute('cy', yPos);
-        } else {
-          const newHandler = ResizeBehavior.createHandler(xPos, yPos);
-          const { className, direction } = handlerDefs[index];
-
-          newHandler.classList.add(`handler-resize-${className}`);
-          newHandler.dataset.direction = direction;
-
-          // TODO: Fix this access to private member
-          this._target._addControl(newHandler, {
-            mousedown: this._onGrab,
-            mouseup: this.endDrag,
-          });
-
-          this._handlers[index] = newHandler;
         }
 
         index += 1;
@@ -310,15 +300,15 @@ class ResizeBehavior extends DragBehavior {
    * @returns {Boolean}
    */
   // eslint-disable-next-line class-methods-use-this
-  _shouldKeepPosition(modifiers) {
+  _isCentered(modifiers) {
     return modifiers.altKey;
   }
 
   updatePosition(position, options, modifiers) {
-    if (!this._currentHandler) return;
+    if (this._direction === null) return;
 
     const { _target } = this;
-    const direction = this._currentHandler.dataset.direction || options.direction;
+    const direction = this._direction;
     const bounds = this._getNewBounds(position, direction);
     const modifiedBounds = this._getModifiedBounds(bounds, modifiers, direction);
 
@@ -331,19 +321,19 @@ class ResizeBehavior extends DragBehavior {
     switch (direction) {
       case DIRECTION.W:
       case DIRECTION.E:
-        _target.setHeight(height);
-        _target.setWidth(width);
+        _target._updateWidth(width);
         break;
       case DIRECTION.N:
       case DIRECTION.S:
-        _target.setWidth(width);
-        _target.setHeight(height);
+        _target._updateHeight(height);
         break;
       default:
-        _target.setSize(width, height);
+        _target._updateSize(width, height);
     }
 
-    if (this._shouldKeepPosition(modifiers)) {
+    this._centered = this._isCentered(modifiers);
+
+    if (this._centered) {
       const { x, y } = Geometry.getBoundSizeAndPos(this._originalBound);
 
       _target.setPosition(x, y);
@@ -352,10 +342,7 @@ class ResizeBehavior extends DragBehavior {
     }
 
     super.updatePosition(position);
-  }
-
-  getCurrentDirection() {
-    return this._currentHandler && this._currentHandler.dataset.direction;
+    _target.getCanvas().dispatchEvent(EVENT.RESIZE, _target, { width, height }, _target.getCurrentPosition());
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -368,9 +355,33 @@ class ResizeBehavior extends DragBehavior {
     this._updateHandlers();
   }
 
-  attachBehavior() {
+  // TODO: handlers should be created in ShapeUI
+  _createHandlers() {
+    for (let i = 0; i < 8; i += 1) {
+      const newHandler = ResizeBehavior.createHandler(0, 0);
+      const { className, direction } = handlerDefs[i];
+
+      newHandler.classList.add(`handler-resize-${className}`);
+      newHandler.dataset.direction = direction;
+
+      // TODO: Fix this access to private member
+      this._target._addControl(newHandler, {
+        mousedown: this._onGrab,
+        mouseup: this.endDrag,
+      });
+
+      this._handlers[i] = newHandler;
+    }
     this._updateHandlers();
-    this._target.getCanvas().addEventListener(EVENT.RESIZE, this._target, this._onTargetResize);
+  }
+
+  attachBehavior() {
+    const { _target } = this;
+    const canvas = _target.getCanvas();
+
+    this._createHandlers();
+    canvas.addEventListener(EVENT.RESIZE, _target, this._onTargetResize);
+    canvas.addEventListener(EVENT.SIZE_CHANGE, _target, this._onTargetResize);
   }
 }
 
