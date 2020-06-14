@@ -26,7 +26,6 @@ class Element {
    * Creates an instance of Circle.
    *
    * @constructor
-   * @author: moi
    * @param {Object} settings An object containing all the settings for the element.
    * @param {String} [settings.id] The id for the HTML element, if not provided one will be generated.
    */
