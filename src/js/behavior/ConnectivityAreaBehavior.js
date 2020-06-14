@@ -49,6 +49,8 @@ class ConnectivityAreaBehavior extends Behavior {
 
   complete(shape) {
     if (this._shape && shape) {
+      const currentOrig = this._connection.getOrigShape();
+      const currentDest = this._connection.getDestShape();
       let orig;
       let dest;
 
@@ -60,10 +62,11 @@ class ConnectivityAreaBehavior extends Behavior {
         dest = shape;
       }
 
-      const command = CommandFactory.create(COMMANDS.CONNECT, this._target, orig, dest, this._connection);
-
-      // TODO: Fix access to protected method.
-      this._target._executeCommand(command);
+      if (currentOrig !== orig || currentDest !== dest) {
+        const command = CommandFactory.create(COMMANDS.CONNECT, this._target, orig, dest, this._connection);
+        // TODO: Fix access to protected method.
+        this._target._executeCommand(command);
+      }
     }
 
     this.end();
