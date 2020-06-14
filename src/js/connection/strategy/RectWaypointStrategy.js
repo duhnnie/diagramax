@@ -4,7 +4,7 @@ import Connection from '../Connection';
 
 /**
  * @private
- * Return the next point based on the a point description and a distance.
+ * @description Return the next point based on the a point description and a distance.
  * @param {Object} descriptor Point description.
  * @param {Number} distance Amount of units to move the point.
  * @returns {Point} A point.
@@ -21,7 +21,7 @@ function getNextPoint(descriptor, distance) {
 
 /**
  * @private
- * Returns the next descriptor based on a previous one.
+ * @description Returns the next descriptor based on a previous one.
  * @param {Object} descriptor The descriptor the next one will be calculated from.
  * @param {Object} normalizedPos The normalized position.
  * @param {Number} directionFactor The direction factor.
@@ -42,7 +42,7 @@ function getNextDescriptor(descriptor, normalizedPos, directionFactor) {
 }
 
 /**
- * Returns an array of intermediate points from an origin an a destiny point.
+ * @description Returns an array of intermediate points from an origin an a destiny point.
  * @param {Object} orig The origin descriptor.
  * @param {Object} dest The destiny descriptor.
  * @returns {Array}

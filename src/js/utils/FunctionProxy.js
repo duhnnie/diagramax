@@ -1,5 +1,4 @@
 /**
- * @ignore
  * This is the proxier function for this module. It will be binded to an object containing the
  * specific configuration for a certain call.
  * @param  {...any} params An spreaded object with params.
