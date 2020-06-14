@@ -1,17 +1,8 @@
 import uuid from 'uuid/v1';
 
 /**
- * @typedef {Object} ElementSettings
- * @property {String} id
- */
-
-/**
- * @abstract
- * @class Element
- * @classdesc The base class for every component that has a HTML representation.
- * @param {Object} settings An object containing all the settings for the element.
- * @param {String} [settings.id] The id for the HTML element, if not provided one will be generated.
- */
+ * @class The base class for every component that has a HTML representation.
+*/
 class Element {
   /**
    * Create a new HTMLElement
@@ -31,6 +22,14 @@ class Element {
     return document.createElementNS('http://www.w3.org/2000/svg', tagName);
   }
 
+  /**
+   * Creates an instance of Circle.
+   *
+   * @constructor
+   * @author: moi
+   * @param {Object} settings An object containing all the settings for the element.
+   * @param {String} [settings.id] The id for the HTML element, if not provided one will be generated.
+   */
   constructor(settings) {
     /**
      * @protected

@@ -8,6 +8,7 @@
     },
     "plugins": [],
     "templates": {
+        "applicationName": "SimpleDesigner",
         "cleverLinks": false,
         "monospaceLinks": false,
         "default": {
