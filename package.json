@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --mode=production",
     "build-dev": "webpack --mode=development",
-    "doc": "jsdoc ./src/js/**/*.js -d doc",
+    "doc": "jsdoc --debug -c jsdoc.json ./src/js/**/*.js",
     "dev": "webpack-dev-server --mode=development",
     "lint": "eslint ./src",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,6 +17,7 @@
     "eslint": "^6.7.2",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.19.1",
+    "jaguarjs-jsdoc": "^1.1.0",
     "jsdoc": "~3.6.4",
     "webpack": "^4.41.3",
     "webpack-cli": "^3.3.10",
