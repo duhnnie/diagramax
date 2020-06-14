@@ -5,21 +5,21 @@ import Behavior from './Behavior';
  * @private
  * @static
  * @type {ShapeText}
- * The current ShapeText that is in edition.
+ * @description The current ShapeText that is in edition.
  */
 let currentTarget = null;
 /**
  * @private
  * @static
  * @type {SVGElement}
- * The foreingObject wrapper that wraps the input text element.
+ * @description The foreingObject wrapper that wraps the input text element.
  */
 const wrapper = Element.createSVG('foreignObject');
 /**
  * @private
  * @static
  * @type {HTMLInputElement}
- * The input text element for enter the text for the shape.
+ * @description The input text element for enter the text for the shape.
  */
 const inputText = document.createElementNS('http://www.w3.org/1999/xhtml', 'input');
 
@@ -31,7 +31,7 @@ wrapper.appendChild(inputText);
 
 /**
  * @private
- * Hides the text input.
+ * @description Hides the text input.
  */
 const removeInput = () => {
   // This due an issue at removing the element when it's already remove.
@@ -45,7 +45,7 @@ const removeInput = () => {
 
 /**
  * @private
- * Updates the text in the ShapeText that currently has in edition mode.
+ * @description Updates the text in the ShapeText that currently has in edition mode.
  * @param {Event} A change event comming from the input.
  */
 const updateText = (event) => {
@@ -57,7 +57,7 @@ const updateText = (event) => {
 
 /**
  * @private
- * Handles the keyboard events on the input text element.
+ * @description Handles the keyboard events on the input text element.
  * @param {KeyboardEvent} event
  */
 const onKeyDown = (event) => {

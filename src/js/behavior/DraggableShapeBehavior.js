@@ -53,7 +53,6 @@ class DraggableShapeBehavior extends DragBehavior {
           const command = CommandFactory.create(COMMANDS.SHAPE_POSITION, _target, this._lastDragPosition);
 
           canvas._executeCommand(command);
-          // canvas.setShapePosition(_target, this._lastDragPosition);
         } else {
           _target.setPosition(this._lastDragPosition);
         }
