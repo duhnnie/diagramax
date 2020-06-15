@@ -1,26 +1,39 @@
 {
-    "tags": {
-        "allowUnknownTags": true
+  "tags": {
+    "allowUnknownTags": true
     },
     "source": {
-        "includePattern": ".+\\.js(doc|x)?$",
-        "excludePattern": "(^|\\/|\\\\)_"
+      "includePattern": ".+\\.js(doc|x)?$",
+      "excludePattern": "(^|\\/|\\\\)_"
     },
     "plugins": [],
     "templates": {
-        "applicationName": "SimpleDesigner",
-        "cleverLinks": false,
-        "monospaceLinks": false,
-        "default": {
-            "outputSourceFiles": true
-        }
+      "applicationName": "SimpleDesigner",
+      "cleverLinks": false,
+      "monospaceLinks": false,
+      "default": {
+      "outputSourceFiles": true
     },
-    "opts": {
-      "encoding": "utf8",
-      "recurse": true,
-      "private": false,
-      "lenient": true,
-      "destination": "./docs",
-      "template": "./node_modules/jaguarjs-jsdoc"
+    "openGraph": {
+      "title": "",
+      "type": "website",
+      "image": "",
+      "site_name": "",
+      "url": ""
+    },
+    "meta": {
+      "title": "",
+      "description": "",
+      "keyword": ""
+    },
+    "linenums": true
+  },
+  "opts": {
+    "encoding": "utf8",
+    "recurse": true,
+    "private": false,
+    "lenient": true,
+    "destination": "./docs",
+    "template": "./node_modules/jaguarjs-jsdoc"
   }
 }

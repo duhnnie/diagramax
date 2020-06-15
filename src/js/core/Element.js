@@ -23,8 +23,7 @@ class Element {
   }
 
   /**
-   * Creates an instance of Circle.
-   *
+   * Create an instance of Element.
    * @constructor
    * @param {Object} settings An object containing all the settings for the element.
    * @param {String} [settings.id] The id for the HTML element, if not provided one will be generated.
@@ -32,7 +31,7 @@ class Element {
   constructor(settings) {
     /**
      * @protected
-     * @type {string}
+     * @type {String}
      * @description The instance's id.
      */
     this._id = null;

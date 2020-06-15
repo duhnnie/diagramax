@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --mode=production",
     "build-dev": "webpack --mode=development",
-    "doc": "jsdoc --debug -c jsdoc.json ./src/js/**/*.js",
+    "doc": "jsdoc -c jsdoc.json ./src/js/**/*.js",
     "dev": "webpack-dev-server --mode=development",
     "lint": "eslint ./src",
     "test": "echo \"Error: no test specified\" && exit 1"

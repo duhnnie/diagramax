@@ -3,25 +3,74 @@ import Canvas from '../canvas/Canvas';
 import ComponentText from './ComponentText';
 import SelectBehavior from '../behavior/SelectBehavior';
 
+/**
+ * The position of a rectangle boundary, using the top-left corner as the origin.
+ * @typedef {Object} Bounds
+ * @property {Number} top Units to the top from the origin.
+ * @property {Number} right Units to the right from the origin.
+ * @property {Number} bottom Units to the bottom from the origin.
+ * @property {Number} left Units to the left from the origin.
+ */
+
 const DEFAULTS = {
   canvas: null,
   text: '',
 };
 
-export const EVENT = Object.freeze({
+/**
+ * Events Component dispatches.
+ * @readonly
+ * @enum {String}
+ * @memberof Component
+ * @property {String} REMOVE The component was removed.
+ */
+const EVENT = Object.freeze({
+  /** The component was removed. */
   REMOVE: 'remove',
 });
 
 /**
  * @abstract
+ * @class The base class for every component that a {@link Canvas} can contain.
+ * @extends {Element}
  */
 class Component extends Element {
+  /**
+   * Create an instance of Component.
+   * @param {Object} settings The settings.
+   * @param {String} [settings.id] The id for the HTML element, if not provided one will be generated.
+   * @param {Canvas} [settings.canvas=null] The Canvas the Component belongs to.
+   * @param {String} [settings.text=""] The text for the Component.
+   */
   constructor(settings) {
     super(settings);
+    /**
+     * @protected
+     * @type {Canvas}
+     * @description The Canvas the component belongs to.
+     */
     this._canvas = null;
+    /**
+     * @protected
+     * @type {ComponentText}
+     * @description The ComponentText for the Component.
+     */
     this._text = new ComponentText();
+    /**
+     * @protected
+     * @type {Object}
+     * @description An object literal to hold references to main Component's HTML elements.
+     */
     this._dom = {};
+    /**
+     * @protected
+     * @type {ComponentUI}
+     */
     this._componentUI = this._getComponentUI();
+    /**
+     * @protected
+     * @type {SelectBehavior}
+     */
     this._selectBehavior = new SelectBehavior(this);
 
     settings = {
@@ -34,6 +83,13 @@ class Component extends Element {
       .setCanvas(settings.canvas);
   }
 
+  /**
+   * @abstract
+   * @protected
+   * @description Return an instance of {@link ComponentUI}, which is tied to the current instance and will be used for
+   * holding the UI elements for manipulating the instance.
+   * @returns {ComponentUI}
+   */
   // eslint-disable-next-line class-methods-use-this
   _getComponentUI() {
     throw new Error('_getComponentUI(): This method should be implemented.');
@@ -42,6 +98,11 @@ class Component extends Element {
   // TODO: make this method internal.
   // TODO: in this method a call to canvas.addElement(), this method adds the shape to the canvas, so maybe this method
   // should be refactored, this method shouldn't add shape to canvas
+  /**
+   * Set the Canvas the instance will belong to.
+   * @param {Canvas} canvas
+   * @return {Component} this.
+   */
   setCanvas(canvas) {
     if (!(canvas === null || canvas instanceof Canvas)) {
       throw new Error('setCanvas(): Invalid parameter.');
@@ -59,32 +120,42 @@ class Component extends Element {
   }
 
   /**
-   * Add a graphic control for manipulating the Component.
+   * @protected
+   * @description Add a graphic control for manipulating the Component.
    * @param {SVGElement} svgElement An SVG element to be the graphic control for the Component.
-   * @param {Object} events An object in which the key is an event name and its value is a function
-   * or an array
-   * in which each element is a function to be executed when that event occurs.
+   * @param {Object} events An object in which the key is an event name and its value is a function or an array of
+   * functions to be executed when that event occurs.
    */
   _addControl(svgElement, events) {
     this._componentUI.addControl(svgElement, events);
   }
 
+  /**
+   * Select the current instance.
+   */
   select() {
     this._selectBehavior.start();
   }
 
+  /**
+   * Unselect the current instance.
+   */
   unselect() {
     this._selectBehavior.unselect();
   }
 
   /**
    * If the shape is selected.
-   * @returns {Boolean}
+   * @returns {Boolean} True is it's selected, False for unselected.
    */
   isSelected() {
     return this._selectBehavior.isSelected();
   }
 
+  /**
+   * Unselect and remove the instance from Canvas.
+   * @fires Component.REMOVE
+   */
   remove() {
     const { _canvas } = this;
 
@@ -99,10 +170,19 @@ class Component extends Element {
     return this;
   }
 
+  /**
+   * Return the Canvas the instance belongs to.
+   * @returns {Canvas}
+   */
   getCanvas() {
     return this._canvas;
   }
 
+  /**
+   * Set the text for the instance.
+   * @param {String} text
+   * @returns {Component} this.
+   */
   setText(text) {
     this._text.setText(text);
 
@@ -113,10 +193,20 @@ class Component extends Element {
     return this;
   }
 
+  /**
+   * Return the current instance's text.
+   * @return {String}
+   */
   getText() {
     return this._text.getText();
   }
 
+  /**
+   * Trigger an event to the Canvas' event bus.
+   * @param {Component.EVENT} eventName The name for the event.
+   * @param {...any} args A list of args to provide to the event's listeners.
+   * @returns {Component} this.
+   */
   trigger(eventName, ...args) {
     const canvas = this._canvas;
 
@@ -127,12 +217,27 @@ class Component extends Element {
     return this;
   }
 
+  /**
+   * @protected
+   * @description Returns the concrete instance's HTMLElement that represent the instance itself.
+   * @returns {SVGElement}
+   */
   _getMainElement() {
     return this._createHTML()._dom.mainElement;
   }
 
+  /**
+   * @abstract
+   * @description Return the coordinates of the square boundary that correponds to the instance's SVG element. The coordinates are
+   * relative to the Canvas the instance belongs to.
+   * @return {Bounds}
+   */
   getBounds() { throw new Error('getBounds() should be implemented.'); }
 
+  /**
+   * Creates the instance's HTML.
+   * @returns {Component} this.
+   */
   _createHTML() {
     if (this._html) {
       return this;
@@ -163,9 +268,14 @@ class Component extends Element {
     return this.setID(this._id);
   }
 
+  /**
+   * Returns the HTML for the instance UI layer.
+   * @returns {SVGElement}
+   */
   getUIHTML() {
     return this._componentUI.getHTML();
   }
 }
 
 export default Component;
+export { EVENT };
