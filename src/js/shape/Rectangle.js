@@ -83,12 +83,7 @@ class Rectangle extends Shape {
       const rect = Element.createSVG('rect');
 
       this._dom.mainElement = rect;
-
-      rect.setAttribute('fill', '#ffffff');
-      rect.setAttribute('stroke', '#000000');
       this.setSize(this._width, this._height);
-      rect.setAttribute('stroke-width', 4);
-      rect.setAttribute('stroke-dasharray', 0);
 
       super._createHTML();
     }

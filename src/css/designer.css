@@ -20,6 +20,12 @@
   outline-offset: 0;
 }
 
+.shape .main-element {
+  fill: #ffffff;
+  stroke: #000000;
+  stroke-width: 1;
+}
+
 .shape.cant-connect > * {
   cursor: no-drop;
 }
