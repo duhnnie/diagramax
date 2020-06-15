@@ -20,6 +20,7 @@
       "no-underscore-dangle": "off",
       "no-param-reassign": "off",
       "no-fallthrough": "off",
-      "import/no-cycle": "off"
+      "import/no-cycle": "off",
+      "max-len": ["error", 120]
     }
 }
