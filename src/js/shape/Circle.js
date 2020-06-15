@@ -77,9 +77,6 @@ class Circle extends Shape {
 
       circle.setAttribute('cx', 0);
       circle.setAttribute('cy', 0);
-      circle.setAttribute('fill', '#ffffff');
-      circle.setAttribute('stroke', '#000000');
-      circle.setAttribute('stroke-width', '4');
 
       this._dom.mainElement = circle;
 

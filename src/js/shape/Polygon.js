@@ -28,10 +28,6 @@ class Polygon extends Shape {
     if (!this._html) {
       const polygon = Element.createSVG('polygon');
 
-      polygon.setAttribute('fill', '#ffffff');
-      polygon.setAttribute('stroke', '#000000');
-      polygon.setAttribute('stroke-width', '4');
-
       this._dom.mainElement = polygon;
       super._createHTML();
       this.setSize(this._base, this._height);

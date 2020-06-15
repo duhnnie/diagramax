@@ -85,9 +85,6 @@ class Ellipse extends Shape {
 
       ellipse.setAttribute('cx', 0);
       ellipse.setAttribute('cy', 0);
-      ellipse.setAttribute('fill', '#ffffff');
-      ellipse.setAttribute('stroke', '#000000');
-      ellipse.setAttribute('stroke-width', '4');
 
       this._dom.mainElement = ellipse;
       this.setSize(this._radiusX * 2, this._radiusY * 2);
