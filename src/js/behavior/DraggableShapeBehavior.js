@@ -1,7 +1,7 @@
 import DragBehavior from './DragBehavior';
 import Shape, { EVENT as SHAPE_EVENT } from '../shape/Shape';
 import Geometry from '../utils/Geometry';
-import CommandFactory, { PRODUCTS as COMMANDS } from '../command/CommandFactory';
+import { PRODUCTS as COMMANDS } from '../command/CommandFactory';
 
 class DraggableShapeBehavior extends DragBehavior {
   constructor(target, settings) {
@@ -50,9 +50,7 @@ class DraggableShapeBehavior extends DragBehavior {
         const diff = Geometry.getDiff(_target.getPosition(), this._lastDragPosition);
 
         if (diff.x !== 0 || diff.y !== 0) {
-          const command = CommandFactory.create(COMMANDS.SHAPE_POSITION, _target, this._lastDragPosition);
-
-          canvas._executeCommand(command);
+          canvas.executeCommand(COMMANDS.SHAPE_POSITION, _target, this._lastDragPosition);
         } else {
           _target.setPosition(this._lastDragPosition);
         }

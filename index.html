@@ -80,12 +80,22 @@
               ]
             });
 
+            const undo = () => {
+              canvas.undo();
+            };
+
+            const redo = () => {
+              canvas.redo();
+            }
+
             document.addEventListener('DOMContentLoaded', function () {
                 let rectE;
                 let connection;
                 let counter = 1;
 
                 document.querySelector('#diagram').appendChild(canvas.getHTML());
+                document.querySelector('#undo').addEventListener('click', undo, false);
+                document.querySelector('#redo').addEventListener('click', redo, false);
 
                 rectE = new Designer.Rectangle({
                     id: "rectE",
@@ -160,7 +170,9 @@
           </select>
         </label>
         <button id="add">Add</button>
-        <div>double click on any shape to start a connection</div>
+        <button id="undo" disabled>Undo</button>
+        <button id="redo" disabled>Redo</button>
+        <div>For start a connection start a drag from any shape while ALT key is pressed.</div>
       </div>
       <div id="diagram"></div>
     </body>

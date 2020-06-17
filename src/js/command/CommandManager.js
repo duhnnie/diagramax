@@ -16,9 +16,12 @@ class CommandManager {
     }
 
     this._stack.push(command);
-    this.redo();
+
+    const result = this.redo();
     this._stack = this._stack.slice(this._size * -1, this._index + 1);
     this._index = Math.min(this._index, this._size - 1);
+
+    return result;
   }
 
   undo() {
@@ -35,7 +38,11 @@ class CommandManager {
 
     if (command && command.execute() !== false) {
       this._index = nextIndex;
+
+      return true;
     }
+
+    return false;
   }
 
   clear() {

@@ -1,6 +1,7 @@
 import Element from '../core/Element';
 import DragBehavior from './DragBehavior';
 import Geometry from '../utils/Geometry';
+import { PRODUCTS as COMMANDS } from '../command/CommandFactory';
 
 export const EVENT = Object.freeze({
   START: 'resizestart',
@@ -143,7 +144,8 @@ class ResizeBehavior extends DragBehavior {
       const currentSize = _target.getCurrentSize();
 
       if (actualSize.width !== currentSize.width || actualSize.height !== currentSize.height) {
-        canvas.setShapeSize(_target, _target.getCurrentSize(), this._centered ? null : this._direction);
+        canvas.executeCommand(COMMANDS.SHAPE_RESIZE, _target, _target.getCurrentSize(),
+          this._centered ? null : this._direction);
       }
 
       this._direction = null;

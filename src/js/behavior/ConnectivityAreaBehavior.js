@@ -1,9 +1,8 @@
 import Behavior from './Behavior';
-import Shape from '../shape/Shape';
 import Connection from '../connection/Connection';
 import { MODE as PORT_MODE } from '../connection/Port';
 // TODO: Simplify import alias in whole project, like next line:
-import CommandFactory, { PRODUCTS as COMMANDS } from '../command/CommandFactory';
+import { PRODUCTS as COMMANDS } from '../command/CommandFactory';
 
 class ConnectivityAreaBehavior extends Behavior {
   constructor(target, settings) {
@@ -63,9 +62,7 @@ class ConnectivityAreaBehavior extends Behavior {
       }
 
       if (currentOrig !== orig || currentDest !== dest) {
-        const command = CommandFactory.create(COMMANDS.CONNECT, this._target, orig, dest, this._connection);
-        // TODO: Fix access to protected method.
-        this._target._executeCommand(command);
+        this._target.executeCommand(COMMANDS.CONNECT, this._target, orig, dest, this._connection);
       }
     }
 

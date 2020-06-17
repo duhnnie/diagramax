@@ -7,7 +7,7 @@ import Connection from '../connection/Connection';
 import { MODE as PORT_MODE } from '../connection/Port';
 import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
 import KeyboardControlBehavior from '../behavior/KeyboardControlBehavior';
-import CommandFactory, { PRODUCTS as COMMAND_PRODUCTS } from '../command/CommandFactory';
+import CommandFactory, { PRODUCTS as COMMANDS } from '../command/CommandFactory';
 import CommandManager from '../command/CommandManager';
 import { EVENT as COMPONENT_EVENT } from '../component/Component';
 
@@ -122,9 +122,9 @@ class Canvas extends Element {
   addShape(shape) {
     // TODO: make support shape as a string too.
     if (!this.findShape(shape)) {
-      const command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_ADD, this, shape);
+      const command = CommandFactory.create(COMMANDS.SHAPE_ADD, this, shape);
 
-      this._executeCommand(command);
+      this.executeCommand(command);
     }
   }
 
@@ -135,15 +135,15 @@ class Canvas extends Element {
 
     if (element instanceof Shape) {
       elementToRemove = this.findShape(element);
-      commandType = COMMAND_PRODUCTS.SHAPE_REMOVE;
+      commandType = COMMANDS.SHAPE_REMOVE;
     } else if (element instanceof Connection) {
       elementToRemove = this.findConnection(element);
-      commandType = COMMAND_PRODUCTS.CONNECTION_REMOVE;
+      commandType = COMMANDS.CONNECTION_REMOVE;
     }
 
     if (elementToRemove) {
       command = CommandFactory.create(commandType, elementToRemove);
-      this._executeCommand(command);
+      this.executeCommand(command);
     }
   }
 
@@ -213,24 +213,22 @@ class Canvas extends Element {
     origin = origin instanceof Shape ? origin : this.findShape(origin);
     destination = destination instanceof Shape ? destination : this.findShape(destination);
 
-    // TODO: This is hot fix, this should be handled by proxied functions
-    // a ticket for that was created #73
-    if (origin && destination
-      && !origin._connectivityBehavior._disabled && !destination._connectivityBehavior._disabled) {
-
-      if (connection) {
-        connection.setCanvas(this);
-        connection.connect(origin, destination);
-      } else {
-        connection = new Connection({
-          canvas: this,
-          origShape: origin,
-          destShape: destination,
-        });
-      }
+    if (connection) {
+      connection.setCanvas(this);
+      connection.connect(origin, destination);
+    } else {
+      connection = new Connection({
+        canvas: this,
+        origShape: origin,
+        destShape: destination,
+      });
     }
 
-    return connection;
+    if (connection.isConnected()) {
+      return connection;
+    }
+
+    return false;
   }
 
   trigger(eventName, ...args) {
@@ -337,26 +335,32 @@ class Canvas extends Element {
     return this._selectionBehavior.get();
   }
 
-  _executeCommand(command) {
-    this._commandManager.executeCommand(command);
-  }
+  /**
+   * Executes a command, and add if its succesfully executed it is add to the undo/redo stack.
+   * @param  {Command} command A command to execute.
+   * @returns {Boolean} If the command was successfully executed.
+   *//**
+    *
+    * @param  {String} command The valid product key for {@link CommandFactory}.
+    * @param  {...any} args The list of arguments for the respective command. Check {@link CommandFactory} for more
+    * details about arguments for each product.
+    * @returns {Boolean} If the command was successfully executed.
+    */
+  executeCommand(...args) {
+    let command = null;
 
-  setShapeSize(shape, ...args) {
-    let [width, height, direction] = args;
-
-    if (typeof args[0] === 'object') {
-      width = args[0].width;
-      height = args[0].height;
-      [, direction] = args;
+    if (args.length === 1) {
+      [command] = args;
+    } else {
+      command = CommandFactory.create(...args);
     }
 
-    const command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_RESIZE, shape, { width, height }, direction);
-    this._executeCommand(command);
+    return this._commandManager.executeCommand(command);
   }
 
   setShapeText(shape, text) {
-    const command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_TEXT, shape, text);
-    this._executeCommand(command);
+    const command = CommandFactory.create(COMMANDS.SHAPE_TEXT, shape, text);
+    this.executeCommand(command);
   }
 
   undo() {
