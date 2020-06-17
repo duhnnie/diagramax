@@ -139,8 +139,13 @@ class ResizeBehavior extends DragBehavior {
     if (this._dragging) {
       const { _target } = this;
       const canvas = _target.getCanvas();
+      const actualSize = _target.getSize();
+      const currentSize = _target.getCurrentSize();
 
-      canvas.setShapeSize(_target, _target.getCurrentSize(), this._centered ? null : this._direction);
+      if (actualSize.width !== currentSize.width || actualSize.height !== currentSize.height) {
+        canvas.setShapeSize(_target, _target.getCurrentSize(), this._centered ? null : this._direction);
+      }
+
       this._direction = null;
       this._centered = null;
       this._originalBound = null;

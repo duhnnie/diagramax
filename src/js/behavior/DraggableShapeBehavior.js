@@ -49,7 +49,7 @@ class DraggableShapeBehavior extends DragBehavior {
       if (_dragging) {
         const diff = Geometry.getDiff(_target.getPosition(), this._lastDragPosition);
 
-        if (diff.x > 0 || diff.y > 0) {
+        if (diff.x !== 0 || diff.y !== 0) {
           const command = CommandFactory.create(COMMANDS.SHAPE_POSITION, _target, this._lastDragPosition);
 
           canvas._executeCommand(command);
