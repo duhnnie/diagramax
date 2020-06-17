@@ -75,8 +75,8 @@ class DragBehavior extends Behavior {
     return [this._target.getHTML()];
   }
 
-  attachBehavior() {
-    super.attachBehavior();
+  attach() {
+    super.attach();
     this._getDraggableElement().forEach((element) => element.classList.add(DRAGGABLE_CN));
   }
 }

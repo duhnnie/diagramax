@@ -605,8 +605,8 @@ class Connection extends Component {
     this._dom.path = path;
     this._dom.arrow = arrowWrapper;
     this._dom.arrowRotateContainer = arrowWrapper2;
-    this._selectBehavior.attachBehavior();
-    this._dragBehavior.attachBehavior();
+    this._selectBehavior.attach();
+    this._dragBehavior.attach();
 
     return this;
   }

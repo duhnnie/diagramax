@@ -106,7 +106,7 @@ class ConnectivityAreaBehavior extends Behavior {
     this._target.connect(origin, destination);
   }
 
-  attachBehavior() {
+  attach() {
     const { _target } = this;
     // This method should be called after the Canvas' HTML has been created and set to
     // its _html property.
@@ -119,13 +119,13 @@ class ConnectivityAreaBehavior extends Behavior {
     window.addEventListener('scroll', this._updateCanvasOffset, false);
   }
 
-  detachBehavior() {
+  detach() {
     const { _target } = this;
 
     _target.getHTML().removeEventListener('click', this.end, false);
     window.removeEventListener('scroll', this._updateCanvasOffset, false);
 
-    super.detachBehavior();
+    super.detach();
   }
 }
 

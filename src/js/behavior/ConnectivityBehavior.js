@@ -85,7 +85,7 @@ class ConnectivityBehavior extends Behavior {
     this._target.getCanvas().getConnectivityAreaBehavior().end();
   }
 
-  attachBehavior() {
+  attach() {
     const { _target } = this;
     const html = _target.getHTML();
     const canvas = _target.getCanvas();
@@ -97,7 +97,7 @@ class ConnectivityBehavior extends Behavior {
     canvas.addEventListener(SHAPE_EVENT.DRAG_START, _target, this.end);
   }
 
-  detachBehavior() {
+  detach() {
     const { _target } = this;
     const html = _target.getHTML();
     const canvas = _target.getCanvas();
@@ -107,7 +107,7 @@ class ConnectivityBehavior extends Behavior {
     html.removeEventListener('mouseenter', this._onConnectionEnter, false);
     html.removeEventListener('mouseleave', this._onConnectionLeave, false);
     canvas.removeEventListener(SHAPE_EVENT.DRAG_START, _target, this.end);
-    super.detachBehavior();
+    super.detach();
   }
 }
 

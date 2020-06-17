@@ -375,7 +375,7 @@ class ResizeBehavior extends DragBehavior {
     this._updateHandlers();
   }
 
-  attachBehavior() {
+  attach() {
     const { _target } = this;
     const canvas = _target.getCanvas();
 

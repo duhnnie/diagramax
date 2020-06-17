@@ -34,14 +34,14 @@ class KeyboardControlBehavior extends Behavior {
     }
   }
 
-  attachBehavior() {
+  attach() {
     this._target.getHTML().addEventListener('keydown', this._onKeyDown, false);
-    super.attachBehavior();
+    super.attach();
   }
 
-  detachBehavior() {
+  detach() {
     this._target.getHTML().removeEventListener('keydown', this._onKeyDown, false);
-    super.detachBehavior();
+    super.detach();
   }
 }
 

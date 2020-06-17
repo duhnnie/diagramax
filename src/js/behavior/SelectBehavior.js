@@ -84,7 +84,7 @@ class SelectBehavior extends Behavior {
   /**
    * @inheritdoc
    */
-  attachBehavior() {
+  attach() {
     // TODO: fix the access to private members.
     const { mainElement } = this._target._dom;
 
@@ -92,13 +92,13 @@ class SelectBehavior extends Behavior {
     mainElement.addEventListener('focus', this.start, false);
   }
 
-  detachBehavior() {
+  detach() {
     // TODO: fix the access to private members.
     const { mainElement } = this._target._dom;
 
     mainElement.removeAttribute('tabindex');
     mainElement.removeEventListener('focus', this.start, false);
-    super.detachBehavior();
+    super.detach();
   }
 }
 

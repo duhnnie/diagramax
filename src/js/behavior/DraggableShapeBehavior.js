@@ -102,15 +102,15 @@ class DraggableShapeBehavior extends DragBehavior {
     super.updatePosition({ x, y });
   }
 
-  attachBehavior() {
+  attach() {
     const { _target } = this;
 
     _target._getMainElement().addEventListener('mousedown', this._onGrab, false);
     _target._getMainElement().addEventListener('click', this._onRelease, false);
-    super.attachBehavior();
+    super.attach();
   }
 
-  detachBehavior() {
+  detach() {
     const { _target } = this;
 
     _target._getMainElement().removeEventListener('mousedown', this._onGrab, false);
