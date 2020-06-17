@@ -414,8 +414,12 @@ class Connection extends Component {
     }
 
     return intersections.map(({ point }) => {
-      const intersection = this._intersectionStrategy(point, { from, to }, lastIntersection);
+      let intersection;
       const data = [];
+
+      if (Geometry.isInLine(point, from, to)) {
+        intersection = this._intersectionStrategy(point, { from, to }, lastIntersection);
+      }
 
       if (intersection) {
         if (!intersection.replace && lastIntersection) {
