@@ -62,7 +62,7 @@ class DraggingAreaBehavior extends Behavior {
     this.removeDragBehavior();
   }
 
-  attachBehavior() {
+  attach() {
     const { _target } = this;
 
     _target.getHTML().addEventListener('mousemove', this._onMouseMove, false);
@@ -71,13 +71,13 @@ class DraggingAreaBehavior extends Behavior {
     return this;
   }
 
-  detachBehavior() {
+  detach() {
     const { _target } = this;
 
     _target.getHTML().removeEventListener('mousemove', this._onMouseMove, false);
     _target.getHTML().removeEventListener('click', this._onClick, false);
 
-    super.detachBehavior();
+    super.detach();
   }
 
   // eslint-disable-next-line class-methods-use-this, no-unused-vars

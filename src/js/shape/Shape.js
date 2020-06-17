@@ -539,10 +539,10 @@ class Shape extends Component {
     this._html.setAttribute('transform', `translate(${this._x}, ${this._y})`);
     this._html.insertBefore(this._dom.mainElement, this._dom.title);
 
-    this._connectivityBehavior.attachBehavior();
-    this._dragBehavior.attachBehavior();
-    this._resizeBehavior.attachBehavior();
-    this._editableBehavior.attachBehavior();
+    this._connectivityBehavior.attach();
+    this._dragBehavior.attach();
+    this._resizeBehavior.attach();
+    this._editableBehavior.attach();
 
     return this;
   }

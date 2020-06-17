@@ -57,11 +57,11 @@ class Behavior {
     return this._disabled;
   }
 
-  attachBehavior() {
+  attach() {
     this.enable();
   }
 
-  detachBehavior() {
+  detach() {
     this.disable();
     this._target = null;
   }

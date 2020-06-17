@@ -115,16 +115,16 @@ class EditableTextBehavior extends Behavior {
   /**
    * @inheritdoc
    */
-  attachBehavior() {
+  attach() {
     this._target.getHTML().addEventListener('dblclick', this._onEnterEditAction, false);
   }
 
   /**
    * @inheritdoc
    */
-  detachBehavior() {
+  detach() {
     this._target.getHTML().removeEventListener('dblclick', this._onEnterEditAction, false);
-    super.detachBehavior();
+    super.detach();
   }
 }
 

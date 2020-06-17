@@ -402,10 +402,10 @@ class Canvas extends Element {
     // TODO: When migrate to EventTarget dispatch and event an make the attachment on
     // the behavior itself.
     // TODO: When migrate to WebComponents attach behavior on connecting.
-    this._selectionBehavior.attachBehavior();
-    this._connectivityAreaBehavior.attachBehavior();
-    this._draggingAreaBehavior.attachBehavior();
-    this._keyboardBehavior.attachBehavior();
+    this._selectionBehavior.attach();
+    this._connectivityAreaBehavior.attach();
+    this._draggingAreaBehavior.attach();
+    this._keyboardBehavior.attach();
 
     // TODO: This only draws Shapes, when working on DS-145 connections should be considered too.
     this._shapes.forEach((element) => this._drawElement(element));

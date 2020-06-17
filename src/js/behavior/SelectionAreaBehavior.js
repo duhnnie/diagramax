@@ -64,13 +64,13 @@ class SelectionAreaBehavior extends Behavior {
     return Array.from(this._selection);
   }
 
-  attachBehavior() {
+  attach() {
     this._target.getHTML().addEventListener('click', this.clear, false);
   }
 
-  detachBehavior() {
+  detach() {
     this._target.getHTML().removeEventListener('click', this.clear, false);
-    super.detachBehavior();
+    super.detach();
   }
 }
 

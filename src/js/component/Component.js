@@ -263,7 +263,7 @@ class Component extends Element {
       mainElement.classList.add('main-element');
     }
 
-    this._selectBehavior.attachBehavior();
+    this._selectBehavior.attach();
 
     return this.setID(this._id);
   }
