@@ -1,5 +1,6 @@
 import Element from '../core/Element';
 import Behavior from './Behavior';
+import { PRODUCTS as COMMANDS } from '../command/CommandFactory';
 
 /**
  * @private
@@ -51,7 +52,7 @@ const removeInput = () => {
 const updateText = (event) => {
   const canvas = currentTarget.getCanvas();
 
-  canvas.setShapeText(currentTarget, event.target.value);
+  canvas.executeCommand(COMMANDS.SHAPE_TEXT, currentTarget, event.target.value);
   removeInput();
 };
 

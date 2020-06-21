@@ -99,6 +99,7 @@ class Canvas extends Element {
   // TODO: addElement can add Connection instances too, does it make sense?
   // Connections MAYBE should be created implicitly at creating a connection between two shapes.
   addElement(element) {
+    // TODO: make support shape as a string too.
     if (!this.hasElement(element)) {
       if (element instanceof Shape) {
         this._shapes.add(element);
@@ -114,37 +115,6 @@ class Canvas extends Element {
     }
 
     return this;
-  }
-
-  // TODO: addElement and this method do the same, with the expection that this one execute de addition as a command,
-  // so for allow undo/redo this method should be used. In a future a canvas' wrapper should be applied (Diagram?) and
-  // move this method (and all the ones that execute commands to it).
-  addShape(shape) {
-    // TODO: make support shape as a string too.
-    if (!this.findShape(shape)) {
-      const command = CommandFactory.create(COMMANDS.SHAPE_ADD, this, shape);
-
-      this.executeCommand(command);
-    }
-  }
-
-  removeElement(element) {
-    let elementToRemove;
-    let commandType;
-    let command;
-
-    if (element instanceof Shape) {
-      elementToRemove = this.findShape(element);
-      commandType = COMMANDS.SHAPE_REMOVE;
-    } else if (element instanceof Connection) {
-      elementToRemove = this.findConnection(element);
-      commandType = COMMANDS.CONNECTION_REMOVE;
-    }
-
-    if (elementToRemove) {
-      command = CommandFactory.create(commandType, elementToRemove);
-      this.executeCommand(command);
-    }
   }
 
   hasElement(element) {
@@ -343,11 +313,6 @@ class Canvas extends Element {
     return this._commandManager.executeCommand(...args);
   }
 
-  setShapeText(shape, text) {
-    const command = CommandFactory.create(COMMANDS.SHAPE_TEXT, shape, text);
-    this.executeCommand(command);
-  }
-
   undo() {
     this._commandManager.undo();
   }
@@ -369,7 +334,7 @@ class Canvas extends Element {
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
     svg.setAttribute('version', '1.1');
-    svg.setAttribute('class', 'bpmn-canvas');
+    svg.setAttribute('class', 'canvas');
     svg.style.background = '#F0F0F0';
 
     root.setAttribute('transform', 'scale(1, 1)');

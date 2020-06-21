@@ -3,9 +3,13 @@ import Rectangle from './shape/Rectangle';
 import Circle from './shape/Circle';
 import Triangle from './shape/Triangle';
 import Ellipse from './shape/Ellipse';
+import { PRODUCTS as COMMANDS } from './command/CommandFactory';
 
-export { Canvas };
-export { Rectangle };
-export { Circle };
-export { Triangle };
-export { Ellipse };
+export {
+  Canvas,
+  Rectangle,
+  Circle,
+  Triangle,
+  Ellipse,
+  COMMANDS,
+};

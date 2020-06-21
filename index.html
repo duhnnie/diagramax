@@ -151,7 +151,7 @@
                   }
 
                   if (shape) {
-                    canvas.addShape(shape);
+                    canvas.executeCommand(Designer.COMMANDS.SHAPE_ADD, canvas, shape);
                     counter += 1;
                   }
                 }, false);
