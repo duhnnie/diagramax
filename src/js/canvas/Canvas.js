@@ -337,25 +337,10 @@ class Canvas extends Element {
 
   /**
    * Executes a command, and add if its succesfully executed it is add to the undo/redo stack.
-   * @param  {Command} command A command to execute.
-   * @returns {Boolean} If the command was successfully executed.
-   *//**
-    *
-    * @param  {String} command The valid product key for {@link CommandFactory}.
-    * @param  {...any} args The list of arguments for the respective command. Check {@link CommandFactory} for more
-    * details about arguments for each product.
-    * @returns {Boolean} If the command was successfully executed.
+   * @see {@link CommandManager}
     */
   executeCommand(...args) {
-    let command = null;
-
-    if (args.length === 1) {
-      [command] = args;
-    } else {
-      command = CommandFactory.create(...args);
-    }
-
-    return this._commandManager.executeCommand(command);
+    return this._commandManager.executeCommand(...args);
   }
 
   setShapeText(shape, text) {

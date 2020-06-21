@@ -1,4 +1,4 @@
-import Command from './Command';
+import CommandFactory from './CommandFactory';
 
 class CommandManager {
   constructor(settings) {
@@ -10,9 +10,24 @@ class CommandManager {
     this.clear();
   }
 
-  executeCommand(command) {
-    if (!(command instanceof Command)) {
-      throw new Error('executeCommand(): parameter should be a Command.');
+  /**
+   * Executes a command, and if its succesfully executed it is added to commands stack.
+   * @param  {Command} command A command to execute.
+   * @returns {Boolean} If the command was successfully executed.
+   *//**
+    *
+    * @param  {String} command The valid product key for {@link CommandFactory}.
+    * @param  {...any} args The list of arguments for the respective command. Check {@link CommandFactory} for more
+    * details about arguments for each product.
+    * @returns {Boolean} If the command was successfully executed.
+    */
+  executeCommand(...args) {
+    let command = null;
+
+    if (args.length === 1) {
+      [command] = args;
+    } else {
+      command = CommandFactory.create(...args);
     }
 
     this._stack.push(command);
