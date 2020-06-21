@@ -7,18 +7,19 @@ import Connection from '../connection/Connection';
 import { MODE as PORT_MODE } from '../connection/Port';
 import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
 import KeyboardControlBehavior from '../behavior/KeyboardControlBehavior';
-import CommandFactory, { PRODUCTS as COMMAND_PRODUCTS } from '../command/CommandFactory';
+import CommandFactory, { PRODUCTS as COMMANDS } from '../command/CommandFactory';
 import CommandManager from '../command/CommandManager';
 import { EVENT as COMPONENT_EVENT } from '../component/Component';
 
 const DEFAULTS = Object.freeze({
   stackSize: 10,
+  onChange: () => {},
 });
 
 class Canvas extends Element {
   constructor(settings) {
     super(settings);
-    settings = { ...settings, ...DEFAULTS };
+    settings = { ...DEFAULTS, ...settings };
     this._width = null;
     this._height = null;
     this._shapes = new Set();
@@ -26,6 +27,7 @@ class Canvas extends Element {
     this._dom = {};
     this._eventBus = new EventBus();
     this._selectedItems = new Set();
+    this._onChange = settings.onChange;
     this._selectionBehavior = new SelectionAreaBehavior(this);
     this._draggingAreaBehavior = new FluidDraggingAreaBehavior(this);
     this._connectivityAreaBehavior = new ConnectivityAreaBehavior(this);
@@ -99,6 +101,7 @@ class Canvas extends Element {
   // TODO: addElement can add Connection instances too, does it make sense?
   // Connections MAYBE should be created implicitly at creating a connection between two shapes.
   addElement(element) {
+    // TODO: make support shape as a string too.
     if (!this.hasElement(element)) {
       if (element instanceof Shape) {
         this._shapes.add(element);
@@ -114,37 +117,6 @@ class Canvas extends Element {
     }
 
     return this;
-  }
-
-  // TODO: addElement and this method do the same, with the expection that this one execute de addition as a command,
-  // so for allow undo/redo this method should be used. In a future a canvas' wrapper should be applied (Diagram?) and
-  // move this method (and all the ones that execute commands to it).
-  addShape(shape) {
-    // TODO: make support shape as a string too.
-    if (!this.findShape(shape)) {
-      const command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_ADD, this, shape);
-
-      this._executeCommand(command);
-    }
-  }
-
-  removeElement(element) {
-    let elementToRemove;
-    let commandType;
-    let command;
-
-    if (element instanceof Shape) {
-      elementToRemove = this.findShape(element);
-      commandType = COMMAND_PRODUCTS.SHAPE_REMOVE;
-    } else if (element instanceof Connection) {
-      elementToRemove = this.findConnection(element);
-      commandType = COMMAND_PRODUCTS.CONNECTION_REMOVE;
-    }
-
-    if (elementToRemove) {
-      command = CommandFactory.create(commandType, elementToRemove);
-      this._executeCommand(command);
-    }
   }
 
   hasElement(element) {
@@ -213,24 +185,22 @@ class Canvas extends Element {
     origin = origin instanceof Shape ? origin : this.findShape(origin);
     destination = destination instanceof Shape ? destination : this.findShape(destination);
 
-    // TODO: This is hot fix, this should be handled by proxied functions
-    // a ticket for that was created #73
-    if (origin && destination
-      && !origin._connectivityBehavior._disabled && !destination._connectivityBehavior._disabled) {
-
-      if (connection) {
-        connection.setCanvas(this);
-        connection.connect(origin, destination);
-      } else {
-        connection = new Connection({
-          canvas: this,
-          origShape: origin,
-          destShape: destination,
-        });
-      }
+    if (connection) {
+      connection.setCanvas(this);
+      connection.connect(origin, destination);
+    } else {
+      connection = new Connection({
+        canvas: this,
+        origShape: origin,
+        destShape: destination,
+      });
     }
 
-    return connection;
+    if (connection.isConnected()) {
+      return connection;
+    }
+
+    return false;
   }
 
   trigger(eventName, ...args) {
@@ -337,34 +307,33 @@ class Canvas extends Element {
     return this._selectionBehavior.get();
   }
 
-  _executeCommand(command) {
-    this._commandManager.executeCommand(command);
-  }
+  /**
+   * Executes a command, and add if its succesfully executed it is add to the undo/redo stack.
+   * @see {@link CommandManager}
+    */
+  executeCommand(...args) {
+    const [command] = args;
+    const result = this._commandManager.executeCommand(...args);
 
-  setShapeSize(shape, ...args) {
-    let [width, height, direction] = args;
+    if (result) {
+      const commandKey = (typeof command === 'string' && command) || CommandFactory.getProductKey(command);
 
-    if (typeof args[0] === 'object') {
-      width = args[0].width;
-      height = args[0].height;
-      [, direction] = args;
+      this._onChange(this, commandKey, ...args.slice(1));
     }
 
-    const command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_RESIZE, shape, { width, height }, direction);
-    this._executeCommand(command);
-  }
-
-  setShapeText(shape, text) {
-    const command = CommandFactory.create(COMMAND_PRODUCTS.SHAPE_TEXT, shape, text);
-    this._executeCommand(command);
+    return result;
   }
 
   undo() {
     this._commandManager.undo();
+
+    return this._commandManager.getSteps()[0];
   }
 
   redo() {
     this._commandManager.redo();
+
+    return this._commandManager.getSteps()[1];
   }
 
   _createHTML() {
@@ -380,7 +349,7 @@ class Canvas extends Element {
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
     svg.setAttribute('version', '1.1');
-    svg.setAttribute('class', 'bpmn-canvas');
+    svg.setAttribute('class', 'canvas');
     svg.style.background = '#F0F0F0';
 
     root.setAttribute('transform', 'scale(1, 1)');

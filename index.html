@@ -77,15 +77,35 @@
                 circleA,
                 triangleA,
                 ellipseA,
-              ]
+              ],
+              onChange: (...args) => {
+                undoButton.disabled = false;
+                redoButton.disabled = true;
+              }
             });
 
+            let undoButton;
+            let redoButton;
+            const undo = () => {
+              undoButton.disabled = canvas.undo() === 0;
+              redoButton.disabled = false;
+            };
+
+            const redo = () => {
+              redoButton.disabled = canvas.redo() === 0;
+              undoButton.disabled = false;
+            }
+
             document.addEventListener('DOMContentLoaded', function () {
+                undoButton = document.querySelector('#undo');
+                redoButton = document.querySelector('#redo');
                 let rectE;
                 let connection;
                 let counter = 1;
 
                 document.querySelector('#diagram').appendChild(canvas.getHTML());
+                undoButton.addEventListener('click', undo, false);
+                redoButton.addEventListener('click', redo, false);
 
                 rectE = new Designer.Rectangle({
                     id: "rectE",
@@ -141,7 +161,7 @@
                   }
 
                   if (shape) {
-                    canvas.addShape(shape);
+                    canvas.executeCommand(Designer.COMMANDS.SHAPE_ADD, canvas, shape);
                     counter += 1;
                   }
                 }, false);
@@ -160,7 +180,9 @@
           </select>
         </label>
         <button id="add">Add</button>
-        <div>double click on any shape to start a connection</div>
+        <button id="undo" disabled>Undo</button>
+        <button id="redo" disabled>Redo</button>
+        <div>For start a connection start a drag from any shape while ALT key is pressed.</div>
       </div>
       <div id="diagram"></div>
     </body>

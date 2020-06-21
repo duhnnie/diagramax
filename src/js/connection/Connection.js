@@ -271,7 +271,12 @@ class Connection extends Component {
   // are in the same canvas IMPORTANT!
   connect(origShape, destShape) {
     if (origShape.canAcceptConnection(PORT_MODE.ORIG, destShape)
-      && destShape.canAcceptConnection(PORT_MODE.DEST, origShape)) {
+      && destShape.canAcceptConnection(PORT_MODE.DEST, origShape)
+      // TODO: Fix access to protected members.
+      // TODO: This is hot fix, this should be handled by proxied functions
+      // a ticket for that was created #73
+      && !origShape._connectivityBehavior._disabled
+      && !destShape._connectivityBehavior._disabled) {
       const { _origShape: oldOrigShape, _destShape: oldDestShape } = this;
       const changeOrigShape = origShape !== oldOrigShape;
       const changeDestShape = destShape !== oldDestShape;
@@ -318,6 +323,10 @@ class Connection extends Component {
     }
 
     return false;
+  }
+
+  isConnected() {
+    return this._origShape && this._destShape;
   }
 
   getBounds() {

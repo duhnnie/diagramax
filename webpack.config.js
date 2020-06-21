@@ -16,6 +16,7 @@ module.exports = (env, argv) => {
     output: {
       filename: 'designer.js',
       path: path.resolve(__dirname, 'dist'),
+      libraryTarget: 'umd',
       library: 'Designer',
     },
   };

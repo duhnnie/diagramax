@@ -1,4 +1,7 @@
 import Behavior from './Behavior';
+import { PRODUCTS as COMMANDS } from '../command/CommandFactory';
+import Shape from '../shape/Shape';
+import Connection from '../connection/Connection';
 
 class KeyboardControlBehavior extends Behavior {
   constructor(target, settings) {
@@ -13,8 +16,24 @@ class KeyboardControlBehavior extends Behavior {
     // TODO: Is there a native constant for this?
     switch (event.code) {
       case 'Delete':
+        // TODO: Maybe all keyboard events should call to already implemented functions.
         // TODO: this could be a Canvas' function, like removeSelection();
-        _target.getSelection().forEach((element) => _target.removeElement(element));
+        _target.getSelection().forEach((element) => {
+          let elementToRemove;
+          let commandType;
+
+          if (element instanceof Shape) {
+            elementToRemove = _target.findShape(element);
+            commandType = COMMANDS.SHAPE_REMOVE;
+          } else if (element instanceof Connection) {
+            elementToRemove = _target.findConnection(element);
+            commandType = COMMANDS.CONNECTION_REMOVE;
+          }
+
+          if (elementToRemove) {
+            _target.executeCommand(commandType, elementToRemove);
+          }
+        });
         break;
       case 'Escape':
         // TODO: this could be a Canvas' method, like endCurrentProcess():
