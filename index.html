@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
     <head>
-        <link rel="stylesheet" href="../css/designer.css"/>
+        <link rel="stylesheet" href="../src/css/designer.css"/>
         <script src="./designer.js"></script>
         <script type="text/javascript">
             const rectA = new Designer.Rectangle({
@@ -58,8 +58,8 @@
             const ellipseA = new Designer.Ellipse({
               id: 'ellipseA',
               text: 'Ellipse A',
-              radiusX: 220,
-              radiusY: 80,
+              radiusX: 110,
+              radiusY: 40,
               position: {
                 x: 420,
                 y: 216,
@@ -77,14 +77,35 @@
                 circleA,
                 triangleA,
                 ellipseA,
-              ]
+              ],
+              onChange: (...args) => {
+                undoButton.disabled = false;
+                redoButton.disabled = true;
+              }
             });
 
-            document.addEventListener('DOMContentLoaded', function () {
-                let rectE,
-                    connection;
+            let undoButton;
+            let redoButton;
+            const undo = () => {
+              undoButton.disabled = canvas.undo() === 0;
+              redoButton.disabled = false;
+            };
 
-                document.body.appendChild(canvas.getHTML());
+            const redo = () => {
+              redoButton.disabled = canvas.redo() === 0;
+              undoButton.disabled = false;
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                undoButton = document.querySelector('#undo');
+                redoButton = document.querySelector('#redo');
+                let rectE;
+                let connection;
+                let counter = 1;
+
+                document.querySelector('#diagram').appendChild(canvas.getHTML());
+                undoButton.addEventListener('click', undo, false);
+                redoButton.addEventListener('click', redo, false);
 
                 rectE = new Designer.Rectangle({
                     id: "rectE",
@@ -105,14 +126,64 @@
                 canvas.connect(rectC, ellipseA);
                 canvas.connect(ellipseA, rectD);
                 canvas.connect(rectD, rectE);
-                // // canvas.connect(eev, act2);
-                // canvas.connect(eev, ellipse);
-                // canvas.connect(circle, ev);
-                // canvas.connect()
+
+                document.querySelector('#add').addEventListener('click', () => {
+                  const selection = document.querySelector('#shape-selector').value;
+                  const position = { x: 50, y: 50 };
+                  let shape;
+
+                  switch (selection) {
+                    case 'Circle':
+                      shape = new Designer.Circle({
+                        text: `Circle #${counter}`,
+                        position,
+                      });
+                      break;
+                    case 'Rectangle':
+                      shape = new Designer.Rectangle({
+                        text: `Rectangle #${counter}`,
+                        position,
+                      });
+                      break;
+                    case 'Triangle':
+                      shape = new Designer.Triangle({
+                        text: `Triangle #${counter}`,
+                        position,
+                      });
+                      break;
+                    case 'Ellipse':
+                      shape = new Designer.Ellipse({
+                        text: `Ellipse #${counter}`,
+                        position,
+                      });
+                      break;
+                    default:
+                  }
+
+                  if (shape) {
+                    canvas.executeCommand(Designer.COMMANDS.SHAPE_ADD, canvas, shape);
+                    counter += 1;
+                  }
+                }, false);
             });
         </script>
     </head>
     <body>
-
+      <div id="controls">
+        <label>
+          Select Shape:
+          <select id="shape-selector">
+            <option value="Circle">Circle</option>
+            <option value="Rectangle">Rectangle</option>
+            <option value="Triangle">Triangle</option>
+            <option value="Ellipse">Ellipse</option>
+          </select>
+        </label>
+        <button id="add">Add</button>
+        <button id="undo" disabled>Undo</button>
+        <button id="redo" disabled>Redo</button>
+        <div>For start a connection start a drag from any shape while ALT key is pressed.</div>
+      </div>
+      <div id="diagram"></div>
     </body>
 </html>
