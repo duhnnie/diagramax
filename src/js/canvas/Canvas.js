@@ -13,12 +13,13 @@ import { EVENT as COMPONENT_EVENT } from '../component/Component';
 
 const DEFAULTS = Object.freeze({
   stackSize: 10,
+  onChange: () => {},
 });
 
 class Canvas extends Element {
   constructor(settings) {
     super(settings);
-    settings = { ...settings, ...DEFAULTS };
+    settings = { ...DEFAULTS, ...settings };
     this._width = null;
     this._height = null;
     this._shapes = new Set();
@@ -26,6 +27,7 @@ class Canvas extends Element {
     this._dom = {};
     this._eventBus = new EventBus();
     this._selectedItems = new Set();
+    this._onChange = settings.onChange;
     this._selectionBehavior = new SelectionAreaBehavior(this);
     this._draggingAreaBehavior = new FluidDraggingAreaBehavior(this);
     this._connectivityAreaBehavior = new ConnectivityAreaBehavior(this);
@@ -310,15 +312,28 @@ class Canvas extends Element {
    * @see {@link CommandManager}
     */
   executeCommand(...args) {
-    return this._commandManager.executeCommand(...args);
+    const [command] = args;
+    const result = this._commandManager.executeCommand(...args);
+
+    if (result) {
+      const commandKey = (typeof command === 'string' && command) || CommandFactory.getProductKey(command);
+
+      this._onChange(this, commandKey, ...args.slice(1));
+    }
+
+    return result;
   }
 
   undo() {
     this._commandManager.undo();
+
+    return this._commandManager.getSteps()[0];
   }
 
   redo() {
     this._commandManager.redo();
+
+    return this._commandManager.getSteps()[1];
   }
 
   _createHTML() {

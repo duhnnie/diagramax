@@ -30,6 +30,7 @@ class CommandManager {
       command = CommandFactory.create(...args);
     }
 
+    this._stack = this._stack.slice(0, this._index + 1);
     this._stack.push(command);
 
     const result = this.redo();
@@ -39,25 +40,38 @@ class CommandManager {
     return result;
   }
 
+  getSteps() {
+    return [
+      this._index + 1,
+      this._stack.length - 1 - this._index,
+    ];
+  }
+
   undo() {
     const command = this._stack[this._index];
+    let executed = false;
 
     if (command && command.undo() !== false) {
       this._index -= 1;
+
+      executed = true;
     }
+
+    return executed;
   }
 
   redo() {
     const nextIndex = this._index + 1;
     const command = this._stack[nextIndex];
+    let executed = false;
 
     if (command && command.execute() !== false) {
       this._index = nextIndex;
 
-      return true;
+      executed = true;
     }
 
-    return false;
+    return executed;
   }
 
   clear() {

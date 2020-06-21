@@ -77,25 +77,35 @@
                 circleA,
                 triangleA,
                 ellipseA,
-              ]
+              ],
+              onChange: (...args) => {
+                undoButton.disabled = false;
+                redoButton.disabled = true;
+              }
             });
 
+            let undoButton;
+            let redoButton;
             const undo = () => {
-              canvas.undo();
+              undoButton.disabled = canvas.undo() === 0;
+              redoButton.disabled = false;
             };
 
             const redo = () => {
-              canvas.redo();
+              redoButton.disabled = canvas.redo() === 0;
+              undoButton.disabled = false;
             }
 
             document.addEventListener('DOMContentLoaded', function () {
+                undoButton = document.querySelector('#undo');
+                redoButton = document.querySelector('#redo');
                 let rectE;
                 let connection;
                 let counter = 1;
 
                 document.querySelector('#diagram').appendChild(canvas.getHTML());
-                document.querySelector('#undo').addEventListener('click', undo, false);
-                document.querySelector('#redo').addEventListener('click', redo, false);
+                undoButton.addEventListener('click', undo, false);
+                redoButton.addEventListener('click', redo, false);
 
                 rectE = new Designer.Rectangle({
                     id: "rectE",
