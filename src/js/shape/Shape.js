@@ -1,5 +1,7 @@
 import Component from '../component/Component';
-import Port, { getPositionProps, MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION, ORIENTATION } from '../connection/Port';
+import Port, {
+  getPositionProps, MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION, ORIENTATION,
+} from '../connection/Port';
 import Connection from '../connection/Connection';
 import EditableTextBehavior from '../behavior/EditableTextBehavior';
 import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
@@ -9,12 +11,9 @@ import Geometry from '../utils/Geometry';
 import ShapeUI from './ShapeUI';
 
 /*
- * Returns and array with the port indexes sorted in priority order for elegibility based on a
- * primary orientation.
- * @param {Number} mainOrientation The orientation index that will be the assumed as the
- * prioritized one.
- * @param {Object} Object containing the relative position, x and y respect to destination in
- * respective axis.
+ * Returns and array with the port indexes sorted in priority order for elegibility based on a primary orientation.
+ * @param {Number} mainOrientation The orientation index that will be the assumed as the prioritized one.
+ * @param {Object} Object containing the relative position, x and y respect to destination in respective axis.
  * @returns {Array}
  */
 function getPortPriorityOrder(mainOrientation, { x, y }) {
@@ -250,7 +249,8 @@ class Shape extends Component {
   /**
    * If the current shape can be connected with other shape.
    * @param {Port.MODE} mode The connection mode.
-   * @param {Shape} [otherShape = null] The shape to be connected with. If it's not provided the evaluation will be made bsed on the direction for any kind of Shape.
+   * @param {Shape} [otherShape = null] The shape to be connected with. If it's not provided the evaluation will be
+   * made based on the direction for any kind of Shape.
    */
   // eslint-disable-next-line class-methods-use-this, no-unused-vars
   canAcceptConnection(mode, shape = null) {
