@@ -116,16 +116,16 @@
                     }
                 });
 
-                // canvas.addElement(rectE);
+                canvas.addElement(rectE);
 
-                // canvas.connect(circleA, rectA);
-                // canvas.connect(rectA, triangleA);
-                // canvas.connect(triangleA, rectB);
-                // canvas.connect(triangleA, rectC);
-                // canvas.connect(rectB, ellipseA);
-                // canvas.connect(rectC, ellipseA);
-                // canvas.connect(ellipseA, rectD);
-                // canvas.connect(rectD, rectE);
+                canvas.connect(circleA, rectA);
+                canvas.connect(rectA, triangleA);
+                canvas.connect(triangleA, rectB);
+                canvas.connect(triangleA, rectC);
+                canvas.connect(rectB, ellipseA);
+                canvas.connect(rectC, ellipseA);
+                canvas.connect(ellipseA, rectD);
+                canvas.connect(rectD, rectE);
 
                 document.querySelector('#add').addEventListener('click', () => {
                   const selection = document.querySelector('#shape-selector').value;
