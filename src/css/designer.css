@@ -40,6 +40,16 @@
   opacity: 0.3;
 }
 
+.component.connection .path {
+  fill: none;
+  stroke: black;
+  stroke-width: 1px;
+}
+
+.component.connection .arrow {
+  fill: black;
+}
+
 .controls-layer.active {
   display: initial;
 }
