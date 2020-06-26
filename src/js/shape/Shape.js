@@ -337,22 +337,41 @@ class Shape extends Component {
     return connectedShapes;
   }
 
-  _removeFromPorts(connection) {
+  /**
+   *
+   * @param {Connection} connection The connection to remove from Shape's ports or port.
+   * @param {Port.MODE} [mode] The mode for the ports the connection will be removed from. If not specified, all ports
+   * will be considered.
+   * @returns {Boolean} If all connection references were removed. When no supplying `mode` parameter this will always
+   * be true.
+   */
+  _removeFromPorts(connection, mode = null) {
+    let stillExists = false;
+
     this._ports.forEach((port) => {
       if (port.hasConnection(connection)) {
-        port.removeConnection(connection);
+        if ((mode === null || port.mode === mode)) {
+          port.removeConnection(connection);
+        } else {
+          stillExists = true;
+        }
       }
     });
-    return this;
+
+    return !stillExists;
   }
 
-  removeConnection(connection) {
+  removeConnection(connection, mode = null) {
     if (this._connections.has(connection)) {
-      this._removeFromPorts(connection);
-      if (connection.isConnectedWith(this)) {
-        connection.disconnect();
+      const allRemoved = this._removeFromPorts(connection, mode);
+
+      if (allRemoved) {
+        if (connection.isConnectedWith(this)) {
+          connection.disconnect();
+        }
+
+        this._connections.delete(connection);
       }
-      this._connections.delete(connection);
     }
     return this;
   }
@@ -366,7 +385,7 @@ class Shape extends Component {
   }
 
   assignConnectionToPort(connection, portIndex, mode) {
-    this._removeFromPorts(connection);
+    this._removeFromPorts(connection, mode);
     this._ports[portIndex].addConnection(connection, mode);
 
     return this;
