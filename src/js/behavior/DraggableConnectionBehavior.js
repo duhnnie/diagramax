@@ -77,6 +77,10 @@ class DraggableConnectionBehavior extends DragBehavior {
   end() {
     const { _target } = this;
 
+    // TODO: this avoid to calling this method more than necessaty times, but maybe it should be replaced by a variable
+    // like _ended and another to identify if the behavior was started like _started.
+    if (!this._shape && !this._otherShape) return;
+
     super.endDrag();
 
     this._shape = null;
