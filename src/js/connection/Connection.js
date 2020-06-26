@@ -601,9 +601,8 @@ class Connection extends Component {
     arrowWrapper2.setAttribute('transform', 'scale(0.5,0.5) rotate(-180)');
     arrow.setAttribute('end', 'target');
     arrow.setAttribute('d', 'M 0 0 L -13 -26 L 13 -26 z');
-
-    path.setAttribute('fill', 'none');
-    path.setAttribute('stroke', 'black');
+    arrow.classList.add('arrow');
+    path.classList.add('path');
 
     arrowWrapper2.appendChild(arrow);
     arrowWrapper.appendChild(arrowWrapper2);
