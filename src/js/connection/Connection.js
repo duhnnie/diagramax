@@ -1,6 +1,6 @@
 import Element from '../core/Element';
 import Component from '../component/Component';
-import { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE, ORIENTATION } from './Port';
+import { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE, ORIENTATION, MODE } from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
 import { EVENT as SHAPE_EVENT } from '../shape/Shape';
@@ -287,7 +287,7 @@ class Connection extends Component {
 
       if (changeOrigShape) {
         if (oldOrigShape) {
-          oldOrigShape.removeConnection(this);
+          oldOrigShape.removeConnection(this, MODE.ORIG);
           this._removeDragListeners(oldOrigShape);
           this._points = [];
         }
@@ -298,7 +298,7 @@ class Connection extends Component {
 
       if (changeDestShape && result) {
         if (oldDestShape) {
-          oldDestShape.removeConnection(this);
+          oldDestShape.removeConnection(this, MODE.DEST);
           this._removeDragListeners(oldDestShape);
           this._points = [];
         }
