@@ -1,4 +1,4 @@
-import Element from '../core/Element';
+import DiagramElement from '../core/DiagramElement';
 import Shape from './Shape';
 
 const DEFAULTS = {
@@ -80,7 +80,7 @@ class Rectangle extends Shape {
 
   _createHTML() {
     if (!this._html) {
-      const rect = Element.createSVG('rect');
+      const rect = DiagramElement.createSVG('rect');
 
       this._dom.mainElement = rect;
       this.setSize(this._width, this._height);

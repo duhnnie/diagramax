@@ -1,4 +1,4 @@
-import Element from '../core/Element';
+import DiagramElement from '../core/DiagramElement';
 import Canvas from '../canvas/Canvas';
 import ComponentText from './ComponentText';
 import SelectBehavior from '../behavior/SelectBehavior';
@@ -32,9 +32,9 @@ const EVENT = Object.freeze({
 /**
  * @abstract
  * @class The base class for every component that a {@link Canvas} can contain.
- * @extends {Element}
+ * @extends {DiagramElement}
  */
-class Component extends Element {
+class Component extends DiagramElement {
   /**
    * Create an instance of Component.
    * @param {Object} settings The settings.
@@ -243,8 +243,8 @@ class Component extends Element {
       return this;
     }
 
-    const wrapper = Element.createSVG('g');
-    const title = Element.create('title');
+    const wrapper = DiagramElement.createSVG('g');
+    const title = DiagramElement.create('title');
 
     title.textContent = this._text.getText();
     wrapper.classList.add('component');

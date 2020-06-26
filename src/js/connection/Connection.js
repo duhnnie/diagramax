@@ -1,4 +1,4 @@
-import Element from '../core/Element';
+import DiagramElement from '../core/DiagramElement';
 import Component from '../component/Component';
 import { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE, ORIENTATION, MODE } from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
@@ -592,11 +592,11 @@ class Connection extends Component {
       return this;
     }
 
-    const mainElement = Element.createSVG('g');
-    const arrowWrapper = Element.createSVG('g');
-    const arrowWrapper2 = Element.createSVG('g');
-    const arrow = Element.createSVG('path');
-    const path = Element.createSVG('path');
+    const mainElement = DiagramElement.createSVG('g');
+    const arrowWrapper = DiagramElement.createSVG('g');
+    const arrowWrapper2 = DiagramElement.createSVG('g');
+    const arrow = DiagramElement.createSVG('path');
+    const path = DiagramElement.createSVG('path');
 
     arrowWrapper2.setAttribute('transform', 'scale(0.5,0.5) rotate(-180)');
     arrow.setAttribute('end', 'target');

@@ -1,10 +1,10 @@
-import Element from '../core/Element';
+import DiagramElement from '../core/DiagramElement';
 
 const DEFAULTS = {
   text: '',
 };
 
-class ComponentText extends Element {
+class ComponentText extends DiagramElement {
   constructor(settings) {
     super(settings);
 
@@ -49,9 +49,9 @@ class ComponentText extends Element {
    * @inheritdoc
    */
   _createHTML() {
-    const wrapper = Element.createSVG('g');
-    const text = Element.createSVG('text');
-    const tspan = Element.createSVG('tspan');
+    const wrapper = DiagramElement.createSVG('g');
+    const text = DiagramElement.createSVG('text');
+    const tspan = DiagramElement.createSVG('tspan');
 
     // TODO: move to CSS file
     tspan.style.userSelect = 'none';

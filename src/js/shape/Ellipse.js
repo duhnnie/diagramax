@@ -1,4 +1,4 @@
-import Element from '../core/Element';
+import DiagramElement from '../core/DiagramElement';
 import Shape from './Shape';
 
 const DEFAULTS = {
@@ -81,7 +81,7 @@ class Ellipse extends Shape {
 
   _createHTML() {
     if (!this._html) {
-      const ellipse = Element.createSVG('ellipse');
+      const ellipse = DiagramElement.createSVG('ellipse');
 
       ellipse.setAttribute('cx', 0);
       ellipse.setAttribute('cy', 0);

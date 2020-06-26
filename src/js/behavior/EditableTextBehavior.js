@@ -1,4 +1,4 @@
-import Element from '../core/Element';
+import DiagramElement from '../core/DiagramElement';
 import Behavior from './Behavior';
 import { PRODUCTS as COMMANDS } from '../command/CommandFactory';
 
@@ -15,7 +15,7 @@ let currentTarget = null;
  * @type {SVGElement}
  * @description The foreingObject wrapper that wraps the input text element.
  */
-const wrapper = Element.createSVG('foreignObject');
+const wrapper = DiagramElement.createSVG('foreignObject');
 /**
  * @private
  * @static
@@ -36,7 +36,7 @@ wrapper.appendChild(inputText);
  */
 const removeInput = () => {
   // This due an issue at removing the element when it's already remove.
-  // Failed to execute 'remove' on 'Element': The node to be removed is no longer a child of this
+  // Failed to execute 'remove' on 'DiagramElement': The node to be removed is no longer a child of this
   // node. Perhaps it was moved in a 'blur' event handler?
   try {
     wrapper.remove();
