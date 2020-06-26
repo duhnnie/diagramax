@@ -1,5 +1,5 @@
 import DragBehavior from './DragBehavior';
-import Element from '../core/Element';
+import DiagramElement from '../core/DiagramElement';
 import { EVENT as CONNECTION_EVENT } from '../connection/Connection';
 import { ORIENTATION, MODE as PORT_MODE } from '../connection/Port';
 import Geometry from '../utils/Geometry';
@@ -36,7 +36,7 @@ function getFakeDescription(position, shape) {
 class DraggableConnectionBehavior extends DragBehavior {
   static createHandler() {
     if (!resizeHandler) {
-      resizeHandler = Element.createSVG('circle');
+      resizeHandler = DiagramElement.createSVG('circle');
       resizeHandler.setAttribute('r', resizeHandlerRadius);
       resizeHandler.setAttribute('fill', '#f44336');
     }

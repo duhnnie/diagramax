@@ -1,4 +1,4 @@
-import Element from '../core/Element';
+import DiagramElement from '../core/DiagramElement';
 import Shape from './Shape';
 
 const DEFAULTS = Object.freeze({
@@ -73,7 +73,7 @@ class Circle extends Shape {
 
   _createHTML() {
     if (!this._html) {
-      const circle = Element.createSVG('circle');
+      const circle = DiagramElement.createSVG('circle');
 
       circle.setAttribute('cx', 0);
       circle.setAttribute('cy', 0);
