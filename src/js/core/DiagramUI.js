@@ -75,7 +75,7 @@ class DiagramUI extends BaseElement {
   _createHTML() {
     const layer = BaseElement.createSVG('g');
 
-    layer.classList.add('controls-layer');
+    layer.classList.add('ui-el-layer');
     this._html = layer;
 
     return this;

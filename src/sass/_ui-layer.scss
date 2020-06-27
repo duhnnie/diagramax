@@ -1,0 +1,39 @@
+.ui-el-layer {
+  display: none;
+
+  &.active {
+    display: initial;
+  }
+  
+  .handler-resize-nwse {
+    cursor: nwse-resize;
+  }
+  
+  .handler-resize-ns {
+    cursor: ns-resize;
+  }
+  
+  .handler-resize-nesw {
+    cursor: nesw-resize;
+  }
+  
+  .handler-resize-ew {
+    cursor: ew-resize;
+  }
+  
+  .handler-resize-ew {
+    cursor: ew-resize;
+  }
+  
+  .handler-resize-nesw {
+    cursor: nesw-resize;
+  }
+  
+  .handler-resize-ns {
+    cursor: ns-resize;
+  }
+  
+  .handler-resize-nwse {
+    cursor: nwse-resize;
+  }
+}

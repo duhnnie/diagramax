@@ -247,7 +247,7 @@ class DiagraElement extends BaseElement {
     const title = BaseElement.create('title');
 
     title.textContent = this._text.getText();
-    wrapper.classList.add('component');
+    wrapper.classList.add('element');
     wrapper.setAttribute('focusable', false);
     wrapper.appendChild(title);
     wrapper.appendChild(this._text.getHTML());

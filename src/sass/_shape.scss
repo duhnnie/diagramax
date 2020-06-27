@@ -1,0 +1,21 @@
+.shape {
+  &.cant-connect > * {
+    cursor: no-drop;
+  }
+
+  .main-element {
+    fill: #ffffff;
+    stroke: #000000;
+    stroke-width: 1;
+  }
+}
+
+.shape.draggable {
+  &:not(.cant-connect) .main-element {
+    cursor: grab;
+  }
+
+  &.grabbing:not(.cant-connect) .main-element {
+    cursor: grabbing;
+  }
+}
