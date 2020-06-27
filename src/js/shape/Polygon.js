@@ -1,4 +1,4 @@
-import DiagramElement from '../core/DiagramElement';
+import BaseElement from '../core/BaseElement';
 import Shape from './Shape';
 
 // TODO: doc this as abstract
@@ -26,7 +26,7 @@ class Polygon extends Shape {
 
   _createHTML() {
     if (!this._html) {
-      const polygon = DiagramElement.createSVG('polygon');
+      const polygon = BaseElement.createSVG('polygon');
 
       this._dom.mainElement = polygon;
       super._createHTML();

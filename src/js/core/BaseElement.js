@@ -3,7 +3,7 @@ import uuid from 'uuid/v1';
 /**
  * @class The base class for every component that has a HTML representation.
 */
-class DiagramElement {
+class BaseElement {
   /**
    * Create a new HTMLElement
    * @param {String} [tag="div"] The tag name for the new element.
@@ -23,7 +23,7 @@ class DiagramElement {
   }
 
   /**
-   * Create an instance of DiagramElement.
+   * Create an instance of BaseElement.
    * @constructor
    * @param {Object} settings An object containing all the settings for the element.
    * @param {String} [settings.id] The id for the HTML element, if not provided one will be generated.
@@ -53,7 +53,7 @@ class DiagramElement {
   /**
    * Set the instance id.
    * @param {string} id The id to set.
-   * @return {DiagramElement} this.
+   * @return {BaseElement} this.
    */
   setID(id) {
     this._id = id;
@@ -85,7 +85,7 @@ class DiagramElement {
    * @abstract
    * @protected
    * @description Create the HTML for the instance.
-   * @returns {DiagramElement} this.
+   * @returns {BaseElement} this.
    */
   _createHTML() { return this; }
 
@@ -111,4 +111,4 @@ class DiagramElement {
   }
 }
 
-export default DiagramElement;
+export default BaseElement;

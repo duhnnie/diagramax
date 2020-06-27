@@ -32,7 +32,7 @@ class DraggableShapeBehavior extends DragBehavior {
   startDrag(point) {
     if (!this._dragging) {
       super.startDrag(point);
-      // TODO: When DiagramElement inherits from EventTarget, the method
+      // TODO: When BaseElement inherits from EventTarget, the method
       // should trigger the event from itself.
       this._target.getCanvas().dispatchEvent(SHAPE_EVENT.DRAG_START, this._target);
     }
