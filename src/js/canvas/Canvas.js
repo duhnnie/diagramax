@@ -9,7 +9,7 @@ import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
 import KeyboardControlBehavior from '../behavior/KeyboardControlBehavior';
 import CommandFactory, { PRODUCTS as COMMANDS } from '../command/CommandFactory';
 import CommandManager from '../command/CommandManager';
-import { EVENT as COMPONENT_EVENT } from '../component/Component';
+import { EVENT as ELEMENT_EVENT } from '../core/DiagramElement';
 
 const DEFAULTS = Object.freeze({
   stackSize: 10,
@@ -87,7 +87,7 @@ class Canvas extends BaseElement {
 
     if (this.hasElement(removedElement)) {
       this._shapes.delete(removedElement) || this._connections.delete(removedElement);
-      this.removeEventListener(COMPONENT_EVENT.REMOVE, removedElement, this._onElementRemove, this);
+      this.removeEventListener(ELEMENT_EVENT.REMOVE, removedElement, this._onElementRemove, this);
     }
   }
 
@@ -113,7 +113,7 @@ class Canvas extends BaseElement {
 
       element.setCanvas(this);
       this._drawElement(element);
-      this.addEventListener(COMPONENT_EVENT.REMOVE, element, this._onElementRemove, this);
+      this.addEventListener(ELEMENT_EVENT.REMOVE, element, this._onElementRemove, this);
     }
 
     return this;

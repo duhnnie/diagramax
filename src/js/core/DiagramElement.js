@@ -1,6 +1,6 @@
-import BaseElement from '../core/BaseElement';
+import BaseElement from './BaseElement';
 import Canvas from '../canvas/Canvas';
-import ComponentText from './ComponentText';
+import DiagramText from './DiagramText';
 import SelectBehavior from '../behavior/SelectBehavior';
 
 /**
@@ -18,10 +18,10 @@ const DEFAULTS = {
 };
 
 /**
- * Events Component dispatches.
+ * Events DiagraElement dispatches.
  * @readonly
  * @enum {String}
- * @memberof Component
+ * @memberof DiagraElement
  * @property {String} REMOVE The component was removed.
  */
 const EVENT = Object.freeze({
@@ -34,13 +34,13 @@ const EVENT = Object.freeze({
  * @class The base class for every component that a {@link Canvas} can contain.
  * @extends {BaseElement}
  */
-class Component extends BaseElement {
+class DiagraElement extends BaseElement {
   /**
-   * Create an instance of Component.
+   * Create an instance of DiagraElement.
    * @param {Object} settings The settings.
    * @param {String} [settings.id] The id for the HTML element, if not provided one will be generated.
-   * @param {Canvas} [settings.canvas=null] The Canvas the Component belongs to.
-   * @param {String} [settings.text=""] The text for the Component.
+   * @param {Canvas} [settings.canvas=null] The Canvas the DiagraElement belongs to.
+   * @param {String} [settings.text=""] The text for the DiagraElement.
    */
   constructor(settings) {
     super(settings);
@@ -52,14 +52,14 @@ class Component extends BaseElement {
     this._canvas = null;
     /**
      * @protected
-     * @type {ComponentText}
-     * @description The ComponentText for the Component.
+     * @type {DiagramText}
+     * @description The DiagramText for the DiagraElement.
      */
-    this._text = new ComponentText();
+    this._text = new DiagramText();
     /**
      * @protected
      * @type {Object}
-     * @description An object literal to hold references to main Component's HTML elements.
+     * @description An object literal to hold references to main DiagraElement's HTML elements.
      */
     this._dom = {};
     /**
@@ -101,7 +101,7 @@ class Component extends BaseElement {
   /**
    * Set the Canvas the instance will belong to.
    * @param {Canvas} canvas
-   * @return {Component} this.
+   * @return {DiagraElement} this.
    */
   setCanvas(canvas) {
     if (!(canvas === null || canvas instanceof Canvas)) {
@@ -121,8 +121,8 @@ class Component extends BaseElement {
 
   /**
    * @protected
-   * @description Add a graphic control for manipulating the Component.
-   * @param {SVGElement} svgElement An SVG element to be the graphic control for the Component.
+   * @description Add a graphic control for manipulating the DiagraElement.
+   * @param {SVGElement} svgElement An SVG element to be the graphic control for the DiagraElement.
    * @param {Object} events An object in which the key is an event name and its value is a function or an array of
    * functions to be executed when that event occurs.
    */
@@ -154,7 +154,7 @@ class Component extends BaseElement {
 
   /**
    * Unselect and remove the instance from Canvas.
-   * @fires Component.REMOVE
+   * @fires DiagraElement.REMOVE
    */
   remove() {
     const { _canvas } = this;
@@ -181,7 +181,7 @@ class Component extends BaseElement {
   /**
    * Set the text for the instance.
    * @param {String} text
-   * @returns {Component} this.
+   * @returns {DiagraElement} this.
    */
   setText(text) {
     this._text.setText(text);
@@ -203,9 +203,9 @@ class Component extends BaseElement {
 
   /**
    * Trigger an event to the Canvas' event bus.
-   * @param {Component.EVENT} eventName The name for the event.
+   * @param {DiagraElement.EVENT} eventName The name for the event.
    * @param {...any} args A list of args to provide to the event's listeners.
-   * @returns {Component} this.
+   * @returns {DiagraElement} this.
    */
   trigger(eventName, ...args) {
     const canvas = this._canvas;
@@ -236,7 +236,7 @@ class Component extends BaseElement {
 
   /**
    * Creates the instance's HTML.
-   * @returns {Component} this.
+   * @returns {DiagraElement} this.
    */
   _createHTML() {
     if (this._html) {
@@ -277,5 +277,5 @@ class Component extends BaseElement {
   }
 }
 
-export default Component;
+export default DiagraElement;
 export { EVENT };

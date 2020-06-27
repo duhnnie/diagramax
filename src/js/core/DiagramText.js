@@ -1,10 +1,10 @@
-import BaseElement from '../core/BaseElement';
+import BaseElement from './BaseElement';
 
 const DEFAULTS = {
   text: '',
 };
 
-class ComponentText extends BaseElement {
+class DiagramText extends BaseElement {
   constructor(settings) {
     super(settings);
 
@@ -20,7 +20,7 @@ class ComponentText extends BaseElement {
   }
 
   /**
-   * Sets the text to the ComponentText
+   * Sets the text to the DiagramText
    * @param {String} text The text to set.
    */
   setText(text) {
@@ -70,4 +70,4 @@ class ComponentText extends BaseElement {
   }
 }
 
-export default ComponentText;
+export default DiagramText;
