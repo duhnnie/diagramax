@@ -1,5 +1,5 @@
 import BaseElement from '../core/BaseElement';
-import Component from '../component/Component';
+import DiagramElement from '../core/DiagramElement';
 import { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE, ORIENTATION, MODE } from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
@@ -11,7 +11,7 @@ import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY } from './LineStrateg
 import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY } from './VertexStrategyRepository';
 import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY } from './IntersectionStrategyRepository';
 import DraggableConnectionBehavior from '../behavior/DraggableConnectionBehavior';
-import ComponentUI from '../component/ComponentUI';
+import DiagramUI from '../core/DiagramUI';
 
 export const EVENT = Object.freeze({
   CONNECT: 'connect',
@@ -34,7 +34,7 @@ const INTERSECTION_SIZE = Object.freeze({
   HEIGHT: 8,
 });
 
-class Connection extends Component {
+class Connection extends DiagramElement {
   static get ARROW_SEGMENT_LENGTH() {
     return 20;
   }
@@ -101,7 +101,7 @@ class Connection extends Component {
   }
 
   _getComponentUI() {
-    return new ComponentUI(this);
+    return new DiagramUI(this);
   }
 
   addInterceptor(connection) {

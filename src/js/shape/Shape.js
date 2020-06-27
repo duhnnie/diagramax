@@ -1,4 +1,4 @@
-import Component from '../component/Component';
+import DiagraElement from '../core/DiagramElement';
 import Port, {
   getPositionProps, MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION, ORIENTATION,
 } from '../connection/Port';
@@ -43,7 +43,7 @@ export const EVENT = Object.freeze({
   POSITION_CHANGE: 'position:change',
 });
 
-class Shape extends Component {
+class Shape extends DiagraElement {
   constructor(settings) {
     super(settings);
     this._x = null;
@@ -54,7 +54,7 @@ class Shape extends Component {
     this._cHeight = null;
     this._connections = new Set();
     this._ports = [];
-    // TODO: component's text is defined in Component, so this behavior should be defined in that class.
+    // TODO: component's text is defined in DiagramElement, so this behavior should be defined in that class.
     this._editableBehavior = new EditableTextBehavior(this);
     this._dragBehavior = new RegularDraggableShapeBehavior(this);
     this._connectivityBehavior = new ConnectivityBehavior(this);

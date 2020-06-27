@@ -1,6 +1,6 @@
-import BaseElement from '../core/BaseElement';
+import BaseElement from './BaseElement';
 
-class ComponentUI extends BaseElement {
+class DiagramUI extends BaseElement {
   constructor(target) {
     super();
 
@@ -87,4 +87,4 @@ class ComponentUI extends BaseElement {
   }
 }
 
-export default ComponentUI;
+export default DiagramUI;

@@ -1,8 +1,8 @@
-import ComponentUI from '../component/ComponentUI';
+import DiagramUI from '../core/DiagramUI';
 import { EVENT as SHAPE_EVENT } from './Shape';
 import { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
 
-class ShapeUI extends ComponentUI {
+class ShapeUI extends DiagramUI {
   constructor(...args) {
     super(...args);
 
