@@ -1,4 +1,4 @@
-import DiagramElement from '../core/DiagramElement';
+import BaseElement from '../core/BaseElement';
 import EventBus, { stopPropagation } from './EventBus';
 import FluidDraggingAreaBehavior from '../behavior/FluidDraggingAreaBehavior';
 import ConnectivityAreaBehavior from '../behavior/ConnectivityAreaBehavior';
@@ -16,7 +16,7 @@ const DEFAULTS = Object.freeze({
   onChange: () => {},
 });
 
-class Canvas extends DiagramElement {
+class Canvas extends BaseElement {
   constructor(settings) {
     super(settings);
     settings = { ...DEFAULTS, ...settings };
@@ -341,10 +341,10 @@ class Canvas extends DiagramElement {
       return this;
     }
 
-    const svg = DiagramElement.createSVG('svg');
-    const root = DiagramElement.createSVG('g');
-    const componentsLayer = DiagramElement.createSVG('g');
-    const uiLayer = DiagramElement.createSVG('g');
+    const svg = BaseElement.createSVG('svg');
+    const root = BaseElement.createSVG('g');
+    const componentsLayer = BaseElement.createSVG('g');
+    const uiLayer = BaseElement.createSVG('g');
 
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');

@@ -1,6 +1,6 @@
-import DiagramElement from '../core/DiagramElement';
+import BaseElement from '../core/BaseElement';
 
-class ComponentUI extends DiagramElement {
+class ComponentUI extends BaseElement {
   constructor(target) {
     super();
 
@@ -73,7 +73,7 @@ class ComponentUI extends DiagramElement {
   }
 
   _createHTML() {
-    const layer = DiagramElement.createSVG('g');
+    const layer = BaseElement.createSVG('g');
 
     layer.classList.add('controls-layer');
     this._html = layer;

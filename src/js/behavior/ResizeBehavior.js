@@ -1,4 +1,4 @@
-import DiagramElement from '../core/DiagramElement';
+import BaseElement from '../core/BaseElement';
 import DragBehavior from './DragBehavior';
 import Geometry from '../utils/Geometry';
 import { PRODUCTS as COMMANDS } from '../command/CommandFactory';
@@ -73,7 +73,7 @@ let resizeHandler;
 class ResizeBehavior extends DragBehavior {
   static createHandler(x, y) {
     if (!resizeHandler) {
-      resizeHandler = DiagramElement.createSVG('circle');
+      resizeHandler = BaseElement.createSVG('circle');
       resizeHandler.setAttribute('r', resizeHandlerRadius);
       resizeHandler.setAttribute('fill', '#f44336');
     }
@@ -131,7 +131,7 @@ class ResizeBehavior extends DragBehavior {
     _target._componentUI.setActive();
 
     super.startDrag(position, options);
-    // TODO: When DiagramElement inherits from EventTarget, the method
+    // TODO: When BaseElement inherits from EventTarget, the method
     // should trigger the event from itself.
     _target.getCanvas().dispatchEvent(EVENT.START, _target);
   }
