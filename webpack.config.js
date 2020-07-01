@@ -7,17 +7,35 @@ const devConfig = {
   },
 };
 
+const bundleName = 'designer';
 const prodConfig = {};
 
 module.exports = (env, argv) => {
   const { mode } = argv;
   const base = {
-    entry: './src/js/index.js',
+    entry: ['./src/sass/index.scss', './src/js/index.js'],
+    // Apparently, next output def is only being applied to .js entry.
     output: {
-      filename: 'designer.js',
+      filename: `${bundleName}.js`,
       path: path.resolve(__dirname, 'dist'),
       libraryTarget: 'umd',
       library: 'Designer',
+    },
+    module: {
+      rules: [
+        {
+          test: /\.scss$/,
+          use: [
+            {
+              loader: 'file-loader',
+              options: {
+                name: `./${bundleName}.css`,
+              },
+            },
+            { loader: 'sass-loader' },
+          ],
+        },
+      ],
     },
   };
 
