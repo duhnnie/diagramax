@@ -316,6 +316,11 @@ class Canvas extends BaseElement {
     return this._selectionBehavior.get();
   }
 
+  onContextMenu(event) {
+    this._selectionBehavior.clear();
+    this._onContextMenu(event, this);
+  }
+
   /**
    * Executes a command, and add if its succesfully executed it is add to the undo/redo stack.
    * @see {@link CommandManager}
