@@ -2,6 +2,7 @@ import BaseElement from './BaseElement';
 import Canvas from '../canvas/Canvas';
 import DiagramText from './DiagramText';
 import SelectBehavior from '../behavior/SelectBehavior';
+import ContextMenuBehavior from '../behavior/ContextMenuBehavior';
 
 /**
  * The position of a rectangle boundary, using the top-left corner as the origin.
@@ -18,10 +19,10 @@ const DEFAULTS = {
 };
 
 /**
- * Events DiagraElement dispatches.
+ * Events DiagramElement dispatches.
  * @readonly
  * @enum {String}
- * @memberof DiagraElement
+ * @memberof DiagramElement
  * @property {String} REMOVE The component was removed.
  */
 const EVENT = Object.freeze({
@@ -34,13 +35,13 @@ const EVENT = Object.freeze({
  * @class The base class for every component that a {@link Canvas} can contain.
  * @extends {BaseElement}
  */
-class DiagraElement extends BaseElement {
+class DiagramElement extends BaseElement {
   /**
-   * Create an instance of DiagraElement.
+   * Create an instance of DiagramElement.
    * @param {Object} settings The settings.
    * @param {String} [settings.id] The id for the HTML element, if not provided one will be generated.
-   * @param {Canvas} [settings.canvas=null] The Canvas the DiagraElement belongs to.
-   * @param {String} [settings.text=""] The text for the DiagraElement.
+   * @param {Canvas} [settings.canvas=null] The Canvas the DiagramElement belongs to.
+   * @param {String} [settings.text=""] The text for the DiagramElement.
    */
   constructor(settings) {
     super(settings);
@@ -53,13 +54,13 @@ class DiagraElement extends BaseElement {
     /**
      * @protected
      * @type {DiagramText}
-     * @description The DiagramText for the DiagraElement.
+     * @description The DiagramText for the DiagramElement.
      */
     this._text = new DiagramText();
     /**
      * @protected
      * @type {Object}
-     * @description An object literal to hold references to main DiagraElement's HTML elements.
+     * @description An object literal to hold references to main DiagramElement's HTML elements.
      */
     this._dom = {};
     /**
@@ -72,6 +73,11 @@ class DiagraElement extends BaseElement {
      * @type {SelectBehavior}
      */
     this._selectBehavior = new SelectBehavior(this);
+    /**
+     * @protected
+     * @type {ContextMenuBehavior}
+     */
+    this._contextMenuBehavior = new ContextMenuBehavior(this);
 
     settings = {
       ...DEFAULTS,
@@ -101,7 +107,7 @@ class DiagraElement extends BaseElement {
   /**
    * Set the Canvas the instance will belong to.
    * @param {Canvas} canvas
-   * @return {DiagraElement} this.
+   * @return {DiagramElement} this.
    */
   setCanvas(canvas) {
     if (!(canvas === null || canvas instanceof Canvas)) {
@@ -121,8 +127,8 @@ class DiagraElement extends BaseElement {
 
   /**
    * @protected
-   * @description Add a graphic control for manipulating the DiagraElement.
-   * @param {SVGElement} svgElement An SVG element to be the graphic control for the DiagraElement.
+   * @description Add a graphic control for manipulating the DiagramElement.
+   * @param {SVGElement} svgElement An SVG element to be the graphic control for the DiagramElement.
    * @param {Object} events An object in which the key is an event name and its value is a function or an array of
    * functions to be executed when that event occurs.
    */
@@ -154,7 +160,7 @@ class DiagraElement extends BaseElement {
 
   /**
    * Unselect and remove the instance from Canvas.
-   * @fires DiagraElement.REMOVE
+   * @fires DiagramElement.REMOVE
    */
   remove() {
     const { _canvas } = this;
@@ -181,7 +187,7 @@ class DiagraElement extends BaseElement {
   /**
    * Set the text for the instance.
    * @param {String} text
-   * @returns {DiagraElement} this.
+   * @returns {DiagramElement} this.
    */
   setText(text) {
     this._text.setText(text);
@@ -203,9 +209,9 @@ class DiagraElement extends BaseElement {
 
   /**
    * Trigger an event to the Canvas' event bus.
-   * @param {DiagraElement.EVENT} eventName The name for the event.
+   * @param {DiagramElement.EVENT} eventName The name for the event.
    * @param {...any} args A list of args to provide to the event's listeners.
-   * @returns {DiagraElement} this.
+   * @returns {DiagramElement} this.
    */
   trigger(eventName, ...args) {
     const canvas = this._canvas;
@@ -228,15 +234,28 @@ class DiagraElement extends BaseElement {
 
   /**
    * @abstract
-   * @description Return the coordinates of the square boundary that correponds to the instance's SVG element. The coordinates are
-   * relative to the Canvas the instance belongs to.
+   * @description Return the coordinates of the square boundary that correponds to the instance's SVG element. The
+   * coordinates are relative to the Canvas the instance belongs to.
    * @return {Bounds}
    */
-  getBounds() { throw new Error('getBounds() should be implemented.'); }
+  // eslint-disable-next-line class-methods-use-this
+  getBounds() { throw new Error('Not implemented'); }
+
+  /**
+   * Trigger its parent {@link Canvas._onElementContextMenu Canvas' callback for context menu event}.
+   * @param {Event} event The event that triggered the context menu.
+   */
+  onContextMenu(event) {
+    const canvas = this.getCanvas();
+
+    if (canvas) {
+      canvas._onElementContextMenu(event, this);
+    }
+  }
 
   /**
    * Creates the instance's HTML.
-   * @returns {DiagraElement} this.
+   * @returns {DiagramElement} this.
    */
   _createHTML() {
     if (this._html) {
@@ -264,6 +283,7 @@ class DiagraElement extends BaseElement {
     }
 
     this._selectBehavior.attach();
+    this._contextMenuBehavior.attach();
 
     return this.setID(this._id);
   }
@@ -277,5 +297,5 @@ class DiagraElement extends BaseElement {
   }
 }
 
-export default DiagraElement;
+export default DiagramElement;
 export { EVENT };

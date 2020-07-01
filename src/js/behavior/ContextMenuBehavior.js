@@ -1,30 +1,49 @@
 import Behavior from './Behavior';
+import DiagramElement from '../core/DiagramElement';
 
 class ContextMenuBehavior extends Behavior {
-  constructor(...args) {
-    super(...args);
+  constructor(target, settings) {
+    super(target, settings);
 
     this.onContextMenu = this._bind(this.onContextMenu);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  onContextMenu() {
-    throw new Error('Not implemented.');
+  onContextMenu(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this._target.onContextMenu(event);
   }
 
   attach() {
-    // TODO: Fix access to protected method.
-    const mainElement = this._target._getMainElement();
+    const { _target } = this;
+    let element;
 
-    mainElement.addEventListener('contextmenu', this.onContextMenu, false);
+    // TODO: all targets should implement all interfaces, so this is a hack
+    if (_target instanceof DiagramElement) {
+      // TODO: Fix access to protected method.
+      element = _target._getMainElement();
+    } else {
+      element = _target.getHTML();
+    }
+
+    element.addEventListener('contextmenu', this.onContextMenu, false);
     super.attach();
   }
 
   detach() {
-    // TODO: Fix access to protected method.
-    const mainElement = this._target._getMainElement();
+    const { _target } = this;
+    let element;
 
-    mainElement.addEventListener('contextmenu', this.onContextMenu, false);
+    // TODO: all targets should implement all interfaces, so this is a hack
+    if (_target instanceof DiagramElement) {
+      // TODO: Fix access to protected method.
+      element = _target._getMainElement();
+    } else {
+      element = _target.getHTML();
+    }
+
+    element.addEventListener('contextmenu', this.onContextMenu, false);
     super.detach();
   }
 }
