@@ -107,6 +107,8 @@ class ResizeBehavior extends DragBehavior {
   }
 
   _onGrab(event) {
+    if (event.button !== 0) return;
+
     const { target: handler } = event;
     const { _target } = this;
 

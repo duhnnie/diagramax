@@ -22,6 +22,10 @@ class DragBehavior extends Behavior {
   }
 
   _onGrab(event) {
+    // TODO: all child classes have this line on its _onGrab method.
+    // Find a way to not repeat this in all of them.
+    if (event.button !== 0) return;
+
     const { clientX: x, clientY: y } = event;
 
     this._grabbed = true;

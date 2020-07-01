@@ -1,5 +1,6 @@
 import Behavior from './Behavior';
 
+// TODO: Use this events
 export const EVENT = Object.freeze({
   ADD: 'selectionadd',
   REMOVE: 'selectionremove',
@@ -65,11 +66,11 @@ class SelectionAreaBehavior extends Behavior {
   }
 
   attach() {
-    this._target.getHTML().addEventListener('click', this.clear, false);
+    this._target.getHTML().addEventListener('mousedown', this.clear, false);
   }
 
   detach() {
-    this._target.getHTML().removeEventListener('click', this.clear, false);
+    this._target.getHTML().removeEventListener('mousedown', this.clear, false);
     super.detach();
   }
 }

@@ -22,6 +22,8 @@ class DraggableShapeBehavior extends DragBehavior {
   }
 
   _onGrab(event) {
+    if (event.button !== 0) return;
+
     const canvas = this._target.getCanvas();
 
     super._onGrab(event);
