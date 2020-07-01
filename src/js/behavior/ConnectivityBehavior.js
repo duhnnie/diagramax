@@ -34,6 +34,8 @@ class ConnectivityBehavior extends Behavior {
   }
 
   _onMouseDown(event) {
+    if (event.button !== 0) return;
+
     const target = this._target;
 
     event.stopPropagation();

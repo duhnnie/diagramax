@@ -67,6 +67,8 @@ class DraggableConnectionBehavior extends DragBehavior {
   }
 
   _onGrab(event) {
+    if (event.button !== 0) return;
+
     const { _target } = this;
     const draggingPoint = Number(event.target.dataset.point);
 
