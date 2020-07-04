@@ -22,14 +22,14 @@ class Ellipse extends Shape {
   }
 
   _updateSize(width, height) {
-    const { mainElement } = this._dom;
+    const { ellipse } = this._dom;
 
     this._cWidth = width;
     this._cHeight = height;
 
-    if (mainElement) {
-      mainElement.setAttribute('rx', this._cWidth / 2);
-      mainElement.setAttribute('ry', this._cHeight / 2);
+    if (ellipse) {
+      ellipse.setAttribute('rx', this._cWidth / 2);
+      ellipse.setAttribute('ry', this._cHeight / 2);
     }
   }
 
@@ -83,13 +83,14 @@ class Ellipse extends Shape {
     if (!this._html) {
       const ellipse = BaseElement.createSVG('ellipse');
 
+      super._createHTML();
+
       ellipse.setAttribute('cx', 0);
       ellipse.setAttribute('cy', 0);
 
-      this._dom.mainElement = ellipse;
+      this._dom.ellipse = ellipse;
+      this._getMainElement().append(ellipse);
       this.setSize(this._radiusX * 2, this._radiusY * 2);
-
-      super._createHTML();
     }
 
     return this;

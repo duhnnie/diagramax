@@ -566,7 +566,7 @@ class Shape extends DiagraElement {
 
     this._html.classList.add('shape');
     this._html.setAttribute('transform', `translate(${this._x}, ${this._y})`);
-    this._html.insertBefore(this._dom.mainElement, this._dom.title);
+    // this._html.insertBefore(this._dom.mainElement, this._dom.title);
 
     this._connectivityBehavior.attach();
     this._dragBehavior.attach();

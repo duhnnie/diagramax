@@ -20,11 +20,11 @@ class Circle extends Shape {
   }
 
   _updateSize(width, height) {
-    const { mainElement } = this._dom;
+    const { circle } = this._dom;
     const diameter = Math.min(width, height);
 
-    if (mainElement) {
-      mainElement.setAttribute('r', diameter / 2);
+    if (circle) {
+      circle.setAttribute('r', diameter / 2);
     }
 
     super._updateSize(diameter, diameter);
@@ -75,14 +75,14 @@ class Circle extends Shape {
     if (!this._html) {
       const circle = BaseElement.createSVG('circle');
 
+      super._createHTML();
+
       circle.setAttribute('cx', 0);
       circle.setAttribute('cy', 0);
 
-      this._dom.mainElement = circle;
-
+      this._dom.circle = circle;
+      this._getMainElement().append(circle);
       this.setRadius(this._radius);
-
-      super._createHTML();
     }
 
     return this;

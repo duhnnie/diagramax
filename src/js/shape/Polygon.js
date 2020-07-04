@@ -13,12 +13,12 @@ class Polygon extends Shape {
   }
 
   _updateSize(width, height) {
-    const { mainElement } = this._dom;
+    const { polygon } = this._dom;
 
     super._updateSize(width, height);
 
-    if (mainElement) {
-      mainElement.setAttribute('points', Polygon.toPointsString(this._getPoints()));
+    if (polygon) {
+      polygon.setAttribute('points', Polygon.toPointsString(this._getPoints()));
     }
 
     return this;
@@ -28,8 +28,10 @@ class Polygon extends Shape {
     if (!this._html) {
       const polygon = BaseElement.createSVG('polygon');
 
-      this._dom.mainElement = polygon;
       super._createHTML();
+
+      this._dom.polygon = polygon;
+      this._getMainElement().append(polygon);
       this.setSize(this._base, this._height);
     }
 

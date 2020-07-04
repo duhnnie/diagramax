@@ -348,24 +348,23 @@ class DiagramElement extends BaseElement {
     }
 
     const wrapper = BaseElement.createSVG('g');
+    const mainElement = BaseElement.createSVG('g');
     const title = BaseElement.create('title');
 
     title.textContent = this._text.getText();
+    // TODO: This can be set in CSS?
+    mainElement.setAttribute('cursor', 'pointer');
+    mainElement.classList.add('main-element');
     wrapper.classList.add('element');
     wrapper.setAttribute('focusable', false);
-    wrapper.appendChild(title);
-    wrapper.appendChild(this._text.getHTML());
+    wrapper.append(mainElement);
+    wrapper.append(title);
+    wrapper.append(this._text.getHTML());
 
+    this._dom.mainElement = mainElement;
     this._dom.title = title;
 
     this._html = wrapper;
-
-    if (this._dom.mainElement) {
-      const { mainElement } = this._dom;
-      // TODO: This can be set in CSS?
-      mainElement.setAttribute('cursor', 'pointer');
-      mainElement.classList.add('main-element');
-    }
 
     this._selectBehavior.attach();
     this._contextMenuBehavior.attach();
