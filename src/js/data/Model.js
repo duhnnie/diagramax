@@ -17,16 +17,16 @@ class Model {
     return this;
   }
 
-  delete(key) {
-    return this._attributes.delete(key);
-  }
-
   get(key) {
     return this._attributes.get(key);
   }
 
   has(key) {
     return this._attributes.has(key);
+  }
+
+  delete(key) {
+    return this._attributes.delete(key);
   }
 
   clear() {
