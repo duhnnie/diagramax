@@ -41,14 +41,6 @@ class KeyboardControlBehavior extends Behavior {
         _target._connectivityAreaBehavior.end();
         _target._selectionBehavior.end();
         break;
-      case 'KeyZ':
-        if (event.ctrlKey) {
-          if (event.shiftKey) {
-            _target.redo();
-          } else {
-            _target.undo();
-          }
-        }
       default:
     }
   }

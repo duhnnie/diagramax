@@ -165,6 +165,21 @@
                     counter += 1;
                   }
                 }, false);
+
+                // Here we add the undo/redo key binding.
+                window.addEventListener('keydown', (event) => {
+                  switch (event.code) {
+                    case 'KeyZ':
+                      if (event.ctrlKey) {
+                        if (event.shiftKey) {
+                          redo();
+                        } else {
+                          undo();
+                        }
+                      }
+                      break;
+                  }
+                }, false);
             });
         </script>
     </head>
