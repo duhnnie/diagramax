@@ -3,7 +3,7 @@ import RectWaypointRepository from './strategy/RectWaypointStrategy';
 
 // TODO: maybe this enum could use integer values instead of strings.
 const PRODUCTS = Object.freeze({
-  RECT: 'rect',
+  RECT: 0,
 });
 
 const WaypointStrategyRepository = new StrategyRepository({

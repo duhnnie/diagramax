@@ -11,14 +11,14 @@ export const EVENT = Object.freeze({
 });
 
 export const DIRECTION = {
-  NW: 'nw',
-  N: 'n',
-  NE: 'ne',
-  E: 'e',
-  SE: 'se',
-  S: 's',
-  SW: 'sw',
-  W: 'w',
+  NW: 0,
+  N: 1,
+  NE: 2,
+  E: 3,
+  SE: 4,
+  S: 5,
+  SW: 6,
+  W: 7,
 };
 
 const OPPOSITE_DIRECTION = {
@@ -114,7 +114,7 @@ class ResizeBehavior extends DragBehavior {
 
     super._onGrab(event);
 
-    this._direction = handler.dataset.direction;
+    this._direction = Number(handler.dataset.direction);
     _target.getCanvas().setResizingShape(_target);
   }
 

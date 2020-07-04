@@ -32,7 +32,7 @@ class DiagramText extends BaseElement {
       if (this._text) {
         textContainer.textContent = text;
       } else {
-        textContainer.innerHTML = '&nbsp;&nbsp;&nbsp;';
+        textContainer.innerHTML = '';
       }
     }
   }
