@@ -547,6 +547,16 @@ class Shape extends DiagraElement {
     return this;
   }
 
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      x: this._x,
+      y: this._y,
+      width: this.getWidth(),
+      height: this.getHeight(),
+    };
+  }
+
   _createHTML() {
     if (this._html) {
       return this;

@@ -350,6 +350,14 @@ class Canvas extends BaseElement {
     return this._commandManager.getSteps()[1];
   }
 
+  toJSON() {
+    return {
+      id: this.getID(),
+      shapes: [...this._shapes].map((shape) => shape.toJSON()),
+      connections: [...this._connections].map((connection) => connection.toJSON()),
+    };
+  }
+
   _createHTML() {
     if (this._html) {
       return this;

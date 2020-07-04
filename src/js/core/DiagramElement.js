@@ -3,6 +3,7 @@ import Canvas from '../canvas/Canvas';
 import DiagramText from './DiagramText';
 import SelectBehavior from '../behavior/SelectBehavior';
 import ContextMenuBehavior from '../behavior/ContextMenuBehavior';
+import Model from '../data/Model';
 
 /**
  * The position of a rectangle boundary, using the top-left corner as the origin.
@@ -63,6 +64,12 @@ class DiagramElement extends BaseElement {
      * @description An object literal to hold references to main DiagramElement's HTML elements.
      */
     this._dom = {};
+    /**
+     * @protected
+     * @type {Model}
+     * @description The data related to the element.
+     */
+    this._data = new Model();
     /**
      * @protected
      * @type {ComponentUI}
@@ -251,6 +258,84 @@ class DiagramElement extends BaseElement {
     if (canvas) {
       canvas._onElementContextMenu(event, this);
     }
+  }
+
+  /**
+  * Set the data for the element.
+  * @param  {Object} args An object literal to be set.
+  * @returns {DiagramElement} this.
+  */
+  setData(...args) {
+    this._data.set(...args);
+
+    return this;
+  }
+
+  /**
+   * Add a new value to the element's data.
+   * @param {String} key The key for the data to set.
+   * @param {*} value The value to set.
+   * @returns {DiagramElement} this.
+   */
+  addData(key, value) {
+    this._data(key, value);
+
+    return this;
+  }
+
+  /**
+   * Get the data for a specific key.
+   * @param {String} key The key the data will be get for.
+   * @returns {*} The corresponding value to the provided key.
+   */
+  getData(key) {
+    return this._data.get(key);
+  }
+
+  /**
+   * Return a boolean asserting whether a value has been associated to the key in the element's data or not.
+   * @param {String} key The key of the value to test for presence in the element's data.
+   * @returns {Boolean} true if a value with the specified key exists in the element's data; otherwise false.
+   */
+  hasData(key) {
+    return this._data.has(key);
+  }
+
+  /**
+   * Remove the specified element from a element's data by key.
+   * @param {String} key The key of the value to remove from the element's data.
+   * @returns {Boolean} true if a value in the element's data existed and has been removed, or false if the value does
+   * not exist.
+   */
+  deleteData(key) {
+    return this._data.delete(key);
+  }
+
+  /**
+   * Remove all elements from the element's data.
+   */
+  clearData() {
+    this._data.clear();
+  }
+
+  /**
+   * Return an object literal of the element's data.
+   * @returns {Object} The element's data in object literal format.
+   */
+  getAllData() {
+    return this._data.toJSON();
+  }
+
+  /**
+   * Return the element's JSON representation.
+   * @returns {Object} The element's JSON representation.
+   */
+  toJSON() {
+    return {
+      id: this._id,
+      text: this.getText(),
+      data: this._data.toJSON(),
+    };
   }
 
   /**
