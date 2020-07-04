@@ -5,6 +5,10 @@ const DEFAULTS = {
 };
 
 class DiagramText extends BaseElement {
+  static get type() {
+    return 'diagramText';
+  }
+
   constructor(settings) {
     super(settings);
 

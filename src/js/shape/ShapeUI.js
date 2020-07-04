@@ -3,6 +3,10 @@ import { EVENT as SHAPE_EVENT } from './Shape';
 import { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
 
 class ShapeUI extends DiagramUI {
+  static get type() {
+    return 'shapeUI';
+  }
+
   constructor(...args) {
     super(...args);
 

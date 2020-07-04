@@ -22,6 +22,18 @@ class BaseElement {
     return document.createElementNS('http://www.w3.org/2000/svg', tagName);
   }
 
+  static get type() {
+    return 'element';
+  }
+
+  /**
+   * Return the type of the object.
+   * @returns {String} The type name.
+   */
+  get type() {
+    return this.constructor.type;
+  }
+
   /**
    * Create an instance of BaseElement.
    * @constructor

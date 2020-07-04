@@ -38,6 +38,13 @@ const EVENT = Object.freeze({
  */
 class DiagramElement extends BaseElement {
   /**
+   * @inheritdoc
+   */
+  static get type() {
+    return 'diagramElement';
+  }
+
+  /**
    * Create an instance of DiagramElement.
    * @param {Object} settings The settings.
    * @param {String} [settings.id] The id for the HTML element, if not provided one will be generated.
@@ -333,6 +340,7 @@ class DiagramElement extends BaseElement {
   toJSON() {
     return {
       id: this._id,
+      type: this.type,
       text: this.getText(),
       data: this._data.toJSON(),
     };

@@ -7,6 +7,10 @@ const DEFAULTS = {
 };
 
 class Ellipse extends Shape {
+  static get type() {
+    return 'ellipse';
+  }
+
   constructor(settings) {
     settings = {
       ...DEFAULTS,

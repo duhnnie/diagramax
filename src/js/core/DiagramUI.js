@@ -1,6 +1,10 @@
 import BaseElement from './BaseElement';
 
 class DiagramUI extends BaseElement {
+  static get type() {
+    return 'diagramUI';
+  }
+
   constructor(target) {
     super();
 

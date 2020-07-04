@@ -21,6 +21,10 @@ const DEFAULTS = Object.freeze({
 });
 
 class Canvas extends BaseElement {
+  static get type() {
+    return 'canvas';
+  }
+
   constructor(settings) {
     super(settings);
     settings = { ...DEFAULTS, ...settings };

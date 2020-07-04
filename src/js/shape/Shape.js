@@ -44,6 +44,10 @@ export const EVENT = Object.freeze({
 });
 
 class Shape extends DiagraElement {
+  static get type() {
+    return 'shape';
+  }
+
   constructor(settings) {
     super(settings);
     this._x = null;
