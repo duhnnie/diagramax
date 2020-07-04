@@ -327,6 +327,18 @@ class DiagramElement extends BaseElement {
   }
 
   /**
+   * Return the element's JSON representation.
+   * @returns {Object} The element's JSON representation.
+   */
+  toJSON() {
+    return {
+      id: this._id,
+      text: this.getText(),
+      data: this._data.toJSON(),
+    };
+  }
+
+  /**
    * Creates the instance's HTML.
    * @returns {DiagramElement} this.
    */

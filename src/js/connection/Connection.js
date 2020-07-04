@@ -587,6 +587,14 @@ class Connection extends DiagramElement {
     return this;
   }
 
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      orig: this._origShape.getID(),
+      dest: this._destShape.getID(),
+    };
+  }
+
   _createHTML() {
     if (this._html) {
       return this;
