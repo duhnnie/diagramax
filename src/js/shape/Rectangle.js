@@ -21,15 +21,15 @@ class Rectangle extends Shape {
   }
 
   _updateSize(width, height) {
-    const { mainElement } = this._dom;
+    const { rect } = this._dom;
 
     super._updateSize(width, height);
 
-    if (mainElement) {
-      mainElement.setAttribute('width', width);
-      mainElement.setAttribute('x', width * -0.5);
-      mainElement.setAttribute('height', height);
-      mainElement.setAttribute('y', height * -0.5);
+    if (rect) {
+      rect.setAttribute('width', width);
+      rect.setAttribute('x', width * -0.5);
+      rect.setAttribute('height', height);
+      rect.setAttribute('y', height * -0.5);
     }
   }
 
@@ -82,10 +82,11 @@ class Rectangle extends Shape {
     if (!this._html) {
       const rect = BaseElement.createSVG('rect');
 
-      this._dom.mainElement = rect;
-      this.setSize(this._width, this._height);
-
       super._createHTML();
+
+      this._dom.rect = rect;
+      this._getMainElement().append(rect);
+      this.setSize(this._width, this._height);
     }
 
     return this;

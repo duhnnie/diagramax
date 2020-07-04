@@ -600,7 +600,9 @@ class Connection extends DiagramElement {
       return this;
     }
 
-    const mainElement = BaseElement.createSVG('g');
+    super._createHTML();
+
+    const mainElement = this._getMainElement();
     const arrowWrapper = BaseElement.createSVG('g');
     const arrowWrapper2 = BaseElement.createSVG('g');
     const arrow = BaseElement.createSVG('path');
@@ -616,12 +618,8 @@ class Connection extends DiagramElement {
     arrowWrapper.appendChild(arrowWrapper2);
     mainElement.appendChild(arrowWrapper);
     mainElement.appendChild(path);
-    this._dom.mainElement = mainElement;
-
-    super._createHTML();
 
     this._html.classList.add('connection');
-    this._html.appendChild(this._dom.mainElement);
     this._dom.path = path;
     this._dom.arrow = arrowWrapper;
     this._dom.arrowRotateContainer = arrowWrapper2;
