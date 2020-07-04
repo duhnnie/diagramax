@@ -3,7 +3,7 @@ import ArcIntersectionStrategy from './strategy/ArcIntersectionStrategy';
 
 // TODO: maybe this enum could use integer values instead of strings.
 const PRODUCTS = Object.freeze({
-  ARC: 'arc',
+  ARC: 0,
 });
 
 const IntersectionStrategyRepository = new StrategyRepository({

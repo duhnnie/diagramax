@@ -8,13 +8,13 @@ import ConnectionRemoveCommand from './ConnectionRemoveCommand';
 import ConnectCommand from './ConnectCommand';
 
 const PRODUCTS = Object.freeze({
-  SHAPE_ADD: 'shape_add',
-  SHAPE_TEXT: 'shape_text',
-  SHAPE_POSITION: 'shape_position',
-  SHAPE_RESIZE: 'shape_resize',
-  SHAPE_REMOVE: 'shape_remove',
-  CONNECT: 'connect',
-  CONNECTION_REMOVE: 'connection_remove',
+  SHAPE_ADD: 0,
+  SHAPE_TEXT: 1,
+  SHAPE_POSITION: 2,
+  SHAPE_RESIZE: 3,
+  SHAPE_REMOVE: 4,
+  CONNECT: 5,
+  CONNECTION_REMOVE: 6,
 });
 
 const CommandFactory = new Factory({

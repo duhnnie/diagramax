@@ -4,8 +4,8 @@ import ArcVertexStrategy from './strategy/ArcVertextStrategy';
 
 // TODO: maybe this enum could use integer values instead of strings.
 const PRODUCTS = Object.freeze({
-  RECT: 'rect',
-  ARC: 'arc',
+  RECT: 0,
+  ARC: 1,
 });
 
 const VertexStrategyRepository = new StrategyRepository({
