@@ -2,74 +2,76 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
     <head>
         <link rel="stylesheet" href="./designer.css"/>
+        <style>
+          /* TODO: add common class for handlers */
+          .canvas tspan {
+            fill: #7a7a7a;
+          }
+
+          .shape .main-element {
+            fill: #F5FDFF;
+            stroke: #ABD0D8;
+            stroke-width: 3;
+          }
+
+          .connection .path {
+            stroke: #888888;
+          }
+
+          .connection .arrow {
+            fill: #888888;
+          }
+        </style>
         <script src="./designer.js"></script>
         <script type="text/javascript">
             const rectA = new Designer.Rectangle({
                 id: 'rectA',
                 text: "Rect A",
-                position: {
-                    x: 113,
-                    y: 475
-                }
+                x: 113,
+                y: 475
             });
             const rectB = new Designer.Rectangle({
                 id: 'rectB',
                 text: "Rect B",
-                position: {
-                    x: 285,
-                    y: 114
-                }
+                x: 285,
+                y: 114
             });
             const rectC = new Designer.Rectangle({
                 id: 'rectC',
                 text: "Rect C",
-                position: {
-                    x: 584,
-                    y: 447
-                }
+                x: 584,
+                y: 447
             });
             const rectD = new Designer.Rectangle({
                 id: 'rectD',
                 text: "Rect D",
-                position: {
-                    x: 252,
-                    y: 413
-                }
+                x: 252,
+                y: 413
             });
-
             const circleA = new Designer.Circle({
               id: 'circleA',
               text: 'Circle A',
-              position: {
-                x: 190,
-                y: 189,
-              }
+              x: 190,
+              y: 189,
             });
-
             const triangleA = new Designer.Triangle({
               id: 'triangleA',
               text: 'Triangle A',
-              position: {
-                x: 112,
-                y: 315,
-              }
+              x: 112,
+              y: 315,
             });
-
             const ellipseA = new Designer.Ellipse({
               id: 'ellipseA',
               text: 'Ellipse A',
               radiusX: 110,
               radiusY: 40,
-              position: {
-                x: 420,
-                y: 216,
-              },
+              x: 420,
+              y: 216,
             });
-
             const canvas = new Designer.Canvas({
               width: 1440,
               height: 900,
-              elements: [
+              shapes: [
                 rectA,
                 rectB,
                 rectC,
@@ -77,6 +79,20 @@
                 circleA,
                 triangleA,
                 ellipseA,
+              ],
+              connections: [
+                {
+                  orig: circleA,
+                  dest: rectA,
+                },
+                {
+                  orig: 'rectA',
+                  dest: 'triangleA'
+                },
+                {
+                  orig: 'triangleA',
+                  dest: rectB,
+                }
               ],
               onChange: (...args) => {
                 undoButton.disabled = false;
@@ -97,89 +113,84 @@
             }
 
             document.addEventListener('DOMContentLoaded', function () {
-                undoButton = document.querySelector('#undo');
-                redoButton = document.querySelector('#redo');
-                let rectE;
-                let connection;
-                let counter = 1;
+              undoButton = document.querySelector('#undo');
+              redoButton = document.querySelector('#redo');
+              let rectE;
+              let connection;
+              let counter = 1;
 
-                document.querySelector('#diagram').appendChild(canvas.getHTML());
-                undoButton.addEventListener('click', undo, false);
-                redoButton.addEventListener('click', redo, false);
+              document.querySelector('#diagram').appendChild(canvas.getHTML());
+              undoButton.addEventListener('click', undo, false);
+              redoButton.addEventListener('click', redo, false);
 
-                rectE = new Designer.Rectangle({
-                    id: "rectE",
-                    text: "Rect E",
-                    position: {
-                        x: 514,
-                        y: 288
-                    }
-                });
+              rectE = new Designer.Rectangle({
+                id: "rectE",
+                text: "Rect E",
+                x: 514,
+                y: 288
+              });
 
-                canvas.addElement(rectE);
+              canvas.addShape(rectE);
 
-                canvas.connect(circleA, rectA);
-                canvas.connect(rectA, triangleA);
-                canvas.connect(triangleA, rectB);
-                canvas.connect(triangleA, rectC);
-                canvas.connect(rectB, ellipseA);
-                canvas.connect(rectC, ellipseA);
-                canvas.connect(ellipseA, rectD);
-                canvas.connect(rectD, rectE);
+              canvas.connect(triangleA, rectC);
+              canvas.connect(rectB, 'ellipseA');
+              canvas.connect('rectC', ellipseA);
+              canvas.connect(ellipseA, rectD);
+              canvas.connect('rectD', 'rectE');
 
-                document.querySelector('#add').addEventListener('click', () => {
-                  const selection = document.querySelector('#shape-selector').value;
-                  const position = { x: 50, y: 50 };
-                  let shape;
+              document.querySelector('#add').addEventListener('click', () => {
+                const selection = document.querySelector('#shape-selector').value;
+                const position = { x: 50, y: 50 };
+                let shape;
 
-                  switch (selection) {
-                    case 'Circle':
-                      shape = new Designer.Circle({
-                        text: `Circle #${counter}`,
-                        position,
-                      });
-                      break;
-                    case 'Rectangle':
-                      shape = new Designer.Rectangle({
-                        text: `Rectangle #${counter}`,
-                        position,
-                      });
-                      break;
-                    case 'Triangle':
-                      shape = new Designer.Triangle({
-                        text: `Triangle #${counter}`,
-                        position,
-                      });
-                      break;
-                    case 'Ellipse':
-                      shape = new Designer.Ellipse({
-                        text: `Ellipse #${counter}`,
-                        position,
-                      });
-                      break;
-                    default:
-                  }
+                switch (selection) {
+                  case 'Circle':
+                    shape = new Designer.Circle({
+                      text: `Circle #${counter}`,
+                      position,
+                    });
+                    break;
+                  case 'Rectangle':
+                    shape = new Designer.Rectangle({
+                      text: `Rectangle #${counter}`,
+                      position,
+                    });
+                    break;
+                  case 'Triangle':
+                    shape = new Designer.Triangle({
+                      text: `Triangle #${counter}`,
+                      position,
+                    });
+                    break;
+                  case 'Ellipse':
+                    shape = new Designer.Ellipse({
+                      text: `Ellipse #${counter}`,
+                      position,
+                    });
+                    break;
+                  default:
+                }
 
-                  if (shape) {
-                    canvas.executeCommand(Designer.COMMANDS.SHAPE_ADD, canvas, shape);
-                    counter += 1;
-                  }
-                }, false);
+                if (shape) {
+                  canvas.executeCommand(Designer.COMMANDS.SHAPE_ADD, canvas, shape);
+                  counter += 1;
+                }
+              }, false);
 
-                // Here we add the undo/redo key binding.
-                window.addEventListener('keydown', (event) => {
-                  switch (event.code) {
-                    case 'KeyZ':
-                      if (event.ctrlKey) {
-                        if (event.shiftKey) {
-                          redo();
-                        } else {
-                          undo();
-                        }
+              // Here we add the undo/redo key binding.
+              window.addEventListener('keydown', (event) => {
+                switch (event.code) {
+                  case 'KeyZ':
+                    if (event.ctrlKey) {
+                      if (event.shiftKey) {
+                        redo();
+                      } else {
+                        undo();
                       }
-                      break;
-                  }
-                }, false);
+                    }
+                    break;
+                }
+              }, false);
             });
         </script>
     </head>

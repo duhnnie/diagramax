@@ -1,10 +1,14 @@
-import BaseElement from './BaseElement';
+import BaseElement from '../core/BaseElement';
 
 const DEFAULTS = {
   text: '',
 };
 
 class DiagramText extends BaseElement {
+  static get type() {
+    return 'diagramText';
+  }
+
   constructor(settings) {
     super(settings);
 

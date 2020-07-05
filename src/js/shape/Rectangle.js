@@ -7,6 +7,10 @@ const DEFAULTS = {
 };
 
 class Rectangle extends Shape {
+  static get type() {
+    return 'rectangle';
+  }
+
   constructor(settings) {
     settings = {
       ...DEFAULTS,

@@ -6,6 +6,10 @@ const DEFAULTS = Object.freeze({
 });
 
 class Circle extends Shape {
+  static get type() {
+    return 'circle';
+  }
+
   constructor(settings) {
     settings = {
       ...DEFAULTS,

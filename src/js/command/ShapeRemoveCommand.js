@@ -18,7 +18,7 @@ class ShapeRemoveCommand extends Command {
   undo() {
     const { canvas, connections } = this._before;
 
-    canvas.addElement(this._receiver);
+    canvas.addShape(this._receiver);
     connections.forEach(([otherShape, direction]) => {
       if (direction === MODE.ORIG) {
         canvas.connect(otherShape, this._receiver);

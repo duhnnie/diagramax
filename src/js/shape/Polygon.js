@@ -3,6 +3,10 @@ import Shape from './Shape';
 
 // TODO: doc this as abstract
 class Polygon extends Shape {
+  static get type() {
+    return 'polygon';
+  }
+
   static toPointsString(points) {
     return points.map(({ x, y }) => `${x},${y}`).join(' ');
   }

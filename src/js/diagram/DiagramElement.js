@@ -1,5 +1,5 @@
-import BaseElement from './BaseElement';
-import Canvas from '../canvas/Canvas';
+import BaseElement from '../core/BaseElement';
+import Canvas from './Canvas';
 import DiagramText from './DiagramText';
 import SelectBehavior from '../behavior/SelectBehavior';
 import ContextMenuBehavior from '../behavior/ContextMenuBehavior';
@@ -37,6 +37,13 @@ const EVENT = Object.freeze({
  * @extends {BaseElement}
  */
 class DiagramElement extends BaseElement {
+  /**
+   * @inheritdoc
+   */
+  static get type() {
+    return 'diagramElement';
+  }
+
   /**
    * Create an instance of DiagramElement.
    * @param {Object} settings The settings.
@@ -91,9 +98,7 @@ class DiagramElement extends BaseElement {
       ...settings,
     };
 
-    this
-      .setText(settings.text)
-      .setCanvas(settings.canvas);
+    this.setText(settings.text);
   }
 
   /**
@@ -112,13 +117,14 @@ class DiagramElement extends BaseElement {
   // TODO: in this method a call to canvas.addElement(), this method adds the shape to the canvas, so maybe this method
   // should be refactored, this method shouldn't add shape to canvas
   /**
+   * @protected
    * Set the Canvas the instance will belong to.
    * @param {Canvas} canvas
    * @return {DiagramElement} this.
    */
-  setCanvas(canvas) {
+  _setCanvas(canvas) {
     if (!(canvas === null || canvas instanceof Canvas)) {
-      throw new Error('setCanvas(): Invalid parameter.');
+      throw new Error('_setCanvas(): Invalid parameter.');
     }
 
     if (this._canvas !== canvas) {
@@ -126,7 +132,6 @@ class DiagramElement extends BaseElement {
         this.remove();
       }
       this._canvas = canvas;
-      canvas.addElement(this);
     }
 
     return this;
@@ -333,6 +338,7 @@ class DiagramElement extends BaseElement {
   toJSON() {
     return {
       id: this._id,
+      type: this.type,
       text: this.getText(),
       data: this._data.toJSON(),
     };

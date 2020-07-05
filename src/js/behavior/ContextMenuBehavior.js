@@ -1,5 +1,5 @@
 import Behavior from './Behavior';
-import DiagramElement from '../core/DiagramElement';
+import DiagramElement from '../diagram/DiagramElement';
 
 class ContextMenuBehavior extends Behavior {
   constructor(target, settings) {

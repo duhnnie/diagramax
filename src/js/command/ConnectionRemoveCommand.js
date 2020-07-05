@@ -18,8 +18,7 @@ class ConnectionRemoveCommand extends Command {
   undo() {
     const { canvas, orig, dest } = this._after;
 
-    canvas.addElement(this._receiver);
-    this._receiver.connect(orig, dest);
+    canvas.connect(orig, dest, this._receiver);
   }
 }
 

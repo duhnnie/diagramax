@@ -9,11 +9,17 @@ import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
 import KeyboardControlBehavior from '../behavior/KeyboardControlBehavior';
 import CommandFactory from '../command/CommandFactory';
 import CommandManager from '../command/CommandManager';
-import { EVENT as ELEMENT_EVENT } from '../core/DiagramElement';
+import { EVENT as ELEMENT_EVENT } from './DiagramElement';
 import { noop } from '../utils/Utils';
 import ContextMenuBehavior from '../behavior/ContextMenuBehavior';
+import DiagramElementFactory, { PRODUCTS as ELEMENTS } from './DiagramElementFactory';
 
 const DEFAULTS = Object.freeze({
+  width: 800,
+  height: 600,
+
+  shapes: [],
+  connections: [],
   stackSize: 10,
   onChange: noop,
   onContextMenu: noop,
@@ -21,6 +27,10 @@ const DEFAULTS = Object.freeze({
 });
 
 class Canvas extends BaseElement {
+  static get type() {
+    return 'canvas';
+  }
+
   constructor(settings) {
     super(settings);
     settings = { ...DEFAULTS, ...settings };
@@ -41,18 +51,10 @@ class Canvas extends BaseElement {
     this._keyboardBehavior = new KeyboardControlBehavior(this);
     this._commandManager = new CommandManager({ size: settings.stackSize });
 
-    settings = {
-      width: 800,
-      height: 600,
-      onReady: null,
-      elements: [],
-      ...settings,
-    };
-
     this.setWidth(settings.width)
-      .setHeight(settings.height);
-
-    this.setElements(settings.elements);
+      .setHeight(settings.height)
+      .setShapes(settings.shapes)
+      .setConnections(settings.connections);
   }
 
   setWidth(width) {
@@ -107,41 +109,70 @@ class Canvas extends BaseElement {
     }
   }
 
-  // TODO: addElement can add Connection instances too, does it make sense?
-  // Connections MAYBE should be created implicitly at creating a connection between two shapes.
-  addElement(element) {
-    // TODO: make support shape as a string too.
-    if (!this.hasElement(element)) {
-      if (element instanceof Shape) {
-        this._shapes.add(element);
-      } else if (element instanceof Connection) {
-        this._connections.add(element);
+  addShape(shape, ...args) {
+    if (!(shape instanceof Shape)) {
+      let type;
+      let settings;
+
+      if (typeof shape === 'string') {
+        type = shape;
+        [settings] = args;
+      } else if (typeof shape === 'object') {
+        type = shape.type;
+        settings = shape;
       } else {
-        throw new Error('addElement(): Invalid parameter.');
+        throw new Error('invalid parameters.');
       }
 
-      element.setCanvas(this);
-      this._drawElement(element);
-      this.addEventListener(ELEMENT_EVENT.REMOVE, element, this._onElementRemove, this);
+      shape = DiagramElementFactory.create(type, settings);
+    }
+
+    if (shape instanceof Shape && !this._shapes.has(shape)) {
+      this._shapes.add(shape);
+
+      // TODO: Fix this access to protected method.
+      shape._setCanvas(this);
+      this._drawElement(shape);
+      this.addEventListener(ELEMENT_EVENT.REMOVE, shape, this._onElementRemove, this);
     }
 
     return this;
   }
 
+  // TODO: should be removed? since addElement was splitted in addShape() and connect()?
   hasElement(element) {
     return this._shapes.has(element) || this._connections.has(element);
   }
 
-  clearElements() {
-    this._shapes.forEach((i) => {
-      i.remove();
+  clearShapes() {
+    this._shapes.forEach((shape) => {
+      shape.remove();
     });
     return this;
   }
 
-  setElements(elements) {
-    this.clearElements();
-    elements.forEach((i) => this.addElement(i));
+  setShapes(shapes) {
+    this.clearShapes();
+    shapes.forEach((shape) => this.addShape(shape));
+
+    return this;
+  }
+
+  clearConnections() {
+    this._connections.forEach((connection) => {
+      connection.remove();
+    });
+
+    return this;
+  }
+
+  setConnections(connections) {
+    this.clearConnections();
+    connections.forEach((connection) => {
+      const { orig: origShape, dest: destShape } = connection;
+
+      this.connect(origShape, destShape, connection);
+    });
 
     return this;
   }
@@ -194,18 +225,20 @@ class Canvas extends BaseElement {
     origin = origin instanceof Shape ? origin : this.findShape(origin);
     destination = destination instanceof Shape ? destination : this.findShape(destination);
 
-    if (connection) {
-      connection.setCanvas(this);
-      connection.connect(origin, destination);
-    } else {
-      connection = new Connection({
-        canvas: this,
-        origShape: origin,
-        destShape: destination,
-      });
+    if (!(connection instanceof Connection)) {
+      connection = DiagramElementFactory.create(ELEMENTS.CONNECTION, connection);
     }
 
-    if (connection.isConnected()) {
+    // TODO: connection's connect() method should be set the canvas.
+    if (connection.connect(origin, destination)) {
+      if (!this._connections.has(connection)) {
+        this._connections.add(connection);
+        connection._setCanvas(this);
+
+        this._drawElement(connection);
+        this.addEventListener(ELEMENT_EVENT.REMOVE, connection, this._onElementRemove, this);
+      }
+
       return connection;
     }
 
@@ -399,8 +432,8 @@ class Canvas extends BaseElement {
     this._keyboardBehavior.attach();
     this._contextMenuBehavior.attach();
 
-    // TODO: This only draws Shapes, when working on DS-145 connections should be considered too.
-    this._shapes.forEach((element) => this._drawElement(element));
+    this._shapes.forEach((shape) => this._drawElement(shape));
+    this._connections.forEach((connection) => this._drawElement(connection));
 
     return this.setID(this._id);
   }
