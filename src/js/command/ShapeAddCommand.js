@@ -8,7 +8,7 @@ class ShapeAddCommand extends Command {
   }
 
   execute() {
-    this._receiver.addElement(this._after.shape);
+    this._receiver.addShape(this._after.shape);
   }
 
   undo() {

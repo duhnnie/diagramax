@@ -98,9 +98,7 @@ class DiagramElement extends BaseElement {
       ...settings,
     };
 
-    this
-      .setText(settings.text)
-      .setCanvas(settings.canvas);
+    this.setText(settings.text);
   }
 
   /**
@@ -119,13 +117,14 @@ class DiagramElement extends BaseElement {
   // TODO: in this method a call to canvas.addElement(), this method adds the shape to the canvas, so maybe this method
   // should be refactored, this method shouldn't add shape to canvas
   /**
+   * @protected
    * Set the Canvas the instance will belong to.
    * @param {Canvas} canvas
    * @return {DiagramElement} this.
    */
-  setCanvas(canvas) {
+  _setCanvas(canvas) {
     if (!(canvas === null || canvas instanceof Canvas)) {
-      throw new Error('setCanvas(): Invalid parameter.');
+      throw new Error('_setCanvas(): Invalid parameter.');
     }
 
     if (this._canvas !== canvas) {
@@ -133,7 +132,6 @@ class DiagramElement extends BaseElement {
         this.remove();
       }
       this._canvas = canvas;
-      canvas.addElement(this);
     }
 
     return this;

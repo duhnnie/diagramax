@@ -74,6 +74,15 @@ class Shape extends DiagraElement {
       .setPosition(settings.position.x, settings.position.y);
   }
 
+  _setCanvas(canvas) {
+    if (this._canvas !== canvas) {
+      super._setCanvas(canvas);
+      canvas.addShape(this);
+    }
+
+    return this;
+  }
+
   _getComponentUI() {
     return new ShapeUI(this);
   }

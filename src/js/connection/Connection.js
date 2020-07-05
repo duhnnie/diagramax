@@ -1,6 +1,5 @@
 import BaseElement from '../core/BaseElement';
 import DiagramElement from '../core/DiagramElement';
-import { ORIENTATION as PORT_ORIENTATION, MODE as PORT_MODE, ORIENTATION, MODE } from './Port';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
 import { EVENT as SHAPE_EVENT } from '../shape/Shape';
@@ -12,6 +11,11 @@ import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY } from './VertexS
 import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY } from './IntersectionStrategyRepository';
 import DraggableConnectionBehavior from '../behavior/DraggableConnectionBehavior';
 import DiagramUI from '../core/DiagramUI';
+import {
+  ORIENTATION as PORT_ORIENTATION,
+  MODE as PORT_MODE, ORIENTATION,
+  MODE,
+} from './Port';
 
 export const EVENT = Object.freeze({
   CONNECT: 'connect',
@@ -35,6 +39,10 @@ const INTERSECTION_SIZE = Object.freeze({
 });
 
 class Connection extends DiagramElement {
+  static get type() {
+    return 'connection';
+  }
+
   static get ARROW_SEGMENT_LENGTH() {
     return 20;
   }
@@ -92,9 +100,6 @@ class Connection extends DiagramElement {
     this._vertexSize = settings.vertexSize;
     this._intersectionStrategy = IntersectionStrategyRepository.get(settings.intersection);
 
-    // TODO: is this useful? anyway it's redundant
-    this.setCanvas(settings.canvas);
-
     if (settings.origShape && settings.destShape) {
       this.connect(settings.origShape, settings.destShape);
     }
@@ -108,9 +113,10 @@ class Connection extends DiagramElement {
     this._interceptors.add(connection);
   }
 
-  setCanvas(...params) {
+  _setCanvas(...params) {
+    // TODO: what is this evaluation for?
     if (this._intersections) {
-      return super.setCanvas(...params);
+      return super._setCanvas(...params);
     }
 
     return this;
@@ -263,14 +269,18 @@ class Connection extends DiagramElement {
     this._dragBehavior.start(shape, direction);
   }
 
-  end(shape) {
+  end() {
     this._dragBehavior.end();
   }
 
   // TODO: for robbustness we need to verify that connection, origShape and destShape
   // are in the same canvas IMPORTANT!
   connect(origShape, destShape) {
-    if (origShape.canAcceptConnection(PORT_MODE.ORIG, destShape)
+    const origCanvas = origShape.getCanvas();
+    const destCanvas = destShape.getCanvas();
+
+    if (origCanvas === destCanvas
+      && origShape.canAcceptConnection(PORT_MODE.ORIG, destShape)
       && destShape.canAcceptConnection(PORT_MODE.DEST, origShape)
       // TODO: Fix access to protected members.
       // TODO: This is hot fix, this should be handled by proxied functions
@@ -293,7 +303,10 @@ class Connection extends DiagramElement {
         }
 
         result = origShape.addOutgoingConnection(this);
-        if (result) this._addDragListeners(origShape);
+        if (result) {
+          this._setCanvas(origCanvas);
+          this._addDragListeners(origShape);
+        }
       }
 
       if (changeDestShape && result) {
@@ -304,7 +317,10 @@ class Connection extends DiagramElement {
         }
 
         result = destShape.addIncomingConnection(this);
-        if (result) this._addDragListeners(destShape);
+        if (result) {
+          this._setCanvas(destCanvas);
+          this._addDragListeners(destShape);
+        }
       }
 
       if (result) {
@@ -500,7 +516,8 @@ class Connection extends DiagramElement {
         ? 2 + lastSegmentDirection
         : 1 + (lastSegmentDirection * -1));
 
-      this._dom.arrow.setAttribute('transform', `translate(${points[points.length - 1].x}, ${points[points.length - 1].y})`);
+      this._dom.arrow
+        .setAttribute('transform', `translate(${points[points.length - 1].x}, ${points[points.length - 1].y})`);
       this._dom.arrowRotateContainer.setAttribute('transform', `scale(0.5, 0.5) rotate(${90 * arrowAngle})`);
     }
 
@@ -527,7 +544,8 @@ class Connection extends DiagramElement {
       const oldOrigDesc = oldOrigPort.getDescription();
       const oldDestDesc = oldDestPort.getDescription();
 
-      if (!Geometry.areSamePoint(origDesc.point, oldOrigDesc.point) || Geometry.areSamePoint(destDesc.point, oldDestDesc.point)) {
+      if (!Geometry.areSamePoint(origDesc.point, oldOrigDesc.point)
+        || Geometry.areSamePoint(destDesc.point, oldDestDesc.point)) {
         changed = true;
       }
     }
@@ -543,7 +561,7 @@ class Connection extends DiagramElement {
   }
 
   make() {
-    if (!this._origShape || !this._destShape) return;
+    if (!this._origShape || !this._destShape || !this._html) return;
 
     const origPort = this._origShape.getConnectionPort(this._destShape, PORT_MODE.ORIG);
     const destPort = this._destShape.getConnectionPort(this._origShape, PORT_MODE.DEST);
@@ -625,6 +643,8 @@ class Connection extends DiagramElement {
     this._dom.arrowRotateContainer = arrowWrapper2;
     this._selectBehavior.attach();
     this._dragBehavior.attach();
+
+    this.make();
 
     return this;
   }

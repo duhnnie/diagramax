@@ -12,6 +12,7 @@ import CommandManager from '../command/CommandManager';
 import { EVENT as ELEMENT_EVENT } from '../core/DiagramElement';
 import { noop } from '../utils/Utils';
 import ContextMenuBehavior from '../behavior/ContextMenuBehavior';
+import DiagramElementFactory, { PRODUCTS as ELEMENTS } from './DiagramElementFactory';
 
 const DEFAULTS = Object.freeze({
   stackSize: 10,
@@ -56,7 +57,7 @@ class Canvas extends BaseElement {
     this.setWidth(settings.width)
       .setHeight(settings.height);
 
-    this.setElements(settings.elements);
+    this.setShapes(settings.shapes);
   }
 
   setWidth(width) {
@@ -111,41 +112,48 @@ class Canvas extends BaseElement {
     }
   }
 
-  // TODO: addElement can add Connection instances too, does it make sense?
-  // Connections MAYBE should be created implicitly at creating a connection between two shapes.
-  addElement(element) {
-    // TODO: make support shape as a string too.
-    if (!this.hasElement(element)) {
-      if (element instanceof Shape) {
-        this._shapes.add(element);
-      } else if (element instanceof Connection) {
-        this._connections.add(element);
+  addShape(shape, ...args) {
+    if (!(shape instanceof Shape)) {
+      let type;
+
+      if (typeof shape === 'string') {
+        type = shape;
+      } else if (typeof shape === 'object') {
+        type = shape.type;
       } else {
-        throw new Error('addElement(): Invalid parameter.');
+        throw new Error('invalid parameters.');
       }
 
-      element.setCanvas(this);
-      this._drawElement(element);
-      this.addEventListener(ELEMENT_EVENT.REMOVE, element, this._onElementRemove, this);
+      shape = DiagramElementFactory.create(type, ...args);
+    }
+
+    if (shape instanceof Shape && !this._shapes.has(shape)) {
+      this._shapes.add(shape);
+
+      // TODO: Fix this access to protected method.
+      shape._setCanvas(this);
+      this._drawElement(shape);
+      this.addEventListener(ELEMENT_EVENT.REMOVE, shape, this._onElementRemove, this);
     }
 
     return this;
   }
 
+  // TODO: should be removed? since addElement was splitted in addShape() and connect()?
   hasElement(element) {
     return this._shapes.has(element) || this._connections.has(element);
   }
 
-  clearElements() {
+  clearShapes() {
     this._shapes.forEach((i) => {
       i.remove();
     });
     return this;
   }
 
-  setElements(elements) {
-    this.clearElements();
-    elements.forEach((i) => this.addElement(i));
+  setShapes(shapes) {
+    this.clearShapes();
+    shapes.forEach((shape) => this.addShape(shape));
 
     return this;
   }
@@ -198,18 +206,20 @@ class Canvas extends BaseElement {
     origin = origin instanceof Shape ? origin : this.findShape(origin);
     destination = destination instanceof Shape ? destination : this.findShape(destination);
 
-    if (connection) {
-      connection.setCanvas(this);
-      connection.connect(origin, destination);
-    } else {
-      connection = new Connection({
-        canvas: this,
-        origShape: origin,
-        destShape: destination,
-      });
+    if (!connection) {
+      connection = DiagramElementFactory.create(ELEMENTS.CONNECTION);
     }
 
-    if (connection.isConnected()) {
+    // TODO: connection's connect() method should be set the canvas.
+    if (connection.connect(origin, destination)) {
+      if (!this._connections.has(connection)) {
+        this._connections.add(connection);
+        connection._setCanvas(this);
+
+        this._drawElement(connection);
+        this.addEventListener(ELEMENT_EVENT.REMOVE, connection, this._onElementRemove, this);
+      }
+
       return connection;
     }
 

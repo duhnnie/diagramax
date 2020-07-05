@@ -2,6 +2,26 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
     <head>
         <link rel="stylesheet" href="./designer.css"/>
+        <style>
+          /* TODO: add common class for handlers */
+          .canvas tspan {
+            fill: #7a7a7a;
+          }
+
+          .shape .main-element {
+            fill: #F5FDFF;
+            stroke: #ABD0D8;
+            stroke-width: 3;
+          }
+
+          .connection .path {
+            stroke: #888888;
+          }
+
+          .connection .arrow {
+            fill: #888888;
+          }
+        </style>
         <script src="./designer.js"></script>
         <script type="text/javascript">
             const rectA = new Designer.Rectangle({
@@ -69,7 +89,7 @@
             const canvas = new Designer.Canvas({
               width: 1440,
               height: 900,
-              elements: [
+              shapes: [
                 rectA,
                 rectB,
                 rectC,
@@ -116,7 +136,7 @@
                     }
                 });
 
-                canvas.addElement(rectE);
+                canvas.addShape(rectE);
 
                 canvas.connect(circleA, rectA);
                 canvas.connect(rectA, triangleA);
