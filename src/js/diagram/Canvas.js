@@ -9,7 +9,7 @@ import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
 import KeyboardControlBehavior from '../behavior/KeyboardControlBehavior';
 import CommandFactory from '../command/CommandFactory';
 import CommandManager from '../command/CommandManager';
-import { EVENT as ELEMENT_EVENT } from '../core/DiagramElement';
+import { EVENT as ELEMENT_EVENT } from './DiagramElement';
 import { noop } from '../utils/Utils';
 import ContextMenuBehavior from '../behavior/ContextMenuBehavior';
 import DiagramElementFactory, { PRODUCTS as ELEMENTS } from './DiagramElementFactory';

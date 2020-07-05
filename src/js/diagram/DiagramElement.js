@@ -1,5 +1,5 @@
-import BaseElement from './BaseElement';
-import Canvas from '../canvas/Canvas';
+import BaseElement from '../core/BaseElement';
+import Canvas from './Canvas';
 import DiagramText from './DiagramText';
 import SelectBehavior from '../behavior/SelectBehavior';
 import ContextMenuBehavior from '../behavior/ContextMenuBehavior';

@@ -1,4 +1,4 @@
-import BaseElement from './BaseElement';
+import BaseElement from '../core/BaseElement';
 
 const DEFAULTS = {
   text: '',

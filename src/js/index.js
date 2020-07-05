@@ -1,4 +1,4 @@
-import Canvas from './canvas/Canvas';
+import Canvas from './diagram/Canvas';
 import Rectangle from './shape/Rectangle';
 import Circle from './shape/Circle';
 import Triangle from './shape/Triangle';

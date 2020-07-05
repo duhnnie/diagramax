@@ -1,5 +1,5 @@
 import BaseElement from '../core/BaseElement';
-import DiagramElement from '../core/DiagramElement';
+import DiagramElement from '../diagram/DiagramElement';
 import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
 import { EVENT as SHAPE_EVENT } from '../shape/Shape';
@@ -10,7 +10,7 @@ import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY } from './LineStrateg
 import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY } from './VertexStrategyRepository';
 import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY } from './IntersectionStrategyRepository';
 import DraggableConnectionBehavior from '../behavior/DraggableConnectionBehavior';
-import DiagramUI from '../core/DiagramUI';
+import DiagramUI from '../diagram/DiagramUI';
 import {
   ORIENTATION as PORT_ORIENTATION,
   MODE as PORT_MODE, ORIENTATION,

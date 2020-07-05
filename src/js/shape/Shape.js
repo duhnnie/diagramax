@@ -1,4 +1,4 @@
-import DiagraElement from '../core/DiagramElement';
+import DiagraElement from '../diagram/DiagramElement';
 import Port, {
   getPositionProps, MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION, ORIENTATION,
 } from '../connection/Port';

@@ -1,4 +1,4 @@
-import BaseElement from './BaseElement';
+import BaseElement from '../core/BaseElement';
 
 class DiagramUI extends BaseElement {
   static get type() {
