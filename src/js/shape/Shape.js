@@ -30,10 +30,8 @@ function getPortPriorityOrder(mainOrientation, { x, y }) {
 }
 
 const DEFAULTS = {
-  position: {
-    x: 0,
-    y: 0,
-  },
+  x: 0,
+  y: 0,
 };
 
 export const EVENT = Object.freeze({
@@ -63,7 +61,6 @@ class Shape extends DiagraElement {
     this._dragBehavior = new RegularDraggableShapeBehavior(this);
     this._connectivityBehavior = new ConnectivityBehavior(this);
     this._resizeBehavior = new ResizeBehavior(this);
-    this.__bulkAction = false;
 
     settings = {
       ...DEFAULTS,
@@ -71,7 +68,7 @@ class Shape extends DiagraElement {
     };
 
     this._initPorts()
-      .setPosition(settings.position.x, settings.position.y);
+      .setPosition(settings.x, settings.y);
   }
 
   _setCanvas(canvas) {

@@ -24,8 +24,6 @@ export const EVENT = Object.freeze({
 });
 
 const DEFAULTS = {
-  origShape: null,
-  destShape: null,
   waypoint: WAYPOINT_STRATEGY.RECT,
   line: LINE_STRATEGY.STRAIGHT,
   vertex: VERTEX_STRATEGY.ARC,
@@ -99,10 +97,6 @@ class Connection extends DiagramElement {
     this._vertexStrategy = VertexStrategyRepository.get(settings.vertex);
     this._vertexSize = settings.vertexSize;
     this._intersectionStrategy = IntersectionStrategyRepository.get(settings.intersection);
-
-    if (settings.origShape && settings.destShape) {
-      this.connect(settings.origShape, settings.destShape);
-    }
   }
 
   _getComponentUI() {

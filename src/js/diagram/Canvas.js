@@ -15,6 +15,11 @@ import ContextMenuBehavior from '../behavior/ContextMenuBehavior';
 import DiagramElementFactory, { PRODUCTS as ELEMENTS } from './DiagramElementFactory';
 
 const DEFAULTS = Object.freeze({
+  width: 800,
+  height: 600,
+
+  shapes: [],
+  connections: [],
   stackSize: 10,
   onChange: noop,
   onContextMenu: noop,
@@ -46,18 +51,10 @@ class Canvas extends BaseElement {
     this._keyboardBehavior = new KeyboardControlBehavior(this);
     this._commandManager = new CommandManager({ size: settings.stackSize });
 
-    settings = {
-      width: 800,
-      height: 600,
-      onReady: null,
-      elements: [],
-      ...settings,
-    };
-
     this.setWidth(settings.width)
-      .setHeight(settings.height);
-
-    this.setShapes(settings.shapes);
+      .setHeight(settings.height)
+      .setShapes(settings.shapes)
+      .setConnections(settings.connections);
   }
 
   setWidth(width) {
@@ -115,16 +112,19 @@ class Canvas extends BaseElement {
   addShape(shape, ...args) {
     if (!(shape instanceof Shape)) {
       let type;
+      let settings;
 
       if (typeof shape === 'string') {
         type = shape;
+        [settings] = args;
       } else if (typeof shape === 'object') {
         type = shape.type;
+        settings = shape;
       } else {
         throw new Error('invalid parameters.');
       }
 
-      shape = DiagramElementFactory.create(type, ...args);
+      shape = DiagramElementFactory.create(type, settings);
     }
 
     if (shape instanceof Shape && !this._shapes.has(shape)) {
@@ -145,8 +145,8 @@ class Canvas extends BaseElement {
   }
 
   clearShapes() {
-    this._shapes.forEach((i) => {
-      i.remove();
+    this._shapes.forEach((shape) => {
+      shape.remove();
     });
     return this;
   }
@@ -154,6 +154,25 @@ class Canvas extends BaseElement {
   setShapes(shapes) {
     this.clearShapes();
     shapes.forEach((shape) => this.addShape(shape));
+
+    return this;
+  }
+
+  clearConnections() {
+    this._connections.forEach((connection) => {
+      connection.remove();
+    });
+
+    return this;
+  }
+
+  setConnections(connections) {
+    this.clearConnections();
+    connections.forEach((connection) => {
+      const { orig: origShape, dest: destShape } = connection;
+
+      this.connect(origShape, destShape, connection);
+    });
 
     return this;
   }
@@ -206,8 +225,8 @@ class Canvas extends BaseElement {
     origin = origin instanceof Shape ? origin : this.findShape(origin);
     destination = destination instanceof Shape ? destination : this.findShape(destination);
 
-    if (!connection) {
-      connection = DiagramElementFactory.create(ELEMENTS.CONNECTION);
+    if (!(connection instanceof Connection)) {
+      connection = DiagramElementFactory.create(ELEMENTS.CONNECTION, connection);
     }
 
     // TODO: connection's connect() method should be set the canvas.
@@ -413,8 +432,8 @@ class Canvas extends BaseElement {
     this._keyboardBehavior.attach();
     this._contextMenuBehavior.attach();
 
-    // TODO: This only draws Shapes, when working on DS-145 connections should be considered too.
-    this._shapes.forEach((element) => this._drawElement(element));
+    this._shapes.forEach((shape) => this._drawElement(shape));
+    this._connections.forEach((connection) => this._drawElement(connection));
 
     return this.setID(this._id);
   }
