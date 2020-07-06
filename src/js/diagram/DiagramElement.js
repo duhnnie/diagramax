@@ -283,7 +283,7 @@ class DiagramElement extends BaseElement {
    * @returns {DiagramElement} this.
    */
   addData(key, value) {
-    this._data(key, value);
+    this._data.set(key, value);
 
     return this;
   }
