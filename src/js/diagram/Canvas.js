@@ -221,6 +221,16 @@ class Canvas extends BaseElement {
     return this;
   }
 
+  _addConnection(connection) {
+    if (!this._connections.has(connection)) {
+      this._connections.add(connection);
+      connection._setCanvas(this);
+
+      this._drawElement(connection);
+      this.addEventListener(ELEMENT_EVENT.REMOVE, connection, this._onElementRemove, this);
+    }
+  }
+
   connect(origin, destination, connection = null) {
     origin = origin instanceof Shape ? origin : this.findShape(origin);
     destination = destination instanceof Shape ? destination : this.findShape(destination);
@@ -231,13 +241,7 @@ class Canvas extends BaseElement {
 
     // TODO: connection's connect() method should be set the canvas.
     if (connection.connect(origin, destination)) {
-      if (!this._connections.has(connection)) {
-        this._connections.add(connection);
-        connection._setCanvas(this);
-
-        this._drawElement(connection);
-        this.addEventListener(ELEMENT_EVENT.REMOVE, connection, this._onElementRemove, this);
-      }
+      this._addConnection(connection);
 
       return connection;
     }

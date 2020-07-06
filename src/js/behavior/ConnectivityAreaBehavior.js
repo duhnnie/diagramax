@@ -37,6 +37,7 @@ class ConnectivityAreaBehavior extends Behavior {
         canvas: this._target,
       });
 
+      this._target._addConnection(connection);
       this._connection = connection;
       this._shape = shape;
       this._direction = direction;
@@ -83,11 +84,7 @@ class ConnectivityAreaBehavior extends Behavior {
 
   getCurrentProcess() {
     if (this._connection) {
-      // TODO: Fix several access to private members in next line.
-      const origShape = this._connection._dragBehavior._origShape;
-      const destShape = this._connection._dragBehavior._destShape;
-
-      return [origShape || destShape, this._connection, origShape ? PORT_MODE.DEST : PORT_MODE.ORIG];
+      return [this._shape, this._connection, this._direction];
     }
 
     return null;

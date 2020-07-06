@@ -180,9 +180,9 @@ class DiagramElement extends BaseElement {
     if (_canvas) {
       this.unselect();
       this._componentUI.remove();
-      this._canvas = null;
       super.remove();
       _canvas.dispatchEvent(EVENT.REMOVE, this);
+      this._canvas = null;
     }
 
     return this;
