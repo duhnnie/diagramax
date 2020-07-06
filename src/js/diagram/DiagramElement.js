@@ -17,6 +17,7 @@ import Model from '../data/Model';
 const DEFAULTS = {
   canvas: null,
   text: '',
+  data: {},
 };
 
 /**
@@ -98,7 +99,8 @@ class DiagramElement extends BaseElement {
       ...settings,
     };
 
-    this.setText(settings.text);
+    this.setText(settings.text)
+      .setData(settings.data);
   }
 
   /**
