@@ -9,7 +9,7 @@ class Model {
 
   set(...args) {
     if (typeof args[0] === 'object') {
-      Object.entries(args).forEach(([key, value]) => this._attributes.set(key, value));
+      Object.entries(args[0]).forEach(([key, value]) => this._attributes.set(key, value));
     } else {
       this._attributes.set(...args);
     }
