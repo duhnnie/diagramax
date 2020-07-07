@@ -10,6 +10,7 @@
   .text {
     transform: translate(0, 0.4em);
     text-anchor: middle;
+    pointer-events: none;
 
     .text-container {
       user-select: none;
