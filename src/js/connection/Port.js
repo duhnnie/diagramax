@@ -1,5 +1,6 @@
 import BPMNShape from '../shape/Shape';
 import Connection from './Connection';
+import ErrorThrower from '../utils/ErrorThrower';
 
 const DEFAULTS = {
   connections: [],
@@ -108,7 +109,7 @@ class Port {
 
   _setShape(shape) {
     if (!(shape instanceof BPMNShape)) {
-      throw new Error('setShape(): invalid parameter.');
+      ErrorThrower.invalidParameter();
     }
 
     this._shape = shape;
@@ -126,16 +127,16 @@ class Port {
 
   addConnection(connection, mode) {
     if (!(connection instanceof Connection)) {
-      throw new Error('addConnection(): Invalid parameter.');
+      ErrorThrower.invalidParameter();
     } else if (!this._shape.isUsingConnection(connection)) {
-      throw new Error('addConnection(): the supplied connection doesn\'t belong to this shape.');
+      ErrorThrower.custom('The supplied connection doesn\'t belong to this shape.');
     } else if ((mode === MODE.DEST && connection.getDestShape() !== this._shape)
      || (mode === MODE.ORIG && connection.getOrigShape() !== this._shape)) {
-      throw new Error('addConnection(): mode doesn\'t match with connection direction.');
+      ErrorThrower.custom('Mode doesn\'t match with connection direction.');
     }
 
     if (mode !== this._mode && this._mode !== null) {
-      throw new Error('addConnection(): Invalid connection direction.');
+      ErrorThrower.custom('Invalid connection direction.');
     }
 
     this._mode = mode;

@@ -1,5 +1,6 @@
 import { ORIENTATION as PORT_ORIENTATION } from './Port';
 import Geometry from '../utils/Geometry';
+import Error from '../utils/ErrorThrower';
 
 const getSegmentOrientation = function (segment) {
   if (segment[0].x === segment[1].x) {
@@ -7,7 +8,7 @@ const getSegmentOrientation = function (segment) {
   } if (segment[0].y === segment[1].y) {
     return PORT_ORIENTATION.X;
   }
-  throw new Error('getSegmentOrientation(): segment is diagonal.');
+  Error.custom('Diagonal segment?');
 };
 
 const normalizeSegment = function (segment) {

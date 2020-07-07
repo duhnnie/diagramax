@@ -1,9 +1,10 @@
 import Repository from './Repository';
+import ErrorThrower from '../utils/ErrorThrower';
 
 class Factory extends Repository {
   create(key, ...args) {
     if (!this._products[key]) {
-      throw new Error(`create(): product '${key}' is not registered.`);
+      ErrorThrower.custom(`Product '${key}' is not registered.`);
     }
 
     const Klass = this._products[key];

@@ -13,6 +13,7 @@ import { EVENT as ELEMENT_EVENT } from './DiagramElement';
 import { noop } from '../utils/Utils';
 import ContextMenuBehavior from '../behavior/ContextMenuBehavior';
 import DiagramElementFactory, { PRODUCTS as ELEMENTS } from './DiagramElementFactory';
+import ErrorThrower from '../utils/ErrorThrower';
 
 const DEFAULTS = Object.freeze({
   width: 800,
@@ -59,7 +60,7 @@ class Canvas extends BaseElement {
 
   setWidth(width) {
     if (typeof width !== 'number') {
-      throw new Error('setWidth(): invalid parameter.');
+      ErrorThrower.invalidParameter();
     }
     this._width = width;
 
@@ -76,7 +77,7 @@ class Canvas extends BaseElement {
 
   setHeight(height) {
     if (typeof height !== 'number') {
-      throw new Error('setHeight(): invalid parameter.');
+      ErrorThrower.invalidParameter();
     }
     this._height = height;
 
@@ -121,7 +122,7 @@ class Canvas extends BaseElement {
         type = shape.type;
         settings = shape;
       } else {
-        throw new Error('invalid parameters.');
+        ErrorThrower.invalidParameter();
       }
 
       shape = DiagramElementFactory.create(type, settings);
@@ -190,7 +191,7 @@ class Canvas extends BaseElement {
       return this._shapes.has(shape) ? shape : null;
     }
 
-    throw new Error('findShape(): Invalid parameter.');
+    ErrorThrower.invalidParameter();
   }
 
   findConnection(connection) {
@@ -202,7 +203,7 @@ class Canvas extends BaseElement {
       return this._connections.has(connection) ? connection : null;
     }
 
-    throw new Error('findConnection(): Invalid parameter.');
+    ErrorThrower.invalidParameter();
   }
 
   addListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {

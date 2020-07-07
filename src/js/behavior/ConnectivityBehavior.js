@@ -1,12 +1,13 @@
 import Behavior from './Behavior';
 import Shape, { EVENT as SHAPE_EVENT } from '../shape/Shape';
+import ErrorThrower from '../utils/ErrorThrower';
 
 const CANT_CONNECT_CLASS = 'cant-connect';
 
 class ConnectivityBehavior extends Behavior {
   constructor(target, settings) {
     if (!(target instanceof Shape)) {
-      throw new Error('DragAndDropBehavior: The settings parameter should be an instance of Shape');
+      ErrorThrower.invalidParameter();
     }
 
     super(target, settings);

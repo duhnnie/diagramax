@@ -16,6 +16,7 @@ import {
   MODE as PORT_MODE, ORIENTATION,
   MODE,
 } from './Port';
+import ErrorThrower from '../utils/ErrorThrower';
 
 export const EVENT = Object.freeze({
   CONNECT: 'connect',
@@ -60,7 +61,7 @@ class Connection extends DiagramElement {
     }
 
     if (orientation === -1) {
-      throw new Error('_getSegmentOrientation(): diagonal segment!');
+      ErrorThrower.custom('Diagonal segment?');
     }
 
     return orientation;

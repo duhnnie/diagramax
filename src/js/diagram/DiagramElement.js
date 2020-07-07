@@ -4,6 +4,7 @@ import DiagramText from './DiagramText';
 import SelectBehavior from '../behavior/SelectBehavior';
 import ContextMenuBehavior from '../behavior/ContextMenuBehavior';
 import Model from '../data/Model';
+import ErrorThrower from '../utils/ErrorThrower';
 
 /**
  * The position of a rectangle boundary, using the top-left corner as the origin.
@@ -112,7 +113,7 @@ class DiagramElement extends BaseElement {
    */
   // eslint-disable-next-line class-methods-use-this
   _getComponentUI() {
-    throw new Error('_getComponentUI(): This method should be implemented.');
+    ErrorThrower.notImplemented();
   }
 
   // TODO: make this method internal.
@@ -126,7 +127,7 @@ class DiagramElement extends BaseElement {
    */
   _setCanvas(canvas) {
     if (!(canvas === null || canvas instanceof Canvas)) {
-      throw new Error('_setCanvas(): Invalid parameter.');
+      ErrorThrower.invalidParameter();
     }
 
     if (this._canvas !== canvas) {
@@ -253,7 +254,7 @@ class DiagramElement extends BaseElement {
    * @return {Bounds}
    */
   // eslint-disable-next-line class-methods-use-this
-  getBounds() { throw new Error('Not implemented'); }
+  getBounds() { ErrorThrower.notImplemented(); }
 
   /**
    * Trigger its parent {@link Canvas._onElementContextMenu Canvas' callback for context menu event}.

@@ -1,3 +1,5 @@
+import ErrorThrower from "../utils/ErrorThrower";
+
 const DEFAULTS = Object.freeze({
   products: {},
 });
@@ -13,7 +15,7 @@ class Repository {
 
   addProduct(key, Klass) {
     if (this._products[key]) {
-      throw new Error('addProduct(): product key already exists, use another key.');
+      ErrorThrower.custom('Product key already exists, use another key.');
     }
 
     this._products[key] = Klass;
@@ -23,7 +25,7 @@ class Repository {
     const productsArray = Object.entries(products || {});
 
     if (!productsArray.length) {
-      throw new Error('setProducts(): At least one product should be produced by this repository.');
+      ErrorThrower.custom('At least one product should be produced by this repository.');
     }
 
     productsArray.forEach(([key, Klass]) => {

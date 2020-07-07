@@ -2,11 +2,12 @@ import DragBehavior from './DragBehavior';
 import Shape, { EVENT as SHAPE_EVENT } from '../shape/Shape';
 import Geometry from '../utils/Geometry';
 import { PRODUCTS as COMMANDS } from '../command/CommandFactory';
+import ErrorThrower from '../utils/ErrorThrower';
 
 class DraggableShapeBehavior extends DragBehavior {
   constructor(target, settings) {
     if (!(target instanceof Shape)) {
-      throw new Error('DraggableShapeBehavior: The settings parameter should be an instance of Shape');
+      ErrorThrower.invalidParameter();
     }
 
     super(target, settings);
@@ -66,7 +67,7 @@ class DraggableShapeBehavior extends DragBehavior {
 
   // eslint-disable-next-line class-methods-use-this
   _evaluate() {
-    throw new Error('evaluate(): This method should be implemented.');
+    ErrorThrower.notImplemented();
   }
 
   updatePosition({ x, y }) {

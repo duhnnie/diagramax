@@ -1,5 +1,6 @@
 import BaseElement from '../core/BaseElement';
 import Shape from './Shape';
+import ErrorThrower from '../utils/ErrorThrower';
 
 // TODO: doc this as abstract
 class Polygon extends Shape {
@@ -13,7 +14,7 @@ class Polygon extends Shape {
 
   // eslint-disable-next-line class-methods-use-this
   _getPoints() {
-    throw new Error('_getPoints(): This method should be implemented.');
+    ErrorThrower.notImplemented();
   }
 
   _updateSize(width, height) {
