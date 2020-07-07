@@ -4,6 +4,11 @@
   &.active {
     display: initial;
   }
+
+  .handler {
+    r: 4;
+    fill: #f44336;
+  }
   
   .handler-resize-nwse {
     cursor: nwse-resize;

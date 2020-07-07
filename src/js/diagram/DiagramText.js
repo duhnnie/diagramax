@@ -53,22 +53,17 @@ class DiagramText extends BaseElement {
    * @inheritdoc
    */
   _createHTML() {
-    const wrapper = BaseElement.createSVG('g');
     const text = BaseElement.createSVG('text');
     const tspan = BaseElement.createSVG('tspan');
 
-    // TODO: move to CSS file
-    tspan.style.userSelect = 'none';
-    text.setAttribute('text-anchor', 'middle');
-    text.setAttribute('y', '0.5em');
-    wrapper.setAttribute('pointer-events', 'none');
-    wrapper.appendChild(text);
+    text.classList.add('text');
+    tspan.classList.add('text-container');
     text.appendChild(tspan);
 
     this._dom.textContainer = tspan;
     this.setText(this._text);
 
-    this._html = wrapper;
+    this._html = text;
 
     return this;
   }

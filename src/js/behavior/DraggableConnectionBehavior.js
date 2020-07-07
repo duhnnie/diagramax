@@ -1,13 +1,8 @@
 import DragBehavior from './DragBehavior';
-import BaseElement from '../core/BaseElement';
 import { EVENT as CONNECTION_EVENT } from '../connection/Connection';
 import { ORIENTATION, MODE as PORT_MODE } from '../connection/Port';
 import Geometry from '../utils/Geometry';
-
-// TODO: next two lines and createHandler are duplicated in ResizeBehavior, an infraestructure for
-// handle handlers could be created
-const resizeHandlerRadius = 4;
-let resizeHandler;
+import ShapeUI from '../shape/ShapeUI';
 
 function getFakeDescription(position, shape) {
   const diff = Geometry.getNormalizedPosition(position, shape.getPosition());
@@ -34,16 +29,6 @@ function getFakeDescription(position, shape) {
 }
 
 class DraggableConnectionBehavior extends DragBehavior {
-  static createHandler() {
-    if (!resizeHandler) {
-      resizeHandler = BaseElement.createSVG('circle');
-      resizeHandler.setAttribute('r', resizeHandlerRadius);
-      resizeHandler.setAttribute('fill', '#f44336');
-    }
-
-    return resizeHandler.cloneNode(true);
-  }
-
   constructor(target, settings) {
     super(target, settings);
 
@@ -146,8 +131,8 @@ class DraggableConnectionBehavior extends DragBehavior {
     if (!this._dom.origHandler) {
       const commonClass = 'connection-handler';
 
-      this._dom.origHandler = DraggableConnectionBehavior.createHandler();
-      this._dom.destHandler = DraggableConnectionBehavior.createHandler();
+      this._dom.origHandler = ShapeUI.createHandler();
+      this._dom.destHandler = ShapeUI.createHandler();
       this._dom.origHandler.classList.add(commonClass);
       this._dom.destHandler.classList.add(commonClass);
       this._dom.origHandler.dataset.point = PORT_MODE.ORIG;
