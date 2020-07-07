@@ -1,4 +1,5 @@
 import Behavior from './Behavior';
+import ErrorThrower from '../utils/ErrorThrower';
 
 const DRAGGABLE_CN = 'draggable';
 const GRABBING_CN = 'grabbing';
@@ -72,7 +73,7 @@ class DragBehavior extends Behavior {
 
   // eslint-disable-next-line class-methods-use-this
   _evaluate() {
-    throw new Error('evaluate(): This method should be implemented.');
+    ErrorThrower.notImplemented();
   }
 
   _getDraggableElement() {

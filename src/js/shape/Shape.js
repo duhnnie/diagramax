@@ -9,6 +9,7 @@ import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
 import ResizeBehavior, { EVENT as RESIZE_EVENT, DIRECTION } from '../behavior/ResizeBehavior';
 import Geometry from '../utils/Geometry';
 import ShapeUI from './ShapeUI';
+import ErrorThrower from '../utils/ErrorThrower';
 
 /*
  * Returns and array with the port indexes sorted in priority order for elegibility based on a primary orientation.
@@ -183,7 +184,7 @@ class Shape extends DiagraElement {
 
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
   setWidth(width, keepProportion = false) {
-    throw new Error('setWidth(): This method should be implemented.');
+    ErrorThrower.notImplemented();
   }
 
   getWidth() {
@@ -192,7 +193,7 @@ class Shape extends DiagraElement {
 
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
   setHeight(height, keepProportion = false) {
-    throw new Error('setHeight(): This method should be implemented.');
+    ErrorThrower.notImplemented();
   }
 
   getHeight() {
@@ -240,7 +241,7 @@ class Shape extends DiagraElement {
 
   // eslint-disable-next-line class-methods-use-this
   getBounds() {
-    throw new Error('getBounds(): This method should be implemented.');
+    ErrorThrower.notImplemented();
   }
 
   getSize() {
@@ -286,7 +287,7 @@ class Shape extends DiagraElement {
 
   addOutgoingConnection(connection) {
     if (!(connection instanceof Connection)) {
-      throw new Error('addOutgoingConnection(): invalid parameter.');
+      ErrorThrower.invalidParameter();
     }
 
     const otherShape = connection.getDestShape();
@@ -309,7 +310,7 @@ class Shape extends DiagraElement {
 
   addIncomingConnection(connection) {
     if (!(connection instanceof Connection)) {
-      throw new Error('addOutgoingConnection(): invalid parameter.');
+      ErrorThrower.invalidParameter();
     }
 
     const otherShape = connection.getOrigShape();
