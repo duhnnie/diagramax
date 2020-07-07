@@ -6,4 +6,13 @@
     /* TODO: Fix hardcoded value */
     outline-offset: 0;
   }
+
+  .text {
+    transform: translate(0, 0.4em);
+    text-anchor: middle;
+
+    .text-container {
+      user-select: none;
+    }
+  }
 }
