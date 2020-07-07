@@ -1,7 +1,7 @@
-import BaseElement from '../core/BaseElement';
 import DragBehavior from './DragBehavior';
 import Geometry from '../utils/Geometry';
 import { PRODUCTS as COMMANDS } from '../command/CommandFactory';
+import ShapeUI from '../shape/ShapeUI';
 
 export const EVENT = Object.freeze({
   START: 'resizestart',
@@ -67,25 +67,7 @@ const handlerDefs = [
   },
 ];
 
-const resizeHandlerRadius = 4;
-let resizeHandler;
-
 class ResizeBehavior extends DragBehavior {
-  static createHandler(x, y) {
-    if (!resizeHandler) {
-      resizeHandler = BaseElement.createSVG('circle');
-      resizeHandler.setAttribute('r', resizeHandlerRadius);
-      resizeHandler.setAttribute('fill', '#f44336');
-    }
-
-    const handlerClone = resizeHandler.cloneNode(true);
-
-    handlerClone.setAttribute('cx', x);
-    handlerClone.setAttribute('cy', y);
-
-    return handlerClone;
-  }
-
   // eslint-disable-next-line object-curly-newline
   static isValidSize({ top, right, bottom, left }) {
     const width = right - left;
@@ -367,13 +349,18 @@ class ResizeBehavior extends DragBehavior {
   // TODO: handlers should be created in ShapeUI
   _createHandlers() {
     for (let i = 0; i < 8; i += 1) {
-      const newHandler = ResizeBehavior.createHandler(0, 0);
       const { className, direction } = handlerDefs[i];
+      const newHandler = ShapeUI.createHandler({
+        classNames: `handler-resize-${className}`,
+        dataset: { direction },
+      });
 
-      newHandler.classList.add(`handler-resize-${className}`);
-      newHandler.dataset.direction = direction;
+      // TODO: this should be defined in createHandler() method.
+      newHandler.setAttribute('cx', 0);
+      newHandler.setAttribute('cy', 0);
 
-      // TODO: Fix this access to private member
+      // TODO: Fix this access to private member. It could be solved by just sending a handler description to a public
+      //  method, and that handler will created internally in the ShapeUI (DS-179).
       this._target._addControl(newHandler, {
         mousedown: this._onGrab,
         mouseup: this.endDrag,

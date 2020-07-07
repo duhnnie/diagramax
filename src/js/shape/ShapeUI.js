@@ -1,10 +1,29 @@
 import DiagramUI from '../diagram/DiagramUI';
 import { EVENT as SHAPE_EVENT } from './Shape';
 import { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
+import BaseElement from '../core/BaseElement';
 
+let handler;
 class ShapeUI extends DiagramUI {
   static get type() {
     return 'shapeUI';
+  }
+
+  static createHandler({ classNames = [], dataset = {} } = {}) {
+    if (!handler) {
+      handler = BaseElement.createSVG('circle');
+      handler.classList.add('handler');
+    }
+
+    const newHandler = handler.cloneNode(true);
+
+    classNames = Array.isArray(classNames) ? classNames : [classNames];
+    classNames.forEach((className) => newHandler.classList.add(className));
+    Object.entries(dataset).forEach(([key, value]) => {
+      newHandler.dataset[key] = value;
+    });
+
+    return newHandler;
   }
 
   constructor(...args) {
