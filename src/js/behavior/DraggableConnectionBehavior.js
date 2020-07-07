@@ -166,11 +166,18 @@ class DraggableConnectionBehavior extends DragBehavior {
   attach() {
     const { _target } = this;
 
-    _target.getCanvas().addEventListener(CONNECTION_EVENT.PORT_CHANGE, _target, this._onPortChange,
+    _target.getCanvas().addListener(CONNECTION_EVENT.PORT_CHANGE, _target, this._onPortChange,
       this);
 
     this._createHandlers();
     super.attach();
+  }
+
+  detach() {
+    const { _target } = this;
+
+    _target.getCanvas().removeListener(CONNECTION_EVENT.PORT_CHANGE, _target, this._onPortChange, this);
+    super.detach();
   }
 }
 

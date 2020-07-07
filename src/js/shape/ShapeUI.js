@@ -55,9 +55,9 @@ class ShapeUI extends DiagramUI {
     _html.classList.add('shape-ui');
     _target.getCanvas()._dom.uiLayer.append(this._html);
     this._updatePosition(_target.getPosition());
-    _target.getCanvas().addEventListener(RESIZE_EVENT.RESIZE, _target, this._handleTargetResize);
-    _target.getCanvas().addEventListener(SHAPE_EVENT.POSITION_CHANGE, _target, _handleTargetMove);
-    _target.getCanvas().addEventListener(SHAPE_EVENT.DRAG, _target, _handleTargetMove);
+    _target.getCanvas().addListener(RESIZE_EVENT.RESIZE, _target, this._handleTargetResize);
+    _target.getCanvas().addListener(SHAPE_EVENT.POSITION_CHANGE, _target, _handleTargetMove);
+    _target.getCanvas().addListener(SHAPE_EVENT.DRAG, _target, _handleTargetMove);
 
     return this;
   }
@@ -67,9 +67,9 @@ class ShapeUI extends DiagramUI {
   remove() {
     const { _target, _handleTargetMove } = this;
 
-    _target.getCanvas().removeEventListener(RESIZE_EVENT.RESIZE, _target, this._handleTargetResize);
-    _target.getCanvas().removeEventListener(SHAPE_EVENT.POSITION_CHANGE, _target, _handleTargetMove);
-    _target.getCanvas().removeEventListener(SHAPE_EVENT.DRAG, _target, _handleTargetMove);
+    _target.getCanvas().removeListener(RESIZE_EVENT.RESIZE, _target, this._handleTargetResize);
+    _target.getCanvas().removeListener(SHAPE_EVENT.POSITION_CHANGE, _target, _handleTargetMove);
+    _target.getCanvas().removeListener(SHAPE_EVENT.DRAG, _target, _handleTargetMove);
     super.remove();
   }
 }
