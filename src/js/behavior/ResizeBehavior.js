@@ -376,9 +376,11 @@ class ResizeBehavior extends DragBehavior {
     const canvas = _target.getCanvas();
 
     this._createHandlers();
-    canvas.addEventListener(EVENT.RESIZE, _target, this._onTargetResize);
-    canvas.addEventListener(EVENT.SIZE_CHANGE, _target, this._onTargetResize);
+    canvas.addListener(EVENT.RESIZE, _target, this._onTargetResize);
+    canvas.addListener(EVENT.SIZE_CHANGE, _target, this._onTargetResize);
   }
+
+  // TODO: is it necesssary to implement the detach() method?
 }
 
 export default ResizeBehavior;

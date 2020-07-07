@@ -98,7 +98,7 @@ class Canvas extends BaseElement {
       if (!this._shapes.delete(removedElement)) {
         this._connections.delete(removedElement);
       }
-      this.removeEventListener(ELEMENT_EVENT.REMOVE, removedElement, this._onElementRemove, this);
+      this.removeListener(ELEMENT_EVENT.REMOVE, removedElement, this._onElementRemove, this);
     }
   }
 
@@ -133,7 +133,7 @@ class Canvas extends BaseElement {
       // TODO: Fix this access to protected method.
       shape._setCanvas(this);
       this._drawElement(shape);
-      this.addEventListener(ELEMENT_EVENT.REMOVE, shape, this._onElementRemove, this);
+      this.addListener(ELEMENT_EVENT.REMOVE, shape, this._onElementRemove, this);
     }
 
     return this;
@@ -205,12 +205,12 @@ class Canvas extends BaseElement {
     throw new Error('findConnection(): Invalid parameter.');
   }
 
-  addEventListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
+  addListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
     this._eventBus.addListener.call(this._eventBus, eventName, targetOrCallback, callbackOrScope, scope);
     return this;
   }
 
-  removeEventListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
+  removeListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
     this._eventBus.removeListener.call(this._eventBus, eventName, targetOrCallback, callbackOrScope, scope);
     return this;
   }
@@ -227,7 +227,7 @@ class Canvas extends BaseElement {
       connection._setCanvas(this);
 
       this._drawElement(connection);
-      this.addEventListener(ELEMENT_EVENT.REMOVE, connection, this._onElementRemove, this);
+      this.addListener(ELEMENT_EVENT.REMOVE, connection, this._onElementRemove, this);
     }
   }
 

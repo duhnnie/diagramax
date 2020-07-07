@@ -218,10 +218,10 @@ class Connection extends DiagramElement {
   }
 
   _addDragListeners(shape) {
-    this._canvas.addEventListener(SHAPE_EVENT.DRAG_START, shape, this._onShapeDragStart, this);
-    this._canvas.addEventListener(SHAPE_EVENT.DRAG_END, shape, this._onShapeDragEnd, this);
-    this._canvas.addEventListener(RESIZE_EVENT.START, shape, this._onShapeDragStart, this);
-    this._canvas.addEventListener(RESIZE_EVENT.END, shape, this._onShapeDragEnd, this);
+    this._canvas.addListener(SHAPE_EVENT.DRAG_START, shape, this._onShapeDragStart, this);
+    this._canvas.addListener(SHAPE_EVENT.DRAG_END, shape, this._onShapeDragEnd, this);
+    this._canvas.addListener(RESIZE_EVENT.START, shape, this._onShapeDragStart, this);
+    this._canvas.addListener(RESIZE_EVENT.END, shape, this._onShapeDragEnd, this);
 
     return this;
   }
@@ -232,12 +232,12 @@ class Connection extends DiagramElement {
     if (_canvas) {
       // TODO: here we have that some event are defined in Shape and other in resize behavior, maybe Drag events should
       // be defined in drag behavior, the same way the resize behaviors are in the ResizeBehavior
-      this._canvas.removeEventListener(SHAPE_EVENT.DRAG_START, shape, this._onShapeDragStart,
+      this._canvas.removeListener(SHAPE_EVENT.DRAG_START, shape, this._onShapeDragStart,
         this);
-      this._canvas.removeEventListener(SHAPE_EVENT.DRAG_END, shape, this._onShapeDragEnd,
+      this._canvas.removeListener(SHAPE_EVENT.DRAG_END, shape, this._onShapeDragEnd,
         this);
-      this._canvas.removeEventListener(RESIZE_EVENT.START, shape, this._onShapeDragStart, this);
-      this._canvas.removeEventListener(RESIZE_EVENT.END, shape, this._onShapeDragEnd, this);
+      this._canvas.removeListener(RESIZE_EVENT.START, shape, this._onShapeDragStart, this);
+      this._canvas.removeListener(RESIZE_EVENT.END, shape, this._onShapeDragEnd, this);
     }
 
     return this;

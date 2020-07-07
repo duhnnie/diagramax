@@ -96,7 +96,7 @@ class ConnectivityBehavior extends Behavior {
     html.addEventListener('mouseup', this._onMouseUp, false);
     html.addEventListener('mouseenter', this._onConnectionEnter, false);
     html.addEventListener('mouseleave', this._onConnectionLeave, false);
-    canvas.addEventListener(SHAPE_EVENT.DRAG_START, _target, this.end);
+    canvas.addListener(SHAPE_EVENT.DRAG_START, _target, this.end);
   }
 
   detach() {
@@ -108,7 +108,7 @@ class ConnectivityBehavior extends Behavior {
     html.removeEventListener('mouseup', this._onMouseUp, false);
     html.removeEventListener('mouseenter', this._onConnectionEnter, false);
     html.removeEventListener('mouseleave', this._onConnectionLeave, false);
-    canvas.removeEventListener(SHAPE_EVENT.DRAG_START, _target, this.end);
+    canvas.removeListener(SHAPE_EVENT.DRAG_START, _target, this.end);
     super.detach();
   }
 }
