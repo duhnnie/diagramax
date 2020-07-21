@@ -1,6 +1,7 @@
 import ErrorThrower from "../utils/ErrorThrower";
 
 export const stopPropagation = (event) => event.stopPropagation();
+
 class EventBus {
   constructor() {
     this._allObject = {};
