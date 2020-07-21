@@ -1,5 +1,5 @@
 import BaseElement from '../core/BaseElement';
-import EventBus, { stopPropagation } from './EventBus';
+import EventBus, { stopPropagation } from '../core/EventBus';
 import FluidDraggingAreaBehavior from '../behavior/FluidDraggingAreaBehavior';
 import ConnectivityAreaBehavior from '../behavior/ConnectivityAreaBehavior';
 import Shape from '../shape/Shape';
