@@ -577,24 +577,26 @@ class Connection extends DiagramElement {
 
     if (oldCanvas) {
       if (origShape && origShape.getOutgoingConnections().has(this)) {
+        origShape.removeConnection(this, MODE.ORIG);
         this._origShape = null;
-        origShape.removeConnection(this);
         this._removeDragListeners(origShape);
       }
 
       if (destShape && destShape.getIncomingConnections().has(this)) {
+        destShape.removeConnection(this, MODE.DEST);
         this._destShape = null;
-        destShape.removeConnection(this);
         this._removeDragListeners(destShape);
       }
 
-      this._setPorts(null, null);
-      this._removeInterceptors();
-      oldCanvas.dispatchEvent(EVENT.DISCONNECT, this, {
-        origShape,
-        destShape,
-      });
-      super.remove();
+      if (!this._origShape && ! this._destShape) {
+        this._setPorts(null, null);
+        this._removeInterceptors();
+        oldCanvas.dispatchEvent(EVENT.DISCONNECT, this, {
+          origShape,
+          destShape,
+        });
+        super.remove();
+      }
     }
 
     return this;

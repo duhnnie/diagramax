@@ -40,6 +40,8 @@ export const EVENT = Object.freeze({
   DRAG: 'drag',
   DRAG_END: 'drag:end',
   POSITION_CHANGE: 'position:change',
+  SHAPE_CONNECT: 'shape:connect',
+  SHAPE_DISCONNECT: 'shape:disconnect',
 });
 
 class Shape extends DiagraElement {
@@ -298,6 +300,11 @@ class Shape extends DiagraElement {
 
       if (result) {
         this._connections.add(connection);
+        this.getCanvas().dispatchEvent(EVENT.SHAPE_CONNECT, this, {
+          otherShape,
+          connection,
+          mode: PORT_MODE.DEST,
+        });
       }
     }
 
@@ -321,6 +328,11 @@ class Shape extends DiagraElement {
 
       if (result) {
         this._connections.add(connection);
+        this.getCanvas().dispatchEvent(EVENT.SHAPE_CONNECT, this, {
+          otherShape,
+          connection,
+          mode: PORT_MODE.ORIG,
+        });
       }
     }
 
@@ -374,14 +386,21 @@ class Shape extends DiagraElement {
 
   removeConnection(connection, mode = null) {
     if (this._connections.has(connection)) {
+      const otherShape = mode === PORT_MODE.ORIG ? connection.getDestShape() : connection.getOrigShape();
       const allRemoved = this._removeFromPorts(connection, mode);
 
       if (allRemoved) {
+        this._connections.delete(connection);
+
         if (connection.isConnectedWith(this)) {
           connection.disconnect();
         }
 
-        this._connections.delete(connection);
+        this.getCanvas().dispatchEvent(EVENT.SHAPE_DISCONNECT, this, {
+          connection,
+          otherShape,
+          mode,
+        });
       }
     }
     return this;
