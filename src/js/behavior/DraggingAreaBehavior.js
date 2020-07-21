@@ -80,9 +80,12 @@ class DraggingAreaBehavior extends Behavior {
     super.detach();
   }
 
-  // eslint-disable-next-line class-methods-use-this, no-unused-vars
-  evaluate(diffX, diffY, next) {
-    // This method should be override in subclasses.
+  // TODO: this is the method in which snapping could be applied.
+  evaluate(diffX, diffY) {
+    return {
+      x: diffX,
+      y: diffY,
+    };
   }
 }
 
