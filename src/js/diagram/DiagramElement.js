@@ -1,8 +1,8 @@
 import BaseElement from '../core/BaseElement';
 import Canvas from './Canvas';
 import DiagramText from './DiagramText';
-import SelectBehavior from '../behavior/SelectBehavior';
-import ContextMenuBehavior from '../behavior/ContextMenuBehavior';
+import SelectBehaviorFactory, { PRODUCTS as SELECT_PRODUCTS } from '../behavior/SelectBehaviorFactory';
+import ContextMenuBehaviorFactory, { PRODUCTS as CONTEXT_MENU_PRODUCTS } from '../behavior/ContextMenuBehaviorFactory';
 import Model from '../data/Model';
 import ErrorThrower from '../utils/ErrorThrower';
 
@@ -19,6 +19,10 @@ const DEFAULTS = {
   canvas: null,
   text: '',
   data: {},
+  selectionBehavior: SELECT_PRODUCTS.DEFAULT,
+  // TODO: Canvas has also this behavior, maybe this and canvas should be inherited from same class, and all child of
+  // this one should be inherit of a child of the other class.
+  contextMenuBehavior: CONTEXT_MENU_PRODUCTS.DEFAULT,
 };
 
 /**
@@ -55,6 +59,12 @@ class DiagramElement extends BaseElement {
    */
   constructor(settings) {
     super(settings);
+
+    settings = {
+      ...DEFAULTS,
+      ...settings,
+    };
+
     /**
      * @protected
      * @type {Canvas}
@@ -88,17 +98,12 @@ class DiagramElement extends BaseElement {
      * @protected
      * @type {SelectBehavior}
      */
-    this._selectBehavior = new SelectBehavior(this);
+    this._selectBehavior = SelectBehaviorFactory.create(settings.selectionBehavior, this);
     /**
      * @protected
      * @type {ContextMenuBehavior}
      */
-    this._contextMenuBehavior = new ContextMenuBehavior(this);
-
-    settings = {
-      ...DEFAULTS,
-      ...settings,
-    };
+    this._contextMenuBehavior = ContextMenuBehaviorFactory.create(settings.contextMenuBehavior, this);
 
     this.setText(settings.text)
       .setData(settings.data);

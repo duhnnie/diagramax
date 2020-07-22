@@ -1,30 +1,34 @@
 import BaseElement from '../core/BaseElement';
 import EventBus, { stopPropagation } from '../core/EventBus';
-import FluidDraggingAreaBehavior from '../behavior/FluidDraggingAreaBehavior';
-import ConnectivityAreaBehavior from '../behavior/ConnectivityAreaBehavior';
+import ConnectivityAreaBehaviorFactory, { PRODUCTS as CONNECTIVITY_AREA_PRODUCTS } from '../behavior/ConnectivityAreaBehaviorFactory';
+import DraggingAreaBehaviorFactory, { PRODUCTS as DRAGGING_AREA_PRODUCTS } from '../behavior/DraggingAreaBehaviorFactory';
 import Shape from '../shape/Shape';
 import Connection from '../connection/Connection';
 import { MODE as PORT_MODE } from '../connection/Port';
-import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
-import KeyboardControlBehavior from '../behavior/KeyboardControlBehavior';
+import SelectionAreaBehaviorFactory, { PRODUCTS as SELECTION_AREA_PRODUCTS } from '../behavior/SelectionAreaBehaviorFactory';
+import KeyboardControlBehaviorFactory, { PRODUCTS as KEYBOARD_CONTROL_PRODUCTS } from '../behavior/KeyboardControlBehaviorFactory';
 import CommandFactory from '../command/CommandFactory';
 import CommandManager from '../command/CommandManager';
 import { EVENT as ELEMENT_EVENT } from './DiagramElement';
 import { noop } from '../utils/Utils';
-import ContextMenuBehavior from '../behavior/ContextMenuBehavior';
+import ContextMenuBehaviorFactory, { PRODUCTS as CONTEXT_MENU_PRODUCTS } from '../behavior/ContextMenuBehaviorFactory';
 import DiagramElementFactory, { PRODUCTS as ELEMENTS } from './DiagramElementFactory';
 import ErrorThrower from '../utils/ErrorThrower';
 
 const DEFAULTS = Object.freeze({
   width: 800,
   height: 600,
-
   shapes: [],
   connections: [],
   stackSize: 10,
   onChange: noop,
   onContextMenu: noop,
   onElementContextMenu: noop,
+  selectionAreaBehavior: SELECTION_AREA_PRODUCTS.DEFAULT,
+  contextMenuBehavior: CONTEXT_MENU_PRODUCTS.DEFAULT,
+  draggingAreaBehavior: CONTEXT_MENU_PRODUCTS.DEFAULT,
+  connectivityAreaBehavior: CONNECTIVITY_AREA_PRODUCTS.DEFAULT,
+  keyboardControlBehavior: KEYBOARD_CONTROL_PRODUCTS.DEFAULT,
 });
 
 class Canvas extends BaseElement {
@@ -45,11 +49,11 @@ class Canvas extends BaseElement {
     this._onChange = settings.onChange;
     this._onContextMenu = settings.onContextMenu;
     this._onElementContextMenu = settings.onElementContextMenu;
-    this._selectionBehavior = new SelectionAreaBehavior(this);
-    this._contextMenuBehavior = new ContextMenuBehavior(this);
-    this._draggingAreaBehavior = new FluidDraggingAreaBehavior(this);
-    this._connectivityAreaBehavior = new ConnectivityAreaBehavior(this);
-    this._keyboardBehavior = new KeyboardControlBehavior(this);
+    this._selectionBehavior = SelectionAreaBehaviorFactory.create(settings.selectionAreaBehavior, this);
+    this._contextMenuBehavior = ContextMenuBehaviorFactory.create(settings.contextMenuBehavior, this);
+    this._draggingAreaBehavior = DraggingAreaBehaviorFactory.create(settings.draggingAreaBehavior, this);
+    this._connectivityAreaBehavior = ConnectivityAreaBehaviorFactory.create(settings.connectivityAreaBehavior, this);
+    this._keyboardBehavior = KeyboardControlBehaviorFactory.create(settings.keyboardControlBehavior, this);
     this._commandManager = new CommandManager({ size: settings.stackSize });
 
     this.setWidth(settings.width)

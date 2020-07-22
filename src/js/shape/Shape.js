@@ -3,10 +3,11 @@ import Port, {
   getPositionProps, MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION, ORIENTATION,
 } from '../connection/Port';
 import Connection from '../connection/Connection';
-import EditableTextBehavior from '../behavior/EditableTextBehavior';
-import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
-import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
-import ResizeBehavior, { EVENT as RESIZE_EVENT, DIRECTION } from '../behavior/ResizeBehavior';
+import EditableTextBehaviorFactory, { PRODUCTS as EDITABLE_TEXT_PRODUCTS } from '../behavior/EditableTextBehaviorFactory';
+import DraggableShapeBehaviorFactory, { PRODUCTS as DRAGGABLE_PRODUCTS } from '../behavior/DraggableShapeBehaviorFactory';
+import ConnectivityBehaviorFactory, { PRODUCTS as CONNECTIVITY_PRODUCTS } from '../behavior/ConnectivityBehaviorFactory';
+import { EVENT as RESIZE_EVENT, DIRECTION } from '../behavior/ResizeBehavior';
+import ResizeBehaviorFactory, { PRODUCTS as RESIZE_PRODUCTS } from '../behavior/ResizeBehaviorFactory';
 import Geometry from '../utils/Geometry';
 import ShapeUI from './ShapeUI';
 import ErrorThrower from '../utils/ErrorThrower';
@@ -33,6 +34,10 @@ function getPortPriorityOrder(mainOrientation, { x, y }) {
 const DEFAULTS = {
   x: 0,
   y: 0,
+  resizeBehavior: RESIZE_PRODUCTS.DEFAULT,
+  connectivityBehavior: CONNECTIVITY_PRODUCTS.DEFAULT,
+  dragBehavior: DRAGGABLE_PRODUCTS.DEFAULT,
+  textEditBehavior: EDITABLE_TEXT_PRODUCTS.DEFAULT,
 };
 
 export const EVENT = Object.freeze({
@@ -51,6 +56,12 @@ class Shape extends DiagraElement {
 
   constructor(settings) {
     super(settings);
+
+    settings = {
+      ...DEFAULTS,
+      ...settings,
+    };
+
     this._x = null;
     this._y = null;
     this._cx = null;
@@ -60,15 +71,10 @@ class Shape extends DiagraElement {
     this._connections = new Set();
     this._ports = [];
     // TODO: component's text is defined in DiagramElement, so this behavior should be defined in that class.
-    this._editableBehavior = new EditableTextBehavior(this);
-    this._dragBehavior = new RegularDraggableShapeBehavior(this);
-    this._connectivityBehavior = new ConnectivityBehavior(this);
-    this._resizeBehavior = new ResizeBehavior(this);
-
-    settings = {
-      ...DEFAULTS,
-      ...settings,
-    };
+    this._editableBehavior = EditableTextBehaviorFactory.create(settings.textEditBehavior, this);
+    this._dragBehavior = DraggableShapeBehaviorFactory.create(settings.dragBehavior, this);
+    this._connectivityBehavior = ConnectivityBehaviorFactory.create(settings.connectivityBehavior, this);
+    this._resizeBehavior = ResizeBehaviorFactory.create(settings.resizeBehavior, this);
 
     this._initPorts()
       .setPosition(settings.x, settings.y);
