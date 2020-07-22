@@ -4,12 +4,12 @@ import ConnectionIntersectionResolver from './ConnectionIntersectionResolver';
 import Geometry from '../utils/Geometry';
 import { EVENT as SHAPE_EVENT } from '../shape/Shape';
 import { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
-import SelectBehavior from '../behavior/SelectBehavior';
+import SelectBehaviorFactory, { PRODUCTS as SELECT_PRODUCTS } from '../behavior/SelectBehaviorFactory';
 import WaypointStrategyRepository, { PRODUCTS as WAYPOINT_STRATEGY } from './WaypointStrategyRepository';
 import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY } from './LineStrategyRepository';
 import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY } from './VertexStrategyRepository';
 import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY } from './IntersectionStrategyRepository';
-import DraggableConnectionBehavior from '../behavior/DraggableConnectionBehavior';
+import DraggableConnectionBehaviorFactory, { PRODUCTS as DRAGGABLE_PRODUCTS } from '../behavior/DraggableConnectionBehaviorFactory';
 import DiagramUI from '../diagram/DiagramUI';
 import {
   ORIENTATION as PORT_ORIENTATION,
@@ -30,6 +30,8 @@ const DEFAULTS = {
   vertex: VERTEX_STRATEGY.ARC,
   vertexSize: 10,
   intersection: INTERSECTION_STRATEGY.ARC,
+  selectionBehavior: SELECT_PRODUCTS.DEFAULT,
+  dragBehavior: DRAGGABLE_PRODUCTS.DEFAULT,
 };
 
 const INTERSECTION_SIZE = Object.freeze({
@@ -90,9 +92,9 @@ class Connection extends DiagramElement {
     this._destPort = null;
     this._interceptors = new Set();
     this._intersections = new Map();
-    this._selectBehavior = new SelectBehavior(this);
+    this._selectBehavior = SelectBehaviorFactory.create(settings.selectionBehavior, this);
     // TODO: Sibling class has also a _dragBehavior property, they could be lift up to parent class.
-    this._dragBehavior = new DraggableConnectionBehavior(this);
+    this._dragBehavior = DraggableConnectionBehaviorFactory.create(settings.dragBehavior, this);
     this._waypointStrategy = WaypointStrategyRepository.get(settings.waypoint);
     this._lineStrategy = LineStrategyRepository.get(settings.line);
     this._vertexStrategy = VertexStrategyRepository.get(settings.vertex);
