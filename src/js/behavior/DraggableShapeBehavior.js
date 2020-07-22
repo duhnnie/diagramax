@@ -66,8 +66,11 @@ class DraggableShapeBehavior extends DragBehavior {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _evaluate() {
-    ErrorThrower.notImplemented();
+  _evaluate(diffX, diffY) {
+    return {
+      diffX,
+      diffY,
+    };
   }
 
   updatePosition({ x, y }) {
