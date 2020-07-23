@@ -392,7 +392,8 @@ class Shape extends DiagraElement {
 
   removeConnection(connection, mode = null) {
     if (this._connections.has(connection)) {
-      const otherShape = mode === PORT_MODE.ORIG ? connection.getDestShape() : connection.getOrigShape();
+      const destShape = connection.getDestShape();
+      const otherShape = destShape === this ? connection.getOrigShape() : destShape;
       const allRemoved = this._removeFromPorts(connection, mode);
 
       if (allRemoved) {

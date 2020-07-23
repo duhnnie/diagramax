@@ -570,30 +570,30 @@ class Connection extends DiagramElement {
   }
 
   remove() {
-    const oldCanvas = this._canvas;
     const origShape = this._origShape;
     const destShape = this._destShape;
 
-    if (oldCanvas) {
+    if (this._canvas) {
       if (origShape && origShape.getOutgoingConnections().has(this)) {
         origShape.removeConnection(this, MODE.ORIG);
-        this._origShape = null;
         this._removeDragListeners(origShape);
       }
 
       if (destShape && destShape.getIncomingConnections().has(this)) {
         destShape.removeConnection(this, MODE.DEST);
-        this._destShape = null;
         this._removeDragListeners(destShape);
       }
 
-      if (!this._origShape && ! this._destShape) {
+      this._origShape = null;
+      this._destShape = null;
+
+      if (origShape && destShape && this._canvas) {
         this._setPorts(null, null);
         this._removeInterceptors();
-        oldCanvas.dispatchEvent(EVENT.DISCONNECT, this, {
+        this._canvas.dispatchEvent(EVENT.DISCONNECT, this, {
           origShape,
           destShape,
-        });
+        }); console.log('Connection disconnect event fired!')
         super.remove();
       }
     }
