@@ -236,6 +236,7 @@ class Shape extends DiagraElement {
       canvas.dispatchEvent(RESIZE_EVENT.SIZE_CHANGE, this, {
         previous: oldSize,
         current: { width, height },
+        position: this.getPosition(),
       });
     }
   }
