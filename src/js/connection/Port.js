@@ -7,24 +7,24 @@ const DEFAULTS = {
   shape: null,
 };
 
-export const ORIENTATION = Object.freeze({
+const ORIENTATION = Object.freeze({
   X: 'x',
   Y: 'y',
 });
 
 // TOOD: this could be renamed to WAY and POSITION could be DIRECTION
-export const DIRECTION = Object.freeze({
+const DIRECTION = Object.freeze({
   NEGATIVE: -1,
   POSITIVE: 1,
 });
 
 // TODO: It is not the same as Connection.POINT?
-export const MODE = Object.freeze({
+const MODE = Object.freeze({
   ORIG: 0,
   DEST: 1,
 });
 
-export const POSITION = Object.freeze({
+const POSITION = Object.freeze({
   NORTH: 0,
   EAST: 1,
   SOUTH: 2,
@@ -49,7 +49,7 @@ export const POSITION = Object.freeze({
   },
 });
 
-export function getPositionProps(position) {
+function getPositionProps(position) {
   return POSITION.props[position];
 }
 
@@ -183,3 +183,4 @@ class Port {
 }
 
 export default Port;
+export { ORIENTATION, DIRECTION, MODE, POSITION, getPositionProps };

@@ -17,7 +17,7 @@ import {
 } from './Port';
 import ErrorThrower from '../utils/ErrorThrower';
 
-export const EVENT = Object.freeze({
+const EVENT = Object.freeze({
   CONNECT: 'connect',
   PORT_CHANGE: 'portchange',
   DISCONNECT: 'disconnect',
@@ -647,3 +647,4 @@ class Connection extends DiagramElement {
 }
 
 export default Connection;
+export { EVENT };

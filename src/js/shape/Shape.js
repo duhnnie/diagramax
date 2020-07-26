@@ -40,7 +40,7 @@ const DEFAULTS = {
   textEditBehavior: EDITABLE_TEXT_PRODUCTS.DEFAULT,
 };
 
-export const EVENT = Object.freeze({
+const EVENT = Object.freeze({
   DRAG_START: 'drag:start',
   DRAG: 'drag',
   DRAG_END: 'drag:end',
@@ -616,3 +616,4 @@ class Shape extends DiagraElement {
 }
 
 export default Shape;
+export { EVENT };
