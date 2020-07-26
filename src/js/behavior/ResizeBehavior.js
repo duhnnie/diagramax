@@ -333,7 +333,10 @@ class ResizeBehavior extends DragBehavior {
     }
 
     super.updatePosition(position);
-    _target.getCanvas().dispatchEvent(EVENT.RESIZE, _target, { width, height }, _target.getCurrentPosition());
+    _target.getCanvas().dispatchEvent(EVENT.RESIZE, _target, {
+      currentSize: { width, height },
+      currentPosition: _target.getCurrentPosition(),
+    });
   }
 
   // eslint-disable-next-line class-methods-use-this

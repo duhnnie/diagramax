@@ -39,8 +39,8 @@ class ShapeUI extends DiagramUI {
     }
   }
 
-  _handleTargetResize(event, size, position) {
-    this._updatePosition(position);
+  _handleTargetResize(event, { currentPosition }) {
+    this._updatePosition(currentPosition);
   }
 
   _handleTargetMove(event, position) {
