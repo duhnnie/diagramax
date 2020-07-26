@@ -3,14 +3,14 @@ import Geometry from '../utils/Geometry';
 import { PRODUCTS as COMMANDS } from '../command/CommandFactory';
 import ShapeUI from '../shape/ShapeUI';
 
-export const EVENT = Object.freeze({
+const EVENT = Object.freeze({
   START: 'resizestart',
   RESIZE: 'resize',
   END: 'resizeend',
   SIZE_CHANGE: 'size:change',
 });
 
-export const DIRECTION = {
+const DIRECTION = {
   NW: 0,
   N: 1,
   NE: 2,
@@ -387,3 +387,4 @@ class ResizeBehavior extends DragBehavior {
 }
 
 export default ResizeBehavior;
+export { EVENT, DIRECTION };

@@ -1,6 +1,6 @@
 import ErrorThrower from "../utils/ErrorThrower";
 
-export const stopPropagation = (event) => event.stopPropagation();
+const stopPropagation = (event) => event.stopPropagation();
 
 class EventBus {
   constructor() {
@@ -125,3 +125,4 @@ class EventBus {
 }
 
 export default EventBus;
+export { stopPropagation };

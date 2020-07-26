@@ -1,7 +1,7 @@
 import Behavior from './Behavior';
 
 // TODO: Use this events
-export const EVENT = Object.freeze({
+const EVENT = Object.freeze({
   ADD: 'selectionadd',
   REMOVE: 'selectionremove',
   CLEAR: 'selectionclear',
@@ -76,3 +76,4 @@ class SelectionAreaBehavior extends Behavior {
 }
 
 export default SelectionAreaBehavior;
+export { EVENT };
