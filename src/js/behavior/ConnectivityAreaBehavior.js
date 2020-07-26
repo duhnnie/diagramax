@@ -10,9 +10,7 @@ class ConnectivityAreaBehavior extends Behavior {
 
     this._dom = {};
     this._connection = null;
-    this._canvasOffset = null;
     this._shape = null;
-    this._updateCanvasOffset = this._updateCanvasOffset.bind(this);
     this.start = this._bind(this.start);
     this.complete = this._bind(this.complete);
     this.enterShape = this._bind(this.enterShape);
@@ -90,10 +88,6 @@ class ConnectivityAreaBehavior extends Behavior {
     return null;
   }
 
-  _updateCanvasOffset() {
-    this._canvasOffset = this._target.getHTML().getBoundingClientRect();
-  }
-
   // TODO: maybe this should be replaced by the call canvas' startConnection() and completeConnection() or think to
   // move it back to Canvas;
   connect(origin, destination) {
@@ -106,18 +100,12 @@ class ConnectivityAreaBehavior extends Behavior {
     // its _html property.
     // TODO: make sure to call this method only once
     _target.getHTML().addEventListener('click', this.end, false);
-    this._updateCanvasOffset();
-
-    // TODO: Canvas should provide a way to return a position relative to it and this method should be
-    // removed from this class.
-    window.addEventListener('scroll', this._updateCanvasOffset, false);
   }
 
   detach() {
     const { _target } = this;
 
     _target.getHTML().removeEventListener('click', this.end, false);
-    window.removeEventListener('scroll', this._updateCanvasOffset, false);
 
     super.detach();
   }
