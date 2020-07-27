@@ -1,12 +1,20 @@
 import BaseElement from '../core/BaseElement';
 import EventBus, { stopPropagation } from '../core/EventBus';
-import ConnectivityAreaBehaviorFactory, { PRODUCTS as CONNECTIVITY_AREA_PRODUCTS } from '../behavior/ConnectivityAreaBehaviorFactory';
-import DraggingAreaBehaviorFactory, { PRODUCTS as DRAGGING_AREA_PRODUCTS } from '../behavior/DraggingAreaBehaviorFactory';
+import ConnectivityAreaBehaviorFactory, {
+  PRODUCTS as CONNECTIVITY_AREA_PRODUCTS,
+} from '../behavior/ConnectivityAreaBehaviorFactory';
+import DraggingAreaBehaviorFactory, {
+  PRODUCTS as DRAGGING_AREA_PRODUCTS,
+} from '../behavior/DraggingAreaBehaviorFactory';
 import Shape from '../shape/Shape';
 import Connection from '../connection/Connection';
 import { MODE as PORT_MODE } from '../connection/Port';
-import SelectionAreaBehaviorFactory, { PRODUCTS as SELECTION_AREA_PRODUCTS } from '../behavior/SelectionAreaBehaviorFactory';
-import KeyboardControlBehaviorFactory, { PRODUCTS as KEYBOARD_CONTROL_PRODUCTS } from '../behavior/KeyboardControlBehaviorFactory';
+import SelectionAreaBehaviorFactory, {
+  PRODUCTS as SELECTION_AREA_PRODUCTS,
+} from '../behavior/SelectionAreaBehaviorFactory';
+import KeyboardControlBehaviorFactory, {
+  PRODUCTS as KEYBOARD_CONTROL_PRODUCTS,
+} from '../behavior/KeyboardControlBehaviorFactory';
 import CommandFactory from '../command/CommandFactory';
 import CommandManager from '../command/CommandManager';
 import { EVENT as ELEMENT_EVENT } from './DiagramElement';
@@ -26,7 +34,7 @@ const DEFAULTS = Object.freeze({
   onElementContextMenu: noop,
   selectionAreaBehavior: SELECTION_AREA_PRODUCTS.DEFAULT,
   contextMenuBehavior: CONTEXT_MENU_PRODUCTS.DEFAULT,
-  draggingAreaBehavior: CONTEXT_MENU_PRODUCTS.DEFAULT,
+  draggingAreaBehavior: DRAGGING_AREA_PRODUCTS.DEFAULT,
   connectivityAreaBehavior: CONNECTIVITY_AREA_PRODUCTS.DEFAULT,
   keyboardControlBehavior: KEYBOARD_CONTROL_PRODUCTS.DEFAULT,
 });
@@ -191,11 +199,11 @@ class Canvas extends BaseElement {
       return [...this._shapes].find((i) => i.getID() === shape) || null;
     }
 
-    if (shape instanceof Shape) {
-      return this._shapes.has(shape) ? shape : null;
+    if (!(shape instanceof Shape)) {
+      ErrorThrower.invalidParameter();
     }
 
-    ErrorThrower.invalidParameter();
+    return this._shapes.has(shape) ? shape : null;
   }
 
   findConnection(connection) {
@@ -203,11 +211,11 @@ class Canvas extends BaseElement {
       return [...this._connections].find((i) => i.getID() === connection) || null;
     }
 
-    if (connection instanceof Connection) {
-      return this._connections.has(connection) ? connection : null;
+    if (!(connection instanceof Connection)) {
+      ErrorThrower.invalidParameter();
     }
 
-    ErrorThrower.invalidParameter();
+    return this._connections.has(connection) ? connection : null;
   }
 
   addListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {

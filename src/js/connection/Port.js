@@ -183,4 +183,6 @@ class Port {
 }
 
 export default Port;
-export { ORIENTATION, DIRECTION, MODE, POSITION, getPositionProps };
+export {
+  ORIENTATION, DIRECTION, MODE, POSITION, getPositionProps,
+};

@@ -3,9 +3,15 @@ import Port, {
   getPositionProps, MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION, ORIENTATION,
 } from '../connection/Port';
 import Connection from '../connection/Connection';
-import EditableTextBehaviorFactory, { PRODUCTS as EDITABLE_TEXT_PRODUCTS } from '../behavior/EditableTextBehaviorFactory';
-import DraggableShapeBehaviorFactory, { PRODUCTS as DRAGGABLE_PRODUCTS } from '../behavior/DraggableShapeBehaviorFactory';
-import ConnectivityBehaviorFactory, { PRODUCTS as CONNECTIVITY_PRODUCTS } from '../behavior/ConnectivityBehaviorFactory';
+import EditableTextBehaviorFactory, {
+  PRODUCTS as EDITABLE_TEXT_PRODUCTS,
+} from '../behavior/EditableTextBehaviorFactory';
+import DraggableShapeBehaviorFactory, {
+  PRODUCTS as DRAGGABLE_PRODUCTS,
+} from '../behavior/DraggableShapeBehaviorFactory';
+import ConnectivityBehaviorFactory, {
+  PRODUCTS as CONNECTIVITY_PRODUCTS,
+} from '../behavior/ConnectivityBehaviorFactory';
 import { EVENT as RESIZE_EVENT, DIRECTION } from '../behavior/ResizeBehavior';
 import ResizeBehaviorFactory, { PRODUCTS as RESIZE_PRODUCTS } from '../behavior/ResizeBehaviorFactory';
 import Geometry from '../utils/Geometry';

@@ -2,16 +2,20 @@ import { ORIENTATION as PORT_ORIENTATION } from './Port';
 import Geometry from '../utils/Geometry';
 import Error from '../utils/ErrorThrower';
 
-const getSegmentOrientation = function (segment) {
+// eslint-disable-next-line consistent-return
+function getSegmentOrientation(segment) {
   if (segment[0].x === segment[1].x) {
     return PORT_ORIENTATION.Y;
-  } if (segment[0].y === segment[1].y) {
+  }
+
+  if (segment[0].y === segment[1].y) {
     return PORT_ORIENTATION.X;
   }
-  Error.custom('Diagonal segment?');
-};
 
-const normalizeSegment = function (segment) {
+  Error.custom('Diagonal segment?');
+}
+
+function normalizeSegment(segment) {
   const x = [Math.min(segment[0].x, segment[1].x), Math.max(segment[0].x, segment[1].x)];
   const y = [Math.min(segment[0].y, segment[1].y), Math.max(segment[0].y, segment[1].y)];
 
@@ -24,9 +28,9 @@ const normalizeSegment = function (segment) {
       y: y[1],
     },
   ];
-};
+}
 // TODO: move to utils/move to Geometry.js
-const getIntersectedPoints = function (connectionA, connectionB) {
+function getIntersectedPoints(connectionA, connectionB) {
   if (connectionA !== connectionB) {
     const segmentsA = connectionA.getSegments();
     const segmentsB = connectionB.getSegments();
@@ -47,12 +51,20 @@ const getIntersectedPoints = function (connectionA, connectionB) {
           let point;
 
           // TODO: move to a util function
-          if (orientationA === PORT_ORIENTATION.X && segmentA[0].y > segmentB[0].y && segmentA[0].y < segmentB[1].y && segmentB[0].x > segmentA[0].x && segmentB[0].x < segmentA[1].x) {
+          if (orientationA === PORT_ORIENTATION.X
+            && segmentA[0].y > segmentB[0].y
+            && segmentA[0].y < segmentB[1].y
+            && segmentB[0].x > segmentA[0].x
+            && segmentB[0].x < segmentA[1].x) {
             point = {
               x: segmentB[0].x,
               y: segmentA[0].y,
             };
-          } else if (orientationA === PORT_ORIENTATION.Y && segmentA[0].x > segmentB[0].x && segmentA[0].x < segmentB[1].x && segmentB[0].y > segmentA[0].y && segmentB[0].y < segmentA[1].y) {
+          } else if (orientationA === PORT_ORIENTATION.Y
+            && segmentA[0].x > segmentB[0].x
+            && segmentA[0].x < segmentB[1].x
+            && segmentB[0].y > segmentA[0].y
+            && segmentB[0].y < segmentA[1].y) {
             point = {
               x: segmentA[0].x,
               y: segmentB[0].y,
@@ -76,7 +88,7 @@ const getIntersectedPoints = function (connectionA, connectionB) {
   }
 
   return [];
-};
+}
 
 export default {
   getIntersectionPoints(connection) {
@@ -103,7 +115,7 @@ export default {
 
           segmentIntersectionPoints.forEach((points, index) => {
             if (points) {
-              const intersectionPoints = points.map(point => ({
+              const intersectionPoints = points.map((point) => ({
                 connection: otherConnection,
                 point,
               }));

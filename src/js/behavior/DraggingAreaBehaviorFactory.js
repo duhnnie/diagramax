@@ -1,5 +1,5 @@
-import Factory from "../core/Factory";
-import DraggingAreaBehavior from "./DraggingAreaBehavior";
+import Factory from '../core/Factory';
+import DraggingAreaBehavior from './DraggingAreaBehavior';
 
 const PRODUCTS = Object.freeze({
   DEFAULT: 0,

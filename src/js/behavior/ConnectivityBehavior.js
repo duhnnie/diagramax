@@ -64,7 +64,7 @@ class ConnectivityBehavior extends Behavior {
     }
   }
 
-  _onConnectionEnter(event) {
+  _onConnectionEnter() {
     const { _target } = this;
     const canvas = _target.getCanvas();
     const valid = this._canAcceptCurrentConnection();
@@ -76,7 +76,7 @@ class ConnectivityBehavior extends Behavior {
     }
   }
 
-  _onConnectionLeave(event) {
+  _onConnectionLeave() {
     const { _target } = this;
     const canvas = _target.getCanvas();
 

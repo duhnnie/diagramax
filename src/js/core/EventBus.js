@@ -1,4 +1,4 @@
-import ErrorThrower from "../utils/ErrorThrower";
+import ErrorThrower from '../utils/ErrorThrower';
 
 const stopPropagation = (event) => event.stopPropagation();
 
@@ -10,7 +10,6 @@ class EventBus {
 
   addListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
     let listeners;
-    let callbacks;
     let callback;
     let key;
 
@@ -35,7 +34,8 @@ class EventBus {
         ErrorThrower.invalidParameter();
     }
 
-    callbacks = listeners.get(key) || [];
+    const callbacks = listeners.get(key) || [];
+
     callbacks.push({
       callback,
       scope,

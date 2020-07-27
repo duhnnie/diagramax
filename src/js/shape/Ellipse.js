@@ -73,7 +73,9 @@ class Ellipse extends Shape {
   }
 
   getBounds() {
-    const { _x: x, _y: y, _radiusX, _radiusY } = this;
+    const {
+      _x: x, _y: y, _radiusX, _radiusY,
+    } = this;
 
     return {
       top: y - _radiusY,

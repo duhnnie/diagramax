@@ -4,9 +4,9 @@ const DEFAULTS = Object.freeze({
   disabled: false,
 });
 
-const canExecuteBehavior = function() {
+function canExecuteBehavior() {
   return !this._disabled && this._target;
-};
+}
 
 class Behavior {
   constructor(target, settings) {

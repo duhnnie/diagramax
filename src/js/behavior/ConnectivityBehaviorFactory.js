@@ -1,5 +1,5 @@
 import Factory from '../core/Factory';
-import ConnectivityBehavior from "./ConnectivityBehavior";
+import ConnectivityBehavior from './ConnectivityBehavior';
 
 const PRODUCTS = Object.freeze({
   DEFAULT: 'default',
