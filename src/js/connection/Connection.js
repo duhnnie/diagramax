@@ -8,7 +8,9 @@ import WaypointStrategyRepository, { PRODUCTS as WAYPOINT_STRATEGY } from './Way
 import LineStrategyRepository, { PRODUCTS as LINE_STRATEGY } from './LineStrategyRepository';
 import VertexStrategyRepository, { PRODUCTS as VERTEX_STRATEGY } from './VertexStrategyRepository';
 import IntersectionStrategyRepository, { PRODUCTS as INTERSECTION_STRATEGY } from './IntersectionStrategyRepository';
-import DraggableConnectionBehaviorFactory, { PRODUCTS as DRAGGABLE_PRODUCTS } from '../behavior/DraggableConnectionBehaviorFactory';
+import DraggableConnectionBehaviorFactory, {
+  PRODUCTS as DRAGGABLE_PRODUCTS,
+} from '../behavior/DraggableConnectionBehaviorFactory';
 import DiagramUI from '../diagram/DiagramUI';
 import {
   ORIENTATION as PORT_ORIENTATION,
@@ -593,7 +595,7 @@ class Connection extends DiagramElement {
         this._canvas.dispatchEvent(EVENT.DISCONNECT, this, {
           origShape,
           destShape,
-        }); console.log('Connection disconnect event fired!')
+        });
         super.remove();
       }
     }

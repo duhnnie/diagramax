@@ -4,7 +4,7 @@ import { ORIENTATION } from '../Port';
 
 const SIZE = 10;
 
-const ArcIntersectionStrategy = function arcIntersectionStrategy (point, { from, to }, previousIntersection) {
+const ArcIntersectionStrategy = function arcIntersectionStrategy(point, { from, to }, previousIntersection) {
   const segmentLength = Geometry.getPathLength(from, to);
   const segmentOrientation = Connection._getSegmentOrientation(from, to);
   const segmentDirection = Connection._getSegmentDirection(from, to);

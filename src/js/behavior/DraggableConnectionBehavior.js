@@ -38,6 +38,7 @@ class DraggableConnectionBehavior extends DragBehavior {
     this._onPortChange = this._onPortChange.bind(this);
   }
 
+  // eslint-disable-next-line no-unused-vars
   startDrag(position, options) {
     super.startDrag();
     this._dom.origHandler.setAttribute('pointer-events', 'none');
@@ -93,11 +94,14 @@ class DraggableConnectionBehavior extends DragBehavior {
     this.end();
   }
 
+  // eslint-disable-next-line no-unused-vars
   updatePosition(position, { draggingPoint }, modifiers) {
     const shape = this._shape;
     const draggingOrig = draggingPoint === PORT_MODE.ORIG;
     const mode = draggingOrig ? PORT_MODE.DEST : PORT_MODE.ORIG;
-    const fakeDescription = this._otherShape ? this._otherShape.getConnectionPort(shape, draggingPoint).getDescription() : getFakeDescription(position, shape);
+    const fakeDescription = this._otherShape
+      ? this._otherShape.getConnectionPort(shape, draggingPoint).getDescription()
+      : getFakeDescription(position, shape);
     const shapePort = shape.getConnectionPort(fakeDescription, mode);
     const description = shapePort.getDescription();
 
@@ -114,6 +118,7 @@ class DraggableConnectionBehavior extends DragBehavior {
     this._otherShape = shape;
   }
 
+  // eslint-disable-next-line no-unused-vars
   outShape(shape) {
     this._otherShape = null;
   }

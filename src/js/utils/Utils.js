@@ -1,1 +1,2 @@
-export function noop () {};
+// eslint-disable-next-line import/prefer-default-export
+export function noop() {}

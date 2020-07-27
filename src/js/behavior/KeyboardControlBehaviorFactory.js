@@ -5,7 +5,7 @@ const PRODUCTS = Object.freeze({
   DEFAULT: 0,
 });
 
-const KeyboardControlBehaviorFactory =  new Factory({
+const KeyboardControlBehaviorFactory = new Factory({
   products: {
     [PRODUCTS.DEFAULT]: KeyboardControlBehavior,
   },

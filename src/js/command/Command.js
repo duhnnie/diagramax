@@ -1,4 +1,4 @@
-import ErrorThrower from "../utils/ErrorThrower";
+import ErrorThrower from '../utils/ErrorThrower';
 
 class Command {
   constructor(receiver) {
