@@ -1,20 +1,21 @@
 {
-  "name": "designer",
+  "name": "drawjs",
   "version": "0.1.0",
-  "description": "Extendable library for drawing SVG diagrams.",
-  "url": "https://github.com/duhnnie/SimpleDesigner",
+  "description": "An extendable javascript library for drawing diagrams.",
   "keywords": [
-    "svg",
     "diagram",
-    "browser",
     "canvas",
-    "shape",
-    "connection",
-    "bpmn",
+    "graphics",
+    "drawing",
+    "draw",
+    "svg",
     "drag",
-    "drop",
-    "designer"
+    "drag-and-drop",
+    "designer",
+    "bpmn"
   ],
+  "homepage": "https://github.com/duhnnie/drawJS#readme",
+  "bugs": "https://github.com/duhnnie/drawJS/issues",
   "main": "index.js",
   "scripts": {
     "build": "webpack --mode=production",
@@ -24,12 +25,16 @@
     "lint": "eslint ./src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Daniel Canedo Ramos",
-  "license": "MIT",
+  "author": {
+    "name": "Daniel Canedo Ramos",
+    "author": "Daniel Canedo Ramos",
+    "url": "http://duhnnie.net"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/duhnnie/SimpleDesigner"
+    "url": "git://github.com/duhnnie/drawJS.git"
   },
+  "license": "MIT",
   "devDependencies": {
     "eslint": "^6.7.2",
     "eslint-config-airbnb-base": "^14.0.0",
