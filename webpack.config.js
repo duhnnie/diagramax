@@ -7,19 +7,23 @@ const devConfig = {
   },
 };
 
-const bundleName = 'designer';
+const libraryName = 'DrawJS';
 const prodConfig = {};
 
 module.exports = (env, argv) => {
   const { mode } = argv;
+  const isProduction = mode === 'production';
+  const bundleSuffix = isProduction ? '' : '.dev';
+  const bundleJSName = `draw${bundleSuffix}`;
+  const bundleCSSName = `drawJS${bundleSuffix}`;
   const base = {
     entry: ['./src/sass/index.scss', './src/js/index.js'],
     // Apparently, next output def is only being applied to .js entry.
     output: {
-      filename: `${bundleName}.js`,
+      filename: `${bundleJSName}.js`,
       path: path.resolve(__dirname, 'dist'),
       libraryTarget: 'umd',
-      library: 'Designer',
+      library: libraryName,
     },
     module: {
       rules: [
@@ -29,7 +33,7 @@ module.exports = (env, argv) => {
             {
               loader: 'file-loader',
               options: {
-                name: `./${bundleName}.css`,
+                name: `./${bundleCSSName}.css`,
               },
             },
             { loader: 'sass-loader' },
@@ -39,7 +43,7 @@ module.exports = (env, argv) => {
     },
   };
 
-  if (mode === 'production') {
+  if (isProduction) {
     return {
       ...base,
       ...prodConfig,

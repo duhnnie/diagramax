@@ -16,12 +16,13 @@
   ],
   "homepage": "https://github.com/duhnnie/drawJS#readme",
   "bugs": "https://github.com/duhnnie/drawJS/issues",
-  "main": "index.js",
+  "main": "draw.js",
   "scripts": {
     "build": "webpack --mode=production",
-    "build-dev": "webpack --mode=development",
+    "build:dev": "webpack --mode=development",
     "doc": "jsdoc -c jsdoc.json ./src/js/**/*.js",
     "dev": "webpack-dev-server --mode=development",
+    "prepack": "npm run build",
     "lint": "eslint ./src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
