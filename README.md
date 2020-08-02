@@ -7,4 +7,5 @@ Documentation will be added in future upates.
 
 ## License & copyright
 © Daniel Canedo Ramos
+
 Licensed under the [MIT License](LICENSE).
