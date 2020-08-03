@@ -1,4 +1,6 @@
 const path = require('path');
+const webpack = require('webpack');
+const package = require('./package.json');
 
 const devConfig = {
   devtool: 'eval-source-map',
@@ -41,6 +43,11 @@ module.exports = (env, argv) => {
         },
       ],
     },
+    plugins: [
+      new webpack.DefinePlugin({
+        __VERSION__: JSON.stringify(package.version),
+      }),
+    ],
   };
 
   if (isProduction) {
