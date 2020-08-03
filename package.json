@@ -1,17 +1,40 @@
 {
-  "name": "designer",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "drawjs",
+  "version": "0.1.0",
+  "description": "An extendable javascript library for drawing diagrams.",
+  "keywords": [
+    "diagram",
+    "canvas",
+    "graphics",
+    "drawing",
+    "draw",
+    "svg",
+    "drag",
+    "drag-and-drop",
+    "designer",
+    "bpmn"
+  ],
+  "homepage": "https://github.com/duhnnie/drawJS#readme",
+  "bugs": "https://github.com/duhnnie/drawJS/issues",
+  "main": "draw.js",
   "scripts": {
     "build": "webpack --mode=production",
-    "build-dev": "webpack --mode=development",
+    "build:dev": "webpack --mode=development",
     "doc": "jsdoc -c jsdoc.json ./src/js/**/*.js",
     "dev": "webpack-dev-server --mode=development",
+    "prepack": "npm run build",
     "lint": "eslint ./src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": {
+    "name": "Daniel Canedo Ramos",
+    "author": "Daniel Canedo Ramos",
+    "url": "http://duhnnie.net"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/duhnnie/drawJS.git"
+  },
   "license": "MIT",
   "devDependencies": {
     "eslint": "^6.7.2",

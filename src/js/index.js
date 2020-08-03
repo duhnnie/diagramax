@@ -5,6 +5,8 @@ import Triangle from './shape/Triangle';
 import Ellipse from './shape/Ellipse';
 import { PRODUCTS as COMMANDS } from './command/CommandFactory';
 
+const VERSION = __VERSION__;
+
 export {
   Canvas,
   Rectangle,
@@ -12,4 +14,5 @@ export {
   Triangle,
   Ellipse,
   COMMANDS,
+  VERSION,
 };

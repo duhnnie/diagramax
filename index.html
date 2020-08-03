@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
     <head>
-        <link rel="stylesheet" href="./designer.css"/>
+        <link rel="stylesheet" href="./drawJS.dev.css"/>
         <style>
           /* TODO: add common class for handlers */
           .canvas tspan {
@@ -22,45 +22,45 @@
             fill: #888888;
           }
         </style>
-        <script src="./designer.js"></script>
+        <script src="./draw.dev.js"></script>
         <script type="text/javascript">
-            const rectA = new Designer.Rectangle({
+            const rectA = new DrawJS.Rectangle({
                 id: 'rectA',
                 text: "Rect A",
                 x: 113,
                 y: 475
             });
-            const rectB = new Designer.Rectangle({
+            const rectB = new DrawJS.Rectangle({
                 id: 'rectB',
                 text: "Rect B",
                 x: 285,
                 y: 114
             });
-            const rectC = new Designer.Rectangle({
+            const rectC = new DrawJS.Rectangle({
                 id: 'rectC',
                 text: "Rect C",
                 x: 584,
                 y: 447
             });
-            const rectD = new Designer.Rectangle({
+            const rectD = new DrawJS.Rectangle({
                 id: 'rectD',
                 text: "Rect D",
                 x: 252,
                 y: 413
             });
-            const circleA = new Designer.Circle({
+            const circleA = new DrawJS.Circle({
               id: 'circleA',
               text: 'Circle A',
               x: 190,
               y: 189,
             });
-            const triangleA = new Designer.Triangle({
+            const triangleA = new DrawJS.Triangle({
               id: 'triangleA',
               text: 'Triangle A',
               x: 112,
               y: 315,
             });
-            const ellipseA = new Designer.Ellipse({
+            const ellipseA = new DrawJS.Ellipse({
               id: 'ellipseA',
               text: 'Ellipse A',
               radiusX: 110,
@@ -68,7 +68,7 @@
               x: 420,
               y: 216,
             });
-            const canvas = new Designer.Canvas({
+            const canvas = new DrawJS.Canvas({
               width: 1440,
               height: 900,
               shapes: [
@@ -123,7 +123,7 @@
               undoButton.addEventListener('click', undo, false);
               redoButton.addEventListener('click', redo, false);
 
-              rectE = new Designer.Rectangle({
+              rectE = new DrawJS.Rectangle({
                 id: "rectE",
                 text: "Rect E",
                 x: 514,
@@ -145,25 +145,25 @@
 
                 switch (selection) {
                   case 'Circle':
-                    shape = new Designer.Circle({
+                    shape = new DrawJS.Circle({
                       text: `Circle #${counter}`,
                       position,
                     });
                     break;
                   case 'Rectangle':
-                    shape = new Designer.Rectangle({
+                    shape = new DrawJS.Rectangle({
                       text: `Rectangle #${counter}`,
                       position,
                     });
                     break;
                   case 'Triangle':
-                    shape = new Designer.Triangle({
+                    shape = new DrawJS.Triangle({
                       text: `Triangle #${counter}`,
                       position,
                     });
                     break;
                   case 'Ellipse':
-                    shape = new Designer.Ellipse({
+                    shape = new DrawJS.Ellipse({
                       text: `Ellipse #${counter}`,
                       position,
                     });
@@ -172,7 +172,7 @@
                 }
 
                 if (shape) {
-                  canvas.executeCommand(Designer.COMMANDS.SHAPE_ADD, canvas, shape);
+                  canvas.executeCommand(DrawJS.COMMANDS.SHAPE_ADD, canvas, shape);
                   counter += 1;
                 }
               }, false);
