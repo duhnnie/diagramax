@@ -6,7 +6,7 @@ This is a premiliminary version (v0.1.0), I'll be updating it. Documentation wil
 ## Installation
 `npm install drawjs`
 
-## License & copyright
+## License
 © Daniel Canedo Ramos
 
 Licensed under the [MIT License](LICENSE).

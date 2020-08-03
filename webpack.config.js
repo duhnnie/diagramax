@@ -47,6 +47,10 @@ module.exports = (env, argv) => {
       new webpack.DefinePlugin({
         __VERSION__: JSON.stringify(package.version),
       }),
+      new webpack.BannerPlugin({
+        banner: 'drawJS | (c) Daniel Canedo Ramos | http://duhnnie.net | https://github.com/duhnnie/drawjs/#license',
+        raw: false,
+      }),
     ],
   };
 
