@@ -22,7 +22,7 @@
     "build:dev": "webpack --mode=development",
     "doc": "jsdoc -c jsdoc.json ./src/js/**/*.js",
     "dev": "webpack-dev-server --mode=development",
-    "prepack": "npm run build",
+    "prepack": "npm run build && npm run build:dev && cp dist/* ./",
     "lint": "eslint ./src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
