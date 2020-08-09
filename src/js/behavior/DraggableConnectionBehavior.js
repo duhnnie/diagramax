@@ -44,7 +44,7 @@ class DraggableConnectionBehavior extends DragBehavior {
     this._dom.origHandler.setAttribute('pointer-events', 'none');
     this._dom.destHandler.setAttribute('pointer-events', 'none');
     // TODO: next line is a workaround, find a way to allow click into canvas with a Connection.
-    this._target.getHTML().setAttribute('pointer-events', 'none');
+    this._target.getElement().setAttribute('pointer-events', 'none');
   }
 
   start(shape, draggingPoint) {
@@ -76,7 +76,7 @@ class DraggableConnectionBehavior extends DragBehavior {
     this._dom.origHandler.removeAttribute('pointer-events');
     this._dom.destHandler.removeAttribute('pointer-events');
     // TODO: next line is a workaround, find a way to allow click into canvas with a Connection.
-    this._target.getHTML().removeAttribute('pointer-events');
+    this._target.getElement().removeAttribute('pointer-events');
 
     // TODO: Check if all inherited classes from DragBehavior make following call,
     // if they do, so it could be move to its end() method.

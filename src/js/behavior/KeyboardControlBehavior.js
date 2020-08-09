@@ -46,12 +46,12 @@ class KeyboardControlBehavior extends Behavior {
   }
 
   attach() {
-    this._target.getHTML().addEventListener('keydown', this._onKeyDown, false);
+    this._target.getElement().addEventListener('keydown', this._onKeyDown, false);
     super.attach();
   }
 
   detach() {
-    this._target.getHTML().removeEventListener('keydown', this._onKeyDown, false);
+    this._target.getElement().removeEventListener('keydown', this._onKeyDown, false);
     super.detach();
   }
 }

@@ -66,11 +66,11 @@ class SelectionAreaBehavior extends Behavior {
   }
 
   attach() {
-    this._target.getHTML().addEventListener('mousedown', this.clear, false);
+    this._target.getElement().addEventListener('mousedown', this.clear, false);
   }
 
   detach() {
-    this._target.getHTML().removeEventListener('mousedown', this.clear, false);
+    this._target.getElement().removeEventListener('mousedown', this.clear, false);
     super.detach();
   }
 }

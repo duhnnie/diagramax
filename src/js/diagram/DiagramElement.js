@@ -249,7 +249,7 @@ class DiagramElement extends BaseElement {
    * @returns {SVGElement}
    */
   _getMainElement() {
-    return this._createHTML()._dom.mainElement;
+    return this._createElement()._dom.mainElement;
   }
 
   /**
@@ -356,8 +356,8 @@ class DiagramElement extends BaseElement {
    * Creates the instance's HTML.
    * @returns {DiagramElement} this.
    */
-  _createHTML() {
-    if (this._html) {
+  _createElement() {
+    if (this._el) {
       return this;
     }
 
@@ -373,16 +373,16 @@ class DiagramElement extends BaseElement {
     wrapper.setAttribute('focusable', false);
     wrapper.append(mainElement);
     wrapper.append(title);
-    wrapper.append(this._text.getHTML());
+    wrapper.append(this._text.getElement());
 
     this._dom.mainElement = mainElement;
     this._dom.title = title;
-    this._html = wrapper;
+    this._el = wrapper;
     this._selectBehavior.attach();
     this._contextMenuBehavior.attach();
     this.setID(this._id);
 
-    return super._createHTML();
+    return super._createElement();
   }
 
   /**
@@ -390,7 +390,7 @@ class DiagramElement extends BaseElement {
    * @returns {SVGElement}
    */
   getUIHTML() {
-    return this._componentUI.getHTML();
+    return this._componentUI.getElement();
   }
 }
 

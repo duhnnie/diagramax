@@ -75,11 +75,11 @@ class Circle extends Shape {
     };
   }
 
-  _createHTML() {
-    if (!this._html) {
+  _createElement() {
+    if (!this._el) {
       const circle = BaseElement.createSVG('circle');
 
-      super._createHTML();
+      super._createElement();
 
       circle.setAttribute('cx', 0);
       circle.setAttribute('cy', 0);

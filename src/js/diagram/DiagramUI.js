@@ -30,7 +30,7 @@ class DiagramUI extends BaseElement {
     if (!eventMap) {
       eventMap = new WeakMap();
       this._events.set(event, eventMap);
-      this.getHTML().addEventListener(event, this._handleEvent, false);
+      this.getElement().addEventListener(event, this._handleEvent, false);
     }
   }
 
@@ -58,7 +58,7 @@ class DiagramUI extends BaseElement {
       });
     }
 
-    this.getHTML().appendChild(svgElement);
+    this.getElement().appendChild(svgElement);
   }
 
   /**
@@ -70,19 +70,19 @@ class DiagramUI extends BaseElement {
     const activeClass = 'active';
 
     if (active) {
-      this._html.classList.add(activeClass);
+      this._el.classList.add(activeClass);
     } else {
-      this._html.classList.remove(activeClass);
+      this._el.classList.remove(activeClass);
     }
   }
 
-  _createHTML() {
+  _createElement() {
     const layer = BaseElement.createSVG('g');
 
     layer.classList.add('ui-layer');
-    this._html = layer;
+    this._el = layer;
 
-    return super._createHTML();
+    return super._createElement();
   }
 
   remove() {

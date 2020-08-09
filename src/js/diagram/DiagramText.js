@@ -52,7 +52,7 @@ class DiagramText extends BaseElement {
   /**
    * @inheritdoc
    */
-  _createHTML() {
+  _createElement() {
     const text = BaseElement.createSVG('text');
     const tspan = BaseElement.createSVG('tspan');
 
@@ -62,9 +62,9 @@ class DiagramText extends BaseElement {
 
     this._dom.textContainer = tspan;
     this.setText(this._text);
-    this._html = text;
+    this._el = text;
 
-    return super._createHTML();
+    return super._createElement();
   }
 }
 

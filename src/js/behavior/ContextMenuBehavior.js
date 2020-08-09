@@ -24,7 +24,7 @@ class ContextMenuBehavior extends Behavior {
       // TODO: Fix access to protected method.
       element = _target._getMainElement();
     } else {
-      element = _target.getHTML();
+      element = _target.getElement();
     }
 
     element.addEventListener('contextmenu', this.onContextMenu, false);
@@ -40,7 +40,7 @@ class ContextMenuBehavior extends Behavior {
       // TODO: Fix access to protected method.
       element = _target._getMainElement();
     } else {
-      element = _target.getHTML();
+      element = _target.getElement();
     }
 
     element.addEventListener('contextmenu', this.onContextMenu, false);

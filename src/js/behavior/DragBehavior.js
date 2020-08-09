@@ -42,7 +42,7 @@ class DragBehavior extends Behavior {
       this._dragging = true;
     }
 
-    this._target.getHTML().classList.add(DRAGGING_CN);
+    this._target.getElement().classList.add(DRAGGING_CN);
   }
 
   // eslint-disable-next-line class-methods-use-this, no-unused-vars
@@ -53,7 +53,7 @@ class DragBehavior extends Behavior {
 
     this._grabbed = false;
     this._dragging = false;
-    this._target.getHTML().classList.remove(DRAGGING_CN);
+    this._target.getElement().classList.remove(DRAGGING_CN);
     this._getDraggableElement().forEach((element) => element.classList.remove(GRABBING_CN));
   }
 
@@ -77,7 +77,7 @@ class DragBehavior extends Behavior {
   }
 
   _getDraggableElement() {
-    return [this._target.getHTML()];
+    return [this._target.getElement()];
   }
 
   attach() {

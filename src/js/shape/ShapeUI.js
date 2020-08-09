@@ -34,8 +34,8 @@ class ShapeUI extends DiagramUI {
   }
 
   _updatePosition({ x, y }) {
-    if (this._html) {
-      this._html.setAttribute('transform', `translate(${x}, ${y})`);
+    if (this._el) {
+      this._el.setAttribute('transform', `translate(${x}, ${y})`);
     }
   }
 
@@ -47,13 +47,13 @@ class ShapeUI extends DiagramUI {
     this._updatePosition(position);
   }
 
-  _createHTML() {
-    super._createHTML();
+  _createElement() {
+    super._createElement();
 
-    const { _html, _target, _handleTargetMove } = this;
+    const { _el, _target, _handleTargetMove } = this;
 
-    _html.classList.add('shape-ui');
-    _target.getCanvas()._dom.uiLayer.append(this._html);
+    _el.classList.add('shape-ui');
+    _target.getCanvas()._dom.uiLayer.append(this._el);
     this._updatePosition(_target.getPosition());
     _target.getCanvas().addListener(RESIZE_EVENT.RESIZE, _target, this._handleTargetResize);
     _target.getCanvas().addListener(SHAPE_EVENT.POSITION_CHANGE, _target, _handleTargetMove);

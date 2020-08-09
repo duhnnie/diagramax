@@ -200,7 +200,7 @@ class Connection extends DiagramElement {
   _onShapeDragStart() {
     // TODO: The opacity is being set by a css class in DraggableConnectionBehavior,
     // move this that place.
-    this._html.setAttribute('opacity', 0.3);
+    this._el.setAttribute('opacity', 0.3);
 
     this._removeInterceptors();
     this._removeIntersections();
@@ -211,7 +211,7 @@ class Connection extends DiagramElement {
   }
 
   _onShapeDragEnd() {
-    this._html.setAttribute('opacity', 1);
+    this._el.setAttribute('opacity', 1);
     this.make();
   }
 
@@ -557,7 +557,7 @@ class Connection extends DiagramElement {
   }
 
   make() {
-    if (!this._origShape || !this._destShape || !this._html) return;
+    if (!this._origShape || !this._destShape || !this._el) return;
 
     const origPort = this._origShape.getConnectionPort(this._destShape, PORT_MODE.ORIG);
     const destPort = this._destShape.getConnectionPort(this._origShape, PORT_MODE.DEST);
@@ -611,12 +611,12 @@ class Connection extends DiagramElement {
     };
   }
 
-  _createHTML() {
-    if (this._html) {
+  _createElement() {
+    if (this._el) {
       return this;
     }
 
-    super._createHTML();
+    super._createElement();
 
     const mainElement = this._getMainElement();
     const arrowWrapper = BaseElement.createSVG('g');
@@ -635,7 +635,7 @@ class Connection extends DiagramElement {
     mainElement.appendChild(arrowWrapper);
     mainElement.appendChild(path);
 
-    this._html.classList.add('connection');
+    this._el.classList.add('connection');
     this._dom.path = path;
     this._dom.arrow = arrowWrapper;
     this._dom.arrowRotateContainer = arrowWrapper2;

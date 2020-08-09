@@ -76,8 +76,8 @@ class Canvas extends BaseElement {
     }
     this._width = width;
 
-    if (this._html) {
-      this._html.setAttribute('width', this._width);
+    if (this._el) {
+      this._el.setAttribute('width', this._width);
     }
 
     return this;
@@ -93,8 +93,8 @@ class Canvas extends BaseElement {
     }
     this._height = height;
 
-    if (this._html) {
-      this._html.setAttribute('height', this._height);
+    if (this._el) {
+      this._el.setAttribute('height', this._height);
     }
 
     return this;
@@ -116,8 +116,8 @@ class Canvas extends BaseElement {
   }
 
   _drawElement(element) {
-    if (this._html) {
-      this._dom.componentsLayer.appendChild(element.getHTML());
+    if (this._el) {
+      this._dom.componentsLayer.appendChild(element.getElement());
       this._dom.uiLayer.appendChild(element.getUIHTML());
     }
   }
@@ -267,7 +267,7 @@ class Canvas extends BaseElement {
   }
 
   clientToCanvas(clientPosition) {
-    const html = this._html;
+    const html = this._el;
 
     if (html) {
       const rect = html.getBoundingClientRect();
@@ -408,8 +408,8 @@ class Canvas extends BaseElement {
     };
   }
 
-  _createHTML() {
-    if (this._html) {
+  _createElement() {
+    if (this._el) {
       return this;
     }
 
@@ -435,7 +435,7 @@ class Canvas extends BaseElement {
 
     this._dom.uiLayer = uiLayer;
     this._dom.componentsLayer = componentsLayer;
-    this._html = svg;
+    this._el = svg;
 
     this.setWidth(this._width)
       .setHeight(this._height);
@@ -452,7 +452,7 @@ class Canvas extends BaseElement {
     this._connections.forEach((connection) => this._drawElement(connection));
     this.setID(this._id);
 
-    return super._createHTML();
+    return super._createElement();
   }
 }
 

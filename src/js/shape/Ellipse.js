@@ -85,11 +85,11 @@ class Ellipse extends Shape {
     };
   }
 
-  _createHTML() {
-    if (!this._html) {
+  _createElement() {
+    if (!this._el) {
       const ellipse = BaseElement.createSVG('ellipse');
 
-      super._createHTML();
+      super._createElement();
 
       ellipse.setAttribute('cx', 0);
       ellipse.setAttribute('cy', 0);
