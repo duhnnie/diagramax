@@ -448,11 +448,11 @@ class Canvas extends BaseElement {
     this._draggingAreaBehavior.attach();
     this._keyboardBehavior.attach();
     this._contextMenuBehavior.attach();
-
     this._shapes.forEach((shape) => this._drawElement(shape));
     this._connections.forEach((connection) => this._drawElement(connection));
+    this.setID(this._id);
 
-    return this.setID(this._id);
+    return super._createHTML();
   }
 }
 

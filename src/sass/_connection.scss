@@ -1,4 +1,4 @@
-.connection {
+.drawjs.connection {
   &.dragging {
     opacity: 0.3;
   }
@@ -14,7 +14,7 @@
   }
 }
 
-.ui-layer .connection-handler.draggable {
+.drawjs.ui-layer .connection-handler.draggable {
   cursor: grab;
 
   &.grabbing {
