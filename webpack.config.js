@@ -17,7 +17,7 @@ module.exports = (env, argv) => {
   const isProduction = mode === 'production';
   const bundleSuffix = isProduction ? '' : '.dev';
   const bundleJSName = `draw${bundleSuffix}`;
-  const bundleCSSName = `drawJS${bundleSuffix}`;
+  const bundleCSSName = `drawjs${bundleSuffix}`;
   const base = {
     entry: ['./src/sass/index.scss', './src/js/index.js'],
     // Apparently, next output def is only being applied to .js entry.

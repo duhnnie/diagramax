@@ -5,7 +5,17 @@ import Triangle from './shape/Triangle';
 import Ellipse from './shape/Ellipse';
 import { PRODUCTS as COMMANDS } from './command/CommandFactory';
 
+// eslint-disable-next-line no-undef
 const VERSION = __VERSION__;
+const DrawJS = {
+  Canvas,
+  Rectangle,
+  Circle,
+  Triangle,
+  Ellipse,
+  COMMANDS,
+  VERSION,
+};
 
 export {
   Canvas,
@@ -16,3 +26,5 @@ export {
   COMMANDS,
   VERSION,
 };
+
+export default DrawJS;
