@@ -97,15 +97,15 @@ class ConnectivityAreaBehavior extends Behavior {
   attach() {
     const { _target } = this;
     // This method should be called after the Canvas' HTML has been created and set to
-    // its _html property.
+    // its _el property.
     // TODO: make sure to call this method only once
-    _target.getHTML().addEventListener('click', this.end, false);
+    _target.getElement().addEventListener('click', this.end, false);
   }
 
   detach() {
     const { _target } = this;
 
-    _target.getHTML().removeEventListener('click', this.end, false);
+    _target.getElement().removeEventListener('click', this.end, false);
 
     super.detach();
   }

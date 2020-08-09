@@ -52,7 +52,7 @@ class BaseElement {
      * @type {HTMLElement}
      * @description The instance's HTML.
      */
-    this._html = null;
+    this._el = null;
 
     settings = {
       id: uuid(),
@@ -70,8 +70,8 @@ class BaseElement {
   setID(id) {
     this._id = id;
 
-    if (this._html) {
-      this._html.setAttribute('id', id);
+    if (this._el) {
+      this._el.setAttribute('id', id);
     }
 
     return this;
@@ -98,8 +98,8 @@ class BaseElement {
    * @description Create the HTML for the instance.
    * @returns {BaseElement} this.
    */
-  _createHTML() {
-    this._html.classList.add('drawjs');
+  _createElement() {
+    this._el.classList.add('drawjs');
     return this;
   }
 
@@ -107,20 +107,20 @@ class BaseElement {
    * Return the instance's HTML.
    * @returns {HTMLElement} The instance's HTMLElement.
    */
-  getHTML() {
-    if (!this._html) {
-      this._createHTML();
+  getElement() {
+    if (!this._el) {
+      this._createElement();
     }
-    return this._html;
+    return this._el;
   }
 
   /**
    * @description Remove the element from DOM.
    */
   remove() {
-    if (this._html) {
-      this._html.remove();
-      this._html = null;
+    if (this._el) {
+      this._el.remove();
+      this._el = null;
     }
   }
 }

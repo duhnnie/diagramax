@@ -103,7 +103,7 @@ class EditableTextBehavior extends Behavior {
 
     currentTarget = _target;
     inputText.value = _target.getText();
-    _target.getHTML().appendChild(wrapper);
+    _target.getElement().appendChild(wrapper);
     inputText.select();
   }
 
@@ -117,14 +117,14 @@ class EditableTextBehavior extends Behavior {
    * @inheritdoc
    */
   attach() {
-    this._target.getHTML().addEventListener('dblclick', this._onEnterEditAction, false);
+    this._target.getElement().addEventListener('dblclick', this._onEnterEditAction, false);
   }
 
   /**
    * @inheritdoc
    */
   detach() {
-    this._target.getHTML().removeEventListener('dblclick', this._onEnterEditAction, false);
+    this._target.getElement().removeEventListener('dblclick', this._onEnterEditAction, false);
     super.detach();
   }
 }

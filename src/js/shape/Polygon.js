@@ -29,11 +29,11 @@ class Polygon extends Shape {
     return this;
   }
 
-  _createHTML() {
-    if (!this._html) {
+  _createElement() {
+    if (!this._el) {
       const polygon = BaseElement.createSVG('polygon');
 
-      super._createHTML();
+      super._createElement();
 
       this._dom.polygon = polygon;
       this._getMainElement().append(polygon);

@@ -59,7 +59,7 @@ class ConnectivityBehavior extends Behavior {
         canvas.completeConnection(target);
       } else {
         canvas.cancelConnection();
-        target.getHTML().classList.remove(CANT_CONNECT_CLASS);
+        target.getElement().classList.remove(CANT_CONNECT_CLASS);
       }
     }
   }
@@ -72,7 +72,7 @@ class ConnectivityBehavior extends Behavior {
     if (valid) {
       canvas._connectivityAreaBehavior.enterShape(_target);
     } else {
-      _target.getHTML().classList.add(CANT_CONNECT_CLASS);
+      _target.getElement().classList.add(CANT_CONNECT_CLASS);
     }
   }
 
@@ -81,7 +81,7 @@ class ConnectivityBehavior extends Behavior {
     const canvas = _target.getCanvas();
 
     canvas._connectivityAreaBehavior.leaveShape(_target);
-    _target.getHTML().classList.remove(CANT_CONNECT_CLASS);
+    _target.getElement().classList.remove(CANT_CONNECT_CLASS);
   }
 
   end() {
@@ -90,7 +90,7 @@ class ConnectivityBehavior extends Behavior {
 
   attach() {
     const { _target } = this;
-    const html = _target.getHTML();
+    const html = _target.getElement();
     const canvas = _target.getCanvas();
 
     html.addEventListener('mousedown', this._onMouseDown, false);
@@ -102,7 +102,7 @@ class ConnectivityBehavior extends Behavior {
 
   detach() {
     const { _target } = this;
-    const html = _target.getHTML();
+    const html = _target.getElement();
     const canvas = _target.getCanvas();
 
     html.removeEventListener('mousedown', this._onMouseDown, false);

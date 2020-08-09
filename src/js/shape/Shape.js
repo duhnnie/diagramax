@@ -116,8 +116,8 @@ class Shape extends DiagraElement {
     this._cx = x;
     this._cy = y;
 
-    if (this._html) {
-      this._html.setAttribute('transform', `translate(${x}, ${y})`);
+    if (this._el) {
+      this._el.setAttribute('transform', `translate(${x}, ${y})`);
       // TODO: Connections should be drawn from Connection itself at listening Shape's drag and position change event.
       this._drawConnections();
     }
@@ -601,16 +601,15 @@ class Shape extends DiagraElement {
     };
   }
 
-  _createHTML() {
-    if (this._html) {
+  _createElement() {
+    if (this._el) {
       return this;
     }
 
-    super._createHTML();
+    super._createElement();
 
-    this._html.classList.add('shape');
-    this._html.setAttribute('transform', `translate(${this._x}, ${this._y})`);
-    // this._html.insertBefore(this._dom.mainElement, this._dom.title);
+    this._el.classList.add('shape');
+    this._el.setAttribute('transform', `translate(${this._x}, ${this._y})`);
 
     this._connectivityBehavior.attach();
     this._dragBehavior.attach();

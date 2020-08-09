@@ -82,11 +82,11 @@ class Rectangle extends Shape {
     };
   }
 
-  _createHTML() {
-    if (!this._html) {
+  _createElement() {
+    if (!this._el) {
       const rect = BaseElement.createSVG('rect');
 
-      super._createHTML();
+      super._createElement();
 
       this._dom.rect = rect;
       this._getMainElement().append(rect);
