@@ -377,13 +377,12 @@ class DiagramElement extends BaseElement {
 
     this._dom.mainElement = mainElement;
     this._dom.title = title;
-
     this._html = wrapper;
-
     this._selectBehavior.attach();
     this._contextMenuBehavior.attach();
+    this.setID(this._id);
 
-    return this.setID(this._id);
+    return super._createHTML();
   }
 
   /**

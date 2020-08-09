@@ -82,7 +82,7 @@ class DiagramUI extends BaseElement {
     layer.classList.add('ui-layer');
     this._html = layer;
 
-    return this;
+    return super._createHTML();
   }
 
   remove() {

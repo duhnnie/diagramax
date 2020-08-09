@@ -94,12 +94,14 @@ class BaseElement {
   trigger() { return this; }
 
   /**
-   * @abstract
    * @protected
    * @description Create the HTML for the instance.
    * @returns {BaseElement} this.
    */
-  _createHTML() { return this; }
+  _createHTML() {
+    this._html.classList.add('drawjs');
+    return this;
+  }
 
   /**
    * Return the instance's HTML.

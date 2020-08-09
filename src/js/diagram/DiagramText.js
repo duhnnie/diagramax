@@ -62,10 +62,9 @@ class DiagramText extends BaseElement {
 
     this._dom.textContainer = tspan;
     this.setText(this._text);
-
     this._html = text;
 
-    return this;
+    return super._createHTML();
   }
 }
 
