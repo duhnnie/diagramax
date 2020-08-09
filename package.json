@@ -16,13 +16,13 @@
   ],
   "homepage": "https://github.com/duhnnie/drawJS#readme",
   "bugs": "https://github.com/duhnnie/drawJS/issues",
-  "main": "draw.js",
+  "main": "./dist/draw.js",
   "scripts": {
     "build": "webpack --mode=production",
     "build:dev": "webpack --mode=development",
     "doc": "jsdoc -c jsdoc.json ./src/js/**/*.js",
     "dev": "webpack-dev-server --mode=development",
-    "prepack": "npm run build && npm run build:dev && cp dist/* ./",
+    "prepack": "rm -rf dist && npm run build && npm run build:dev",
     "lint": "eslint ./src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -51,5 +51,8 @@
   },
   "dependencies": {
     "uuid": "^3.3.3"
-  }
+  },
+  "files": [
+    "/dist"
+  ]
 }
