@@ -25,7 +25,8 @@ const wrapper = BaseElement.createSVG('foreignObject');
 const inputText = document.createElementNS('http://www.w3.org/1999/xhtml', 'input');
 
 inputText.type = 'text';
-wrapper.setAttribute('class', 'shape-text-input');
+wrapper.classList.add('drawjs');
+wrapper.classList.add('shape-text-input');
 wrapper.setAttribute('width', 100);
 wrapper.setAttribute('height', 30);
 wrapper.appendChild(inputText);
