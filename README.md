@@ -165,7 +165,7 @@ This is a premiliminary version (v0.1.0), I'll be updating it. Documentation wil
               }, false);
 
               document.querySelector('#data').addEventListener('click', () => {
-                alert(canvas.toJSON());
+                console.log(canvas.toJSON());
               }, false);
 
               // Here we add the undo/redo key binding.
@@ -199,7 +199,7 @@ This is a premiliminary version (v0.1.0), I'll be updating it. Documentation wil
         <button id="add">Add</button>
         <button id="undo" disabled>Undo</button>
         <button id="redo" disabled>Redo</button>
-        <button id="data">Show JSON<button>
+        <button id="data">Show JSON</button>
         <div>For start a connection start a drag from any shape while ALT key is pressed.</div>
       </div>
       <div id="diagram"></div>
