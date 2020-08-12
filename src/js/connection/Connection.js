@@ -571,19 +571,20 @@ class Connection extends DiagramElement {
     this._draw(origPortDescriptor, destPortDescriptor);
   }
 
+  // TODO: This method is called at least twice, it should be called only once.
   remove() {
     const origShape = this._origShape;
     const destShape = this._destShape;
 
     if (this._canvas) {
       if (origShape && origShape.getOutgoingConnections().has(this)) {
-        origShape.removeConnection(this, MODE.ORIG);
         this._removeDragListeners(origShape);
+        origShape.removeConnection(this, MODE.ORIG);
       }
 
       if (destShape && destShape.getIncomingConnections().has(this)) {
-        destShape.removeConnection(this, MODE.DEST);
         this._removeDragListeners(destShape);
+        destShape.removeConnection(this, MODE.DEST);
       }
 
       this._origShape = null;
