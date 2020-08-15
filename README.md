@@ -9,6 +9,9 @@ This is a premiliminary version (v0.1.0), I'll be updating it. Documentation wil
     npm install drawjs
 
 ## Usage
+
+You also can checkout other examples in https://github.com/duhnnie/drawJS-examples
+
 ```html
 <html>
     <head>
