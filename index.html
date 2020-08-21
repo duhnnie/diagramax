@@ -1,66 +1,66 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
     <head>
-        <link rel="stylesheet" href="./drawJS.dev.css"/>
+        <link rel="stylesheet" href="./diagramax.dev.css"/>
         <style>
           /* TODO: add common class for handlers */
-          .drawjs.canvas tspan {
+          .diagramax.canvas tspan {
             fill: #7a7a7a;
           }
 
-          .drawjs.shape .main-element {
+          .diagramax.shape .main-element {
             fill: #F5FDFF;
             stroke: #ABD0D8;
             stroke-width: 3;
           }
 
-          .drawjs.connection .path {
+          .diagramax.connection .path {
             stroke: #888888;
           }
 
-          .drawjs.connection .arrow {
+          .diagramax.connection .arrow {
             fill: #888888;
           }
         </style>
-        <script src="./draw.dev.js"></script>
+        <script src="./diagramax.dev.js"></script>
         <script type="text/javascript">
-            const rectA = new DrawJS.Rectangle({
+            const rectA = new Diagramax.Rectangle({
                 id: 'rectA',
                 text: "Rect A",
                 x: 113,
                 y: 475
             });
-            const rectB = new DrawJS.Rectangle({
+            const rectB = new Diagramax.Rectangle({
                 id: 'rectB',
                 text: "Rect B",
                 x: 285,
                 y: 114
             });
-            const rectC = new DrawJS.Rectangle({
+            const rectC = new Diagramax.Rectangle({
                 id: 'rectC',
                 text: "Rect C",
                 x: 584,
                 y: 447
             });
-            const rectD = new DrawJS.Rectangle({
+            const rectD = new Diagramax.Rectangle({
                 id: 'rectD',
                 text: "Rect D",
                 x: 252,
                 y: 413
             });
-            const circleA = new DrawJS.Circle({
+            const circleA = new Diagramax.Circle({
               id: 'circleA',
               text: 'Circle A',
               x: 190,
               y: 189,
             });
-            const triangleA = new DrawJS.Triangle({
+            const triangleA = new Diagramax.Triangle({
               id: 'triangleA',
               text: 'Triangle A',
               x: 112,
               y: 315,
             });
-            const ellipseA = new DrawJS.Ellipse({
+            const ellipseA = new Diagramax.Ellipse({
               id: 'ellipseA',
               text: 'Ellipse A',
               radiusX: 110,
@@ -68,7 +68,7 @@
               x: 420,
               y: 216,
             });
-            const canvas = new DrawJS.Canvas({
+            const canvas = new Diagramax.Canvas({
               width: 1440,
               height: 900,
               shapes: [
@@ -123,7 +123,7 @@
               undoButton.addEventListener('click', undo, false);
               redoButton.addEventListener('click', redo, false);
 
-              rectE = new DrawJS.Rectangle({
+              rectE = new Diagramax.Rectangle({
                 id: "rectE",
                 text: "Rect E",
                 x: 514,
@@ -145,25 +145,25 @@
 
                 switch (selection) {
                   case 'Circle':
-                    shape = new DrawJS.Circle({
+                    shape = new Diagramax.Circle({
                       text: `Circle #${counter}`,
                       position,
                     });
                     break;
                   case 'Rectangle':
-                    shape = new DrawJS.Rectangle({
+                    shape = new Diagramax.Rectangle({
                       text: `Rectangle #${counter}`,
                       position,
                     });
                     break;
                   case 'Triangle':
-                    shape = new DrawJS.Triangle({
+                    shape = new Diagramax.Triangle({
                       text: `Triangle #${counter}`,
                       position,
                     });
                     break;
                   case 'Ellipse':
-                    shape = new DrawJS.Ellipse({
+                    shape = new Diagramax.Ellipse({
                       text: `Ellipse #${counter}`,
                       position,
                     });
@@ -172,7 +172,7 @@
                 }
 
                 if (shape) {
-                  canvas.executeCommand(DrawJS.COMMANDS.SHAPE_ADD, canvas, shape);
+                  canvas.executeCommand(Diagramax.COMMANDS.SHAPE_ADD, canvas, shape);
                   counter += 1;
                 }
               }, false);

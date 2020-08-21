@@ -1,5 +1,5 @@
 {
-  "name": "drawjs",
+  "name": "diagramax",
   "version": "0.1.0",
   "description": "An extendable javascript library for drawing diagrams.",
   "keywords": [
@@ -12,11 +12,12 @@
     "drag",
     "drag-and-drop",
     "designer",
-    "bpmn"
+    "bpmn",
+    "ui"
   ],
-  "homepage": "https://github.com/duhnnie/drawJS#readme",
-  "bugs": "https://github.com/duhnnie/drawJS/issues",
-  "main": "./draw.js",
+  "homepage": "https://github.com/duhnnie/diagramax#readme",
+  "bugs": "https://github.com/duhnnie/diagramax/issues",
+  "main": "./diagramax.js",
   "scripts": {
     "build": "webpack --mode=production",
     "build:dev": "webpack --mode=development",
@@ -33,7 +34,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/duhnnie/drawJS.git"
+    "url": "git://github.com/duhnnie/diagramax.git"
   },
   "license": "MIT",
   "devDependencies": {
@@ -53,9 +54,9 @@
     "uuid": "^3.3.3"
   },
   "files": [
-    "/draw.js",
-    "/draw.dev.js",
-    "/drawjs.css",
-    "/drawjs.dev.css"
+    "/diagramax.js",
+    "/diagramax.dev.js",
+    "/diagramax.css",
+    "/diagramax.dev.css"
   ]
 }
