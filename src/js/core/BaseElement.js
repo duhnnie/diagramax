@@ -99,7 +99,7 @@ class BaseElement {
    * @returns {BaseElement} this.
    */
   _createElement() {
-    this._el.classList.add('drawjs');
+    this._el.classList.add('diagramax');
     return this;
   }
 

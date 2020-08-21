@@ -1,4 +1,4 @@
-.drawjs.connection {
+.diagramax.connection {
   &.dragging {
     opacity: 0.3;
   }
@@ -14,7 +14,7 @@
   }
 }
 
-.drawjs.ui-layer .connection-handler.draggable {
+.diagramax.ui-layer .connection-handler.draggable {
   cursor: grab;
 
   &.grabbing {

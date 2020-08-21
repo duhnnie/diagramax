@@ -9,15 +9,15 @@ const devConfig = {
   },
 };
 
-const libraryName = 'DrawJS';
+const libraryName = 'Diagramax';
 const prodConfig = {};
 
 module.exports = (env, argv) => {
   const { mode } = argv;
   const isProduction = mode === 'production';
   const bundleSuffix = isProduction ? '' : '.dev';
-  const bundleJSName = `draw${bundleSuffix}`;
-  const bundleCSSName = `drawjs${bundleSuffix}`;
+  const bundleJSName = `diagramax${bundleSuffix}`;
+  const bundleCSSName = `diagramax${bundleSuffix}`;
   const base = {
     entry: ['./src/sass/index.scss', './src/js/index.js'],
     // Apparently, next output def is only being applied to .js entry.
@@ -48,7 +48,7 @@ module.exports = (env, argv) => {
         __VERSION__: JSON.stringify(package.version),
       }),
       new webpack.BannerPlugin({
-        banner: 'drawJS | (c) Daniel Canedo Ramos | http://duhnnie.net | https://github.com/duhnnie/drawjs/#license',
+        banner: 'diagramax | (c) Daniel Canedo Ramos | http://duhnnie.net | https://github.com/duhnnie/diagramax/#license',
         raw: false,
       }),
     ],

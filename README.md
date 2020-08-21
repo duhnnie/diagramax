@@ -1,44 +1,44 @@
-# drawJS
+# Diagramax
 An extendable javascript library for drawing SVG diagrams.
 
-![drawJS in action](assets/drawjs.gif)
+![diagramax in action](assets/diagramax.gif)
 
 This is a premiliminary version (v0.1.0), I'll be updating it. Documentation will be added in future upates.
 
 ## Installation
-    npm install drawjs
+    npm install diagramax
 
 ## Usage
 
-You also can checkout other examples in https://github.com/duhnnie/drawJS-examples
+You also can checkout other examples in https://github.com/duhnnie/diagramax-examples
 
 ```html
 <html>
     <head>
-        <link rel="stylesheet" href="css/drawJS.dev.css"/>
+        <link rel="stylesheet" href="css/diagramax.dev.css"/>
         <style>
           /* Custom styles */
-          .drawjs.canvas tspan {
+          .diagramax.canvas tspan {
             fill: #7a7a7a;
           }
 
-          .drawjs.shape .main-element {
+          .diagramax.shape .main-element {
             fill: #F5FDFF;
             stroke: #ABD0D8;
             stroke-width: 3;
           }
 
-          .drawjs.connection .path {
+          .diagramax.connection .path {
             stroke: #888888;
           }
 
-          .drawjs.connection .arrow {
+          .diagramax.connection .arrow {
             fill: #888888;
           }
         </style>
-        <script src="js/draw.dev.js"></script>
+        <script src="js/diagramax.dev.js"></script>
         <script type="text/javascript">
-            const circleA = new DrawJS.Circle({
+            const circleA = new Diagramax.Circle({
                 id: "circleA",
                 text: "Circle A",
                 x: 49,
@@ -46,7 +46,7 @@ You also can checkout other examples in https://github.com/duhnnie/drawJS-exampl
                 width: 60,
                 height: 60,
             });
-            const canvas = new DrawJS.Canvas({
+            const canvas = new Diagramax.Canvas({
               width: 1440,
               height: 900,
               // We can add shapes at Canvas' instantiating time in two manners: 
@@ -78,7 +78,7 @@ You also can checkout other examples in https://github.com/duhnnie/drawJS-exampl
               }
             });
 
-            const rectC = new DrawJS.Rectangle({
+            const rectC = new Diagramax.Rectangle({
               id: "rectC",
               type: "rectangle",
               text: "Rect C",
@@ -135,25 +135,25 @@ You also can checkout other examples in https://github.com/duhnnie/drawJS-exampl
 
                 switch (selection) {
                   case 'Circle':
-                    shape = new DrawJS.Circle({
+                    shape = new Diagramax.Circle({
                       text: `Circle #${counter}`,
                       position,
                     });
                     break;
                   case 'Rectangle':
-                    shape = new DrawJS.Rectangle({
+                    shape = new Diagramax.Rectangle({
                       text: `Rectangle #${counter}`,
                       position,
                     });
                     break;
                   case 'Triangle':
-                    shape = new DrawJS.Triangle({
+                    shape = new Diagramax.Triangle({
                       text: `Triangle #${counter}`,
                       position,
                     });
                     break;
                   case 'Ellipse':
-                    shape = new DrawJS.Ellipse({
+                    shape = new Diagramax.Ellipse({
                       text: `Ellipse #${counter}`,
                       position,
                     });
@@ -162,7 +162,7 @@ You also can checkout other examples in https://github.com/duhnnie/drawJS-exampl
                 }
 
                 if (shape) {
-                  canvas.executeCommand(DrawJS.COMMANDS.SHAPE_ADD, canvas, shape);
+                  canvas.executeCommand(Diagramax.COMMANDS.SHAPE_ADD, canvas, shape);
                   counter += 1;
                 }
               }, false);
