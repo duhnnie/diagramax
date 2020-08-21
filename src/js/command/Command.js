@@ -1,3 +1,5 @@
+import ErrorThrower from '../utils/ErrorThrower';
+
 class Command {
   constructor(receiver) {
     this._receiver = receiver;
@@ -7,12 +9,12 @@ class Command {
 
   // eslint-disable-next-line class-methods-use-this
   execute() {
-    throw new Error('execute(): This method should be implemented.');
+    ErrorThrower.notImplemented();
   }
 
   // eslint-disable-next-line class-methods-use-this
   undo() {
-    throw new Error('undo(): This method should be implemented.');
+    ErrorThrower.notImplemented();
   }
 }
 

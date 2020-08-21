@@ -65,8 +65,8 @@ class DraggingAreaBehavior extends Behavior {
   attach() {
     const { _target } = this;
 
-    _target.getHTML().addEventListener('mousemove', this._onMouseMove, false);
-    _target.getHTML().addEventListener('click', this._onClick, false);
+    _target.getElement().addEventListener('mousemove', this._onMouseMove, false);
+    _target.getElement().addEventListener('click', this._onClick, false);
 
     return this;
   }
@@ -74,15 +74,19 @@ class DraggingAreaBehavior extends Behavior {
   detach() {
     const { _target } = this;
 
-    _target.getHTML().removeEventListener('mousemove', this._onMouseMove, false);
-    _target.getHTML().removeEventListener('click', this._onClick, false);
+    _target.getElement().removeEventListener('mousemove', this._onMouseMove, false);
+    _target.getElement().removeEventListener('click', this._onClick, false);
 
     super.detach();
   }
 
-  // eslint-disable-next-line class-methods-use-this, no-unused-vars
-  evaluate(diffX, diffY, next) {
-    // This method should be override in subclasses.
+  // TODO: this is the method in which snapping could be applied.
+  // eslint-disable-next-line class-methods-use-this
+  evaluate(diffX, diffY) {
+    return {
+      x: diffX,
+      y: diffY,
+    };
   }
 }
 

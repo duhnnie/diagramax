@@ -1,4 +1,5 @@
 import Behavior from './Behavior';
+import ErrorThrower from '../utils/ErrorThrower';
 
 const DRAGGABLE_CN = 'draggable';
 const GRABBING_CN = 'grabbing';
@@ -22,6 +23,10 @@ class DragBehavior extends Behavior {
   }
 
   _onGrab(event) {
+    // TODO: all child classes have this line on its _onGrab method.
+    // Find a way to not repeat this in all of them.
+    if (event.button !== 0) return;
+
     const { clientX: x, clientY: y } = event;
 
     this._grabbed = true;
@@ -37,7 +42,7 @@ class DragBehavior extends Behavior {
       this._dragging = true;
     }
 
-    this._target.getHTML().classList.add(DRAGGING_CN);
+    this._target.getElement().classList.add(DRAGGING_CN);
   }
 
   // eslint-disable-next-line class-methods-use-this, no-unused-vars
@@ -48,7 +53,7 @@ class DragBehavior extends Behavior {
 
     this._grabbed = false;
     this._dragging = false;
-    this._target.getHTML().classList.remove(DRAGGING_CN);
+    this._target.getElement().classList.remove(DRAGGING_CN);
     this._getDraggableElement().forEach((element) => element.classList.remove(GRABBING_CN));
   }
 
@@ -68,11 +73,11 @@ class DragBehavior extends Behavior {
 
   // eslint-disable-next-line class-methods-use-this
   _evaluate() {
-    throw new Error('evaluate(): This method should be implemented.');
+    ErrorThrower.notImplemented();
   }
 
   _getDraggableElement() {
-    return [this._target.getHTML()];
+    return [this._target.getElement()];
   }
 
   attach() {

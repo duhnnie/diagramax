@@ -1,4 +1,4 @@
-import Element from '../core/Element';
+import BaseElement from '../core/BaseElement';
 import Behavior from './Behavior';
 import { PRODUCTS as COMMANDS } from '../command/CommandFactory';
 
@@ -15,7 +15,7 @@ let currentTarget = null;
  * @type {SVGElement}
  * @description The foreingObject wrapper that wraps the input text element.
  */
-const wrapper = Element.createSVG('foreignObject');
+const wrapper = BaseElement.createSVG('foreignObject');
 /**
  * @private
  * @static
@@ -25,7 +25,8 @@ const wrapper = Element.createSVG('foreignObject');
 const inputText = document.createElementNS('http://www.w3.org/1999/xhtml', 'input');
 
 inputText.type = 'text';
-wrapper.setAttribute('class', 'shape-text-input');
+wrapper.classList.add('diagramax');
+wrapper.classList.add('shape-text-input');
 wrapper.setAttribute('width', 100);
 wrapper.setAttribute('height', 30);
 wrapper.appendChild(inputText);
@@ -36,7 +37,7 @@ wrapper.appendChild(inputText);
  */
 const removeInput = () => {
   // This due an issue at removing the element when it's already remove.
-  // Failed to execute 'remove' on 'Element': The node to be removed is no longer a child of this
+  // Failed to execute 'remove' on 'BaseElement': The node to be removed is no longer a child of this
   // node. Perhaps it was moved in a 'blur' event handler?
   try {
     wrapper.remove();
@@ -103,7 +104,7 @@ class EditableTextBehavior extends Behavior {
 
     currentTarget = _target;
     inputText.value = _target.getText();
-    _target.getHTML().appendChild(wrapper);
+    _target.getElement().appendChild(wrapper);
     inputText.select();
   }
 
@@ -117,14 +118,14 @@ class EditableTextBehavior extends Behavior {
    * @inheritdoc
    */
   attach() {
-    this._target.getHTML().addEventListener('dblclick', this._onEnterEditAction, false);
+    this._target.getElement().addEventListener('dblclick', this._onEnterEditAction, false);
   }
 
   /**
    * @inheritdoc
    */
   detach() {
-    this._target.getHTML().removeEventListener('dblclick', this._onEnterEditAction, false);
+    this._target.getElement().removeEventListener('dblclick', this._onEnterEditAction, false);
     super.detach();
   }
 }

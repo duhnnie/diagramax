@@ -1,4 +1,4 @@
-import Element from '../core/Element';
+import BaseElement from '../core/BaseElement';
 import Shape from './Shape';
 
 const DEFAULTS = {
@@ -7,6 +7,10 @@ const DEFAULTS = {
 };
 
 class Ellipse extends Shape {
+  static get type() {
+    return 'ellipse';
+  }
+
   constructor(settings) {
     settings = {
       ...DEFAULTS,
@@ -22,14 +26,14 @@ class Ellipse extends Shape {
   }
 
   _updateSize(width, height) {
-    const { mainElement } = this._dom;
+    const { ellipse } = this._dom;
 
     this._cWidth = width;
     this._cHeight = height;
 
-    if (mainElement) {
-      mainElement.setAttribute('rx', this._cWidth / 2);
-      mainElement.setAttribute('ry', this._cHeight / 2);
+    if (ellipse) {
+      ellipse.setAttribute('rx', this._cWidth / 2);
+      ellipse.setAttribute('ry', this._cHeight / 2);
     }
   }
 
@@ -69,7 +73,9 @@ class Ellipse extends Shape {
   }
 
   getBounds() {
-    const { _x: x, _y: y, _radiusX, _radiusY } = this;
+    const {
+      _x: x, _y: y, _radiusX, _radiusY,
+    } = this;
 
     return {
       top: y - _radiusY,
@@ -79,17 +85,18 @@ class Ellipse extends Shape {
     };
   }
 
-  _createHTML() {
-    if (!this._html) {
-      const ellipse = Element.createSVG('ellipse');
+  _createElement() {
+    if (!this._el) {
+      const ellipse = BaseElement.createSVG('ellipse');
+
+      super._createElement();
 
       ellipse.setAttribute('cx', 0);
       ellipse.setAttribute('cy', 0);
 
-      this._dom.mainElement = ellipse;
+      this._dom.ellipse = ellipse;
+      this._getMainElement().append(ellipse);
       this.setSize(this._radiusX * 2, this._radiusY * 2);
-
-      super._createHTML();
     }
 
     return this;

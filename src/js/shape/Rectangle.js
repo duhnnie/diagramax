@@ -1,4 +1,4 @@
-import Element from '../core/Element';
+import BaseElement from '../core/BaseElement';
 import Shape from './Shape';
 
 const DEFAULTS = {
@@ -7,6 +7,10 @@ const DEFAULTS = {
 };
 
 class Rectangle extends Shape {
+  static get type() {
+    return 'rectangle';
+  }
+
   constructor(settings) {
     settings = {
       ...DEFAULTS,
@@ -21,15 +25,15 @@ class Rectangle extends Shape {
   }
 
   _updateSize(width, height) {
-    const { mainElement } = this._dom;
+    const { rect } = this._dom;
 
     super._updateSize(width, height);
 
-    if (mainElement) {
-      mainElement.setAttribute('width', width);
-      mainElement.setAttribute('x', width * -0.5);
-      mainElement.setAttribute('height', height);
-      mainElement.setAttribute('y', height * -0.5);
+    if (rect) {
+      rect.setAttribute('width', width);
+      rect.setAttribute('x', width * -0.5);
+      rect.setAttribute('height', height);
+      rect.setAttribute('y', height * -0.5);
     }
   }
 
@@ -78,14 +82,15 @@ class Rectangle extends Shape {
     };
   }
 
-  _createHTML() {
-    if (!this._html) {
-      const rect = Element.createSVG('rect');
+  _createElement() {
+    if (!this._el) {
+      const rect = BaseElement.createSVG('rect');
 
-      this._dom.mainElement = rect;
+      super._createElement();
+
+      this._dom.rect = rect;
+      this._getMainElement().append(rect);
       this.setSize(this._width, this._height);
-
-      super._createHTML();
     }
 
     return this;

@@ -2,11 +2,12 @@ import DragBehavior from './DragBehavior';
 import Shape, { EVENT as SHAPE_EVENT } from '../shape/Shape';
 import Geometry from '../utils/Geometry';
 import { PRODUCTS as COMMANDS } from '../command/CommandFactory';
+import ErrorThrower from '../utils/ErrorThrower';
 
 class DraggableShapeBehavior extends DragBehavior {
   constructor(target, settings) {
     if (!(target instanceof Shape)) {
-      throw new Error('DraggableShapeBehavior: The settings parameter should be an instance of Shape');
+      ErrorThrower.invalidParameter();
     }
 
     super(target, settings);
@@ -22,6 +23,8 @@ class DraggableShapeBehavior extends DragBehavior {
   }
 
   _onGrab(event) {
+    if (event.button !== 0) return;
+
     const canvas = this._target.getCanvas();
 
     super._onGrab(event);
@@ -32,7 +35,7 @@ class DraggableShapeBehavior extends DragBehavior {
   startDrag(point) {
     if (!this._dragging) {
       super.startDrag(point);
-      // TODO: When Element inherits from EventTarget, the method
+      // TODO: When BaseElement inherits from EventTarget, the method
       // should trigger the event from itself.
       this._target.getCanvas().dispatchEvent(SHAPE_EVENT.DRAG_START, this._target);
     }
@@ -63,8 +66,11 @@ class DraggableShapeBehavior extends DragBehavior {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _evaluate() {
-    throw new Error('evaluate(): This method should be implemented.');
+  _evaluate(diffX, diffY) {
+    return {
+      diffX,
+      diffY,
+    };
   }
 
   updatePosition({ x, y }) {

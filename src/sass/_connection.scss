@@ -1,0 +1,23 @@
+.diagramax.connection {
+  &.dragging {
+    opacity: 0.3;
+  }
+
+  .path {
+    fill: none;
+    stroke: black;
+    stroke-width: 1px;
+  }
+  
+  .arrow {
+    fill: black;
+  }
+}
+
+.diagramax.ui-layer .connection-handler.draggable {
+  cursor: grab;
+
+  &.grabbing {
+    cursor: grabbing;
+  }
+}

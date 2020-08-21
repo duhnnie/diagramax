@@ -7,6 +7,10 @@ const DEFAULTS = Object.freeze({
 });
 
 class Triangle extends Polygon {
+  static get type() {
+    return 'triangle';
+  }
+
   constructor(settings) {
     settings = {
       ...DEFAULTS,

@@ -1,4 +1,6 @@
 const path = require('path');
+const webpack = require('webpack');
+const package = require('./package.json');
 
 const devConfig = {
   devtool: 'eval-source-map',
@@ -7,21 +9,52 @@ const devConfig = {
   },
 };
 
+const libraryName = 'Diagramax';
 const prodConfig = {};
 
 module.exports = (env, argv) => {
   const { mode } = argv;
+  const isProduction = mode === 'production';
+  const bundleSuffix = isProduction ? '' : '.dev';
+  const bundleJSName = `diagramax${bundleSuffix}`;
+  const bundleCSSName = `diagramax${bundleSuffix}`;
   const base = {
-    entry: './src/js/index.js',
+    entry: ['./src/sass/index.scss', './src/js/index.js'],
+    // Apparently, next output def is only being applied to .js entry.
     output: {
-      filename: 'designer.js',
+      filename: `${bundleJSName}.js`,
       path: path.resolve(__dirname, 'dist'),
       libraryTarget: 'umd',
-      library: 'Designer',
+      library: libraryName,
     },
+    module: {
+      rules: [
+        {
+          test: /\.scss$/,
+          use: [
+            {
+              loader: 'file-loader',
+              options: {
+                name: `./${bundleCSSName}.css`,
+              },
+            },
+            { loader: 'sass-loader' },
+          ],
+        },
+      ],
+    },
+    plugins: [
+      new webpack.DefinePlugin({
+        __VERSION__: JSON.stringify(package.version),
+      }),
+      new webpack.BannerPlugin({
+        banner: 'diagramax | (c) Daniel Canedo Ramos | http://duhnnie.net | https://github.com/duhnnie/diagramax/#license',
+        raw: false,
+      }),
+    ],
   };
 
-  if (mode === 'production') {
+  if (isProduction) {
     return {
       ...base,
       ...prodConfig,

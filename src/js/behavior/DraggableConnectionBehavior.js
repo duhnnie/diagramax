@@ -1,13 +1,8 @@
 import DragBehavior from './DragBehavior';
-import Element from '../core/Element';
 import { EVENT as CONNECTION_EVENT } from '../connection/Connection';
 import { ORIENTATION, MODE as PORT_MODE } from '../connection/Port';
 import Geometry from '../utils/Geometry';
-
-// TODO: next two lines and createHandler are duplicated in ResizeBehavior, an infraestructure for
-// handle handlers could be created
-const resizeHandlerRadius = 4;
-let resizeHandler;
+import ShapeUI from '../shape/ShapeUI';
 
 function getFakeDescription(position, shape) {
   const diff = Geometry.getNormalizedPosition(position, shape.getPosition());
@@ -34,16 +29,6 @@ function getFakeDescription(position, shape) {
 }
 
 class DraggableConnectionBehavior extends DragBehavior {
-  static createHandler() {
-    if (!resizeHandler) {
-      resizeHandler = Element.createSVG('circle');
-      resizeHandler.setAttribute('r', resizeHandlerRadius);
-      resizeHandler.setAttribute('fill', '#f44336');
-    }
-
-    return resizeHandler.cloneNode(true);
-  }
-
   constructor(target, settings) {
     super(target, settings);
 
@@ -53,12 +38,13 @@ class DraggableConnectionBehavior extends DragBehavior {
     this._onPortChange = this._onPortChange.bind(this);
   }
 
+  // eslint-disable-next-line no-unused-vars
   startDrag(position, options) {
     super.startDrag();
     this._dom.origHandler.setAttribute('pointer-events', 'none');
     this._dom.destHandler.setAttribute('pointer-events', 'none');
     // TODO: next line is a workaround, find a way to allow click into canvas with a Connection.
-    this._target.getHTML().setAttribute('pointer-events', 'none');
+    this._target.getElement().setAttribute('pointer-events', 'none');
   }
 
   start(shape, draggingPoint) {
@@ -67,6 +53,8 @@ class DraggableConnectionBehavior extends DragBehavior {
   }
 
   _onGrab(event) {
+    if (event.button !== 0) return;
+
     const { _target } = this;
     const draggingPoint = Number(event.target.dataset.point);
 
@@ -77,6 +65,10 @@ class DraggableConnectionBehavior extends DragBehavior {
   end() {
     const { _target } = this;
 
+    // TODO: this avoid to calling this method more than necessaty times, but maybe it should be replaced by a variable
+    // like _ended and another to identify if the behavior was started like _started.
+    if (!this._shape && !this._otherShape) return;
+
     super.endDrag();
 
     this._shape = null;
@@ -84,7 +76,7 @@ class DraggableConnectionBehavior extends DragBehavior {
     this._dom.origHandler.removeAttribute('pointer-events');
     this._dom.destHandler.removeAttribute('pointer-events');
     // TODO: next line is a workaround, find a way to allow click into canvas with a Connection.
-    this._target.getHTML().removeAttribute('pointer-events');
+    this._target.getElement().removeAttribute('pointer-events');
 
     // TODO: Check if all inherited classes from DragBehavior make following call,
     // if they do, so it could be move to its end() method.
@@ -102,11 +94,14 @@ class DraggableConnectionBehavior extends DragBehavior {
     this.end();
   }
 
+  // eslint-disable-next-line no-unused-vars
   updatePosition(position, { draggingPoint }, modifiers) {
     const shape = this._shape;
     const draggingOrig = draggingPoint === PORT_MODE.ORIG;
     const mode = draggingOrig ? PORT_MODE.DEST : PORT_MODE.ORIG;
-    const fakeDescription = this._otherShape ? this._otherShape.getConnectionPort(shape, draggingPoint).getDescription() : getFakeDescription(position, shape);
+    const fakeDescription = this._otherShape
+      ? this._otherShape.getConnectionPort(shape, draggingPoint).getDescription()
+      : getFakeDescription(position, shape);
     const shapePort = shape.getConnectionPort(fakeDescription, mode);
     const description = shapePort.getDescription();
 
@@ -123,6 +118,7 @@ class DraggableConnectionBehavior extends DragBehavior {
     this._otherShape = shape;
   }
 
+  // eslint-disable-next-line no-unused-vars
   outShape(shape) {
     this._otherShape = null;
   }
@@ -140,8 +136,8 @@ class DraggableConnectionBehavior extends DragBehavior {
     if (!this._dom.origHandler) {
       const commonClass = 'connection-handler';
 
-      this._dom.origHandler = DraggableConnectionBehavior.createHandler();
-      this._dom.destHandler = DraggableConnectionBehavior.createHandler();
+      this._dom.origHandler = ShapeUI.createHandler();
+      this._dom.destHandler = ShapeUI.createHandler();
       this._dom.origHandler.classList.add(commonClass);
       this._dom.destHandler.classList.add(commonClass);
       this._dom.origHandler.dataset.point = PORT_MODE.ORIG;
@@ -175,11 +171,18 @@ class DraggableConnectionBehavior extends DragBehavior {
   attach() {
     const { _target } = this;
 
-    _target.getCanvas().addEventListener(CONNECTION_EVENT.PORT_CHANGE, _target, this._onPortChange,
+    _target.getCanvas().addListener(CONNECTION_EVENT.PORT_CHANGE, _target, this._onPortChange,
       this);
 
     this._createHandlers();
     super.attach();
+  }
+
+  detach() {
+    const { _target } = this;
+
+    _target.getCanvas().removeListener(CONNECTION_EVENT.PORT_CHANGE, _target, this._onPortChange, this);
+    super.detach();
   }
 }
 

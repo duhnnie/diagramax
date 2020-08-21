@@ -5,7 +5,7 @@ import Behavior from './Behavior';
  * @readonly
  * @enum {String}
  */
-export const EVENT = Object.freeze({
+const EVENT = Object.freeze({
   /** A Shape is selected. */
   SELECT: 'select',
   UNSELECT: 'unselect',
@@ -103,3 +103,4 @@ class SelectBehavior extends Behavior {
 }
 
 export default SelectBehavior;
+export { EVENT };

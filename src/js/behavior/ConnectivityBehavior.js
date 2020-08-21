@@ -1,12 +1,13 @@
 import Behavior from './Behavior';
 import Shape, { EVENT as SHAPE_EVENT } from '../shape/Shape';
+import ErrorThrower from '../utils/ErrorThrower';
 
 const CANT_CONNECT_CLASS = 'cant-connect';
 
 class ConnectivityBehavior extends Behavior {
   constructor(target, settings) {
     if (!(target instanceof Shape)) {
-      throw new Error('DragAndDropBehavior: The settings parameter should be an instance of Shape');
+      ErrorThrower.invalidParameter();
     }
 
     super(target, settings);
@@ -34,6 +35,8 @@ class ConnectivityBehavior extends Behavior {
   }
 
   _onMouseDown(event) {
+    if (event.button !== 0) return;
+
     const target = this._target;
 
     event.stopPropagation();
@@ -56,12 +59,12 @@ class ConnectivityBehavior extends Behavior {
         canvas.completeConnection(target);
       } else {
         canvas.cancelConnection();
-        target.getHTML().classList.remove(CANT_CONNECT_CLASS);
+        target.getElement().classList.remove(CANT_CONNECT_CLASS);
       }
     }
   }
 
-  _onConnectionEnter(event) {
+  _onConnectionEnter() {
     const { _target } = this;
     const canvas = _target.getCanvas();
     const valid = this._canAcceptCurrentConnection();
@@ -69,16 +72,16 @@ class ConnectivityBehavior extends Behavior {
     if (valid) {
       canvas._connectivityAreaBehavior.enterShape(_target);
     } else {
-      _target.getHTML().classList.add(CANT_CONNECT_CLASS);
+      _target.getElement().classList.add(CANT_CONNECT_CLASS);
     }
   }
 
-  _onConnectionLeave(event) {
+  _onConnectionLeave() {
     const { _target } = this;
     const canvas = _target.getCanvas();
 
     canvas._connectivityAreaBehavior.leaveShape(_target);
-    _target.getHTML().classList.remove(CANT_CONNECT_CLASS);
+    _target.getElement().classList.remove(CANT_CONNECT_CLASS);
   }
 
   end() {
@@ -87,26 +90,26 @@ class ConnectivityBehavior extends Behavior {
 
   attach() {
     const { _target } = this;
-    const html = _target.getHTML();
+    const html = _target.getElement();
     const canvas = _target.getCanvas();
 
     html.addEventListener('mousedown', this._onMouseDown, false);
     html.addEventListener('mouseup', this._onMouseUp, false);
     html.addEventListener('mouseenter', this._onConnectionEnter, false);
     html.addEventListener('mouseleave', this._onConnectionLeave, false);
-    canvas.addEventListener(SHAPE_EVENT.DRAG_START, _target, this.end);
+    canvas.addListener(SHAPE_EVENT.DRAG_START, _target, this.end);
   }
 
   detach() {
     const { _target } = this;
-    const html = _target.getHTML();
+    const html = _target.getElement();
     const canvas = _target.getCanvas();
 
     html.removeEventListener('mousedown', this._onMouseDown, false);
     html.removeEventListener('mouseup', this._onMouseUp, false);
     html.removeEventListener('mouseenter', this._onConnectionEnter, false);
     html.removeEventListener('mouseleave', this._onConnectionLeave, false);
-    canvas.removeEventListener(SHAPE_EVENT.DRAG_START, _target, this.end);
+    canvas.removeListener(SHAPE_EVENT.DRAG_START, _target, this.end);
     super.detach();
   }
 }

@@ -1,6 +1,10 @@
-import Element from '../core/Element';
+import BaseElement from '../core/BaseElement';
 
-class ComponentUI extends Element {
+class DiagramUI extends BaseElement {
+  static get type() {
+    return 'diagramUI';
+  }
+
   constructor(target) {
     super();
 
@@ -26,7 +30,7 @@ class ComponentUI extends Element {
     if (!eventMap) {
       eventMap = new WeakMap();
       this._events.set(event, eventMap);
-      this.getHTML().addEventListener(event, this._handleEvent, false);
+      this.getElement().addEventListener(event, this._handleEvent, false);
     }
   }
 
@@ -54,7 +58,7 @@ class ComponentUI extends Element {
       });
     }
 
-    this.getHTML().appendChild(svgElement);
+    this.getElement().appendChild(svgElement);
   }
 
   /**
@@ -66,19 +70,19 @@ class ComponentUI extends Element {
     const activeClass = 'active';
 
     if (active) {
-      this._html.classList.add(activeClass);
+      this._el.classList.add(activeClass);
     } else {
-      this._html.classList.remove(activeClass);
+      this._el.classList.remove(activeClass);
     }
   }
 
-  _createHTML() {
-    const layer = Element.createSVG('g');
+  _createElement() {
+    const layer = BaseElement.createSVG('g');
 
-    layer.classList.add('controls-layer');
-    this._html = layer;
+    layer.classList.add('ui-layer');
+    this._el = layer;
 
-    return this;
+    return super._createElement();
   }
 
   remove() {
@@ -87,4 +91,4 @@ class ComponentUI extends Element {
   }
 }
 
-export default ComponentUI;
+export default DiagramUI;

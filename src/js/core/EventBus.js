@@ -1,4 +1,7 @@
-export const stopPropagation = (event) => event.stopPropagation();
+import ErrorThrower from '../utils/ErrorThrower';
+
+const stopPropagation = (event) => event.stopPropagation();
+
 class EventBus {
   constructor() {
     this._allObject = {};
@@ -7,7 +10,6 @@ class EventBus {
 
   addListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
     let listeners;
-    let callbacks;
     let callback;
     let key;
 
@@ -29,10 +31,11 @@ class EventBus {
         callback = callbackOrScope;
         break;
       default:
-        throw new Error('addListener(): Invalid second parameter');
+        ErrorThrower.invalidParameter();
     }
 
-    callbacks = listeners.get(key) || [];
+    const callbacks = listeners.get(key) || [];
+
     callbacks.push({
       callback,
       scope,
@@ -60,7 +63,7 @@ class EventBus {
           callback = callbackOrScope;
           break;
         default:
-          throw new Error('removeListener(): Invalid second parameter.');
+          ErrorThrower.invalidParameter();
       }
       callbacks = listeners.get(key);
 
@@ -88,7 +91,7 @@ class EventBus {
           callback = callbackOrScope;
           break;
         default:
-          throw new Error('removeListener(): Invalid second parameter.');
+          ErrorThrower.invalidParameter();
       }
       callbacks = listeners.get(key);
 
@@ -122,3 +125,4 @@ class EventBus {
 }
 
 export default EventBus;
+export { stopPropagation };

@@ -1,8 +1,31 @@
-import ComponentUI from '../component/ComponentUI';
+import DiagramUI from '../diagram/DiagramUI';
 import { EVENT as SHAPE_EVENT } from './Shape';
 import { EVENT as RESIZE_EVENT } from '../behavior/ResizeBehavior';
+import BaseElement from '../core/BaseElement';
 
-class ShapeUI extends ComponentUI {
+let handler;
+class ShapeUI extends DiagramUI {
+  static get type() {
+    return 'shapeUI';
+  }
+
+  static createHandler({ classNames = [], dataset = {} } = {}) {
+    if (!handler) {
+      handler = BaseElement.createSVG('circle');
+      handler.classList.add('handler');
+    }
+
+    const newHandler = handler.cloneNode(true);
+
+    classNames = Array.isArray(classNames) ? classNames : [classNames];
+    classNames.forEach((className) => newHandler.classList.add(className));
+    Object.entries(dataset).forEach(([key, value]) => {
+      newHandler.dataset[key] = value;
+    });
+
+    return newHandler;
+  }
+
   constructor(...args) {
     super(...args);
 
@@ -11,30 +34,30 @@ class ShapeUI extends ComponentUI {
   }
 
   _updatePosition({ x, y }) {
-    if (this._html) {
-      this._html.setAttribute('transform', `translate(${x}, ${y})`);
+    if (this._el) {
+      this._el.setAttribute('transform', `translate(${x}, ${y})`);
     }
   }
 
-  _handleTargetResize(event, size, position) {
-    this._updatePosition(position);
+  _handleTargetResize(event, { currentPosition }) {
+    this._updatePosition(currentPosition);
   }
 
   _handleTargetMove(event, position) {
     this._updatePosition(position);
   }
 
-  _createHTML() {
-    super._createHTML();
+  _createElement() {
+    super._createElement();
 
-    const { _html, _target, _handleTargetMove } = this;
+    const { _el, _target, _handleTargetMove } = this;
 
-    _html.classList.add('shape-ui');
-    _target.getCanvas()._dom.uiLayer.append(this._html);
+    _el.classList.add('shape-ui');
+    _target.getCanvas()._dom.uiLayer.append(this._el);
     this._updatePosition(_target.getPosition());
-    _target.getCanvas().addEventListener(RESIZE_EVENT.RESIZE, _target, this._handleTargetResize);
-    _target.getCanvas().addEventListener(SHAPE_EVENT.POSITION_CHANGE, _target, _handleTargetMove);
-    _target.getCanvas().addEventListener(SHAPE_EVENT.DRAG, _target, _handleTargetMove);
+    _target.getCanvas().addListener(RESIZE_EVENT.RESIZE, _target, this._handleTargetResize);
+    _target.getCanvas().addListener(SHAPE_EVENT.POSITION_CHANGE, _target, _handleTargetMove);
+    _target.getCanvas().addListener(SHAPE_EVENT.DRAG, _target, _handleTargetMove);
 
     return this;
   }
@@ -44,9 +67,9 @@ class ShapeUI extends ComponentUI {
   remove() {
     const { _target, _handleTargetMove } = this;
 
-    _target.getCanvas().removeEventListener(RESIZE_EVENT.RESIZE, _target, this._handleTargetResize);
-    _target.getCanvas().removeEventListener(SHAPE_EVENT.POSITION_CHANGE, _target, _handleTargetMove);
-    _target.getCanvas().removeEventListener(SHAPE_EVENT.DRAG, _target, _handleTargetMove);
+    _target.getCanvas().removeListener(RESIZE_EVENT.RESIZE, _target, this._handleTargetResize);
+    _target.getCanvas().removeListener(SHAPE_EVENT.POSITION_CHANGE, _target, _handleTargetMove);
+    _target.getCanvas().removeListener(SHAPE_EVENT.DRAG, _target, _handleTargetMove);
     super.remove();
   }
 }

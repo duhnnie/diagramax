@@ -1,20 +1,27 @@
-import Component from '../component/Component';
-import Port, { getPositionProps, MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION, ORIENTATION } from '../connection/Port';
+import DiagraElement from '../diagram/DiagramElement';
+import Port, {
+  getPositionProps, MODE as PORT_MODE, ORIENTATION as PORT_ORIENTATION, POSITION as PORT_POSITION, ORIENTATION,
+} from '../connection/Port';
 import Connection from '../connection/Connection';
-import EditableTextBehavior from '../behavior/EditableTextBehavior';
-import RegularDraggableShapeBehavior from '../behavior/RegularDraggableShapeBehavior';
-import ConnectivityBehavior from '../behavior/ConnectivityBehavior';
-import ResizeBehavior, { EVENT as RESIZE_EVENT, DIRECTION } from '../behavior/ResizeBehavior';
+import EditableTextBehaviorFactory, {
+  PRODUCTS as EDITABLE_TEXT_PRODUCTS,
+} from '../behavior/EditableTextBehaviorFactory';
+import DraggableShapeBehaviorFactory, {
+  PRODUCTS as DRAGGABLE_PRODUCTS,
+} from '../behavior/DraggableShapeBehaviorFactory';
+import ConnectivityBehaviorFactory, {
+  PRODUCTS as CONNECTIVITY_PRODUCTS,
+} from '../behavior/ConnectivityBehaviorFactory';
+import { EVENT as RESIZE_EVENT, DIRECTION } from '../behavior/ResizeBehavior';
+import ResizeBehaviorFactory, { PRODUCTS as RESIZE_PRODUCTS } from '../behavior/ResizeBehaviorFactory';
 import Geometry from '../utils/Geometry';
 import ShapeUI from './ShapeUI';
+import ErrorThrower from '../utils/ErrorThrower';
 
 /*
- * Returns and array with the port indexes sorted in priority order for elegibility based on a
- * primary orientation.
- * @param {Number} mainOrientation The orientation index that will be the assumed as the
- * prioritized one.
- * @param {Object} Object containing the relative position, x and y respect to destination in
- * respective axis.
+ * Returns and array with the port indexes sorted in priority order for elegibility based on a primary orientation.
+ * @param {Number} mainOrientation The orientation index that will be the assumed as the prioritized one.
+ * @param {Object} Object containing the relative position, x and y respect to destination in respective axis.
  * @returns {Array}
  */
 function getPortPriorityOrder(mainOrientation, { x, y }) {
@@ -31,22 +38,36 @@ function getPortPriorityOrder(mainOrientation, { x, y }) {
 }
 
 const DEFAULTS = {
-  position: {
-    x: 0,
-    y: 0,
-  },
+  x: 0,
+  y: 0,
+  resizeBehavior: RESIZE_PRODUCTS.DEFAULT,
+  connectivityBehavior: CONNECTIVITY_PRODUCTS.DEFAULT,
+  dragBehavior: DRAGGABLE_PRODUCTS.DEFAULT,
+  textEditBehavior: EDITABLE_TEXT_PRODUCTS.DEFAULT,
 };
 
-export const EVENT = Object.freeze({
+const EVENT = Object.freeze({
   DRAG_START: 'drag:start',
   DRAG: 'drag',
   DRAG_END: 'drag:end',
   POSITION_CHANGE: 'position:change',
+  SHAPE_CONNECT: 'shape:connect',
+  SHAPE_DISCONNECT: 'shape:disconnect',
 });
 
-class Shape extends Component {
+class Shape extends DiagraElement {
+  static get type() {
+    return 'shape';
+  }
+
   constructor(settings) {
     super(settings);
+
+    settings = {
+      ...DEFAULTS,
+      ...settings,
+    };
+
     this._x = null;
     this._y = null;
     this._cx = null;
@@ -55,20 +76,23 @@ class Shape extends Component {
     this._cHeight = null;
     this._connections = new Set();
     this._ports = [];
-    // TODO: component's text is defined in Component, so this behavior should be defined in that class.
-    this._editableBehavior = new EditableTextBehavior(this);
-    this._dragBehavior = new RegularDraggableShapeBehavior(this);
-    this._connectivityBehavior = new ConnectivityBehavior(this);
-    this._resizeBehavior = new ResizeBehavior(this);
-    this.__bulkAction = false;
-
-    settings = {
-      ...DEFAULTS,
-      ...settings,
-    };
+    // TODO: component's text is defined in DiagramElement, so this behavior should be defined in that class.
+    this._editableBehavior = EditableTextBehaviorFactory.create(settings.textEditBehavior, this);
+    this._dragBehavior = DraggableShapeBehaviorFactory.create(settings.dragBehavior, this);
+    this._connectivityBehavior = ConnectivityBehaviorFactory.create(settings.connectivityBehavior, this);
+    this._resizeBehavior = ResizeBehaviorFactory.create(settings.resizeBehavior, this);
 
     this._initPorts()
-      .setPosition(settings.position.x, settings.position.y);
+      .setPosition(settings.x, settings.y);
+  }
+
+  _setCanvas(canvas) {
+    if (this._canvas !== canvas) {
+      super._setCanvas(canvas);
+      canvas.addShape(this);
+    }
+
+    return this;
   }
 
   _getComponentUI() {
@@ -92,8 +116,8 @@ class Shape extends Component {
     this._cx = x;
     this._cy = y;
 
-    if (this._html) {
-      this._html.setAttribute('transform', `translate(${x}, ${y})`);
+    if (this._el) {
+      this._el.setAttribute('transform', `translate(${x}, ${y})`);
       // TODO: Connections should be drawn from Connection itself at listening Shape's drag and position change event.
       this._drawConnections();
     }
@@ -174,7 +198,7 @@ class Shape extends Component {
 
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
   setWidth(width, keepProportion = false) {
-    throw new Error('setWidth(): This method should be implemented.');
+    ErrorThrower.notImplemented();
   }
 
   getWidth() {
@@ -183,7 +207,7 @@ class Shape extends Component {
 
   // eslint-disable-next-line no-unused-vars, class-methods-use-this
   setHeight(height, keepProportion = false) {
-    throw new Error('setHeight(): This method should be implemented.');
+    ErrorThrower.notImplemented();
   }
 
   getHeight() {
@@ -218,6 +242,7 @@ class Shape extends Component {
       canvas.dispatchEvent(RESIZE_EVENT.SIZE_CHANGE, this, {
         previous: oldSize,
         current: { width, height },
+        position: this.getPosition(),
       });
     }
   }
@@ -231,7 +256,7 @@ class Shape extends Component {
 
   // eslint-disable-next-line class-methods-use-this
   getBounds() {
-    throw new Error('getBounds(): This method should be implemented.');
+    ErrorThrower.notImplemented();
   }
 
   getSize() {
@@ -250,7 +275,8 @@ class Shape extends Component {
   /**
    * If the current shape can be connected with other shape.
    * @param {Port.MODE} mode The connection mode.
-   * @param {Shape} [otherShape = null] The shape to be connected with. If it's not provided the evaluation will be made bsed on the direction for any kind of Shape.
+   * @param {Shape} [otherShape = null] The shape to be connected with. If it's not provided the evaluation will be
+   * made based on the direction for any kind of Shape.
    */
   // eslint-disable-next-line class-methods-use-this, no-unused-vars
   canAcceptConnection(mode, shape = null) {
@@ -276,7 +302,7 @@ class Shape extends Component {
 
   addOutgoingConnection(connection) {
     if (!(connection instanceof Connection)) {
-      throw new Error('addOutgoingConnection(): invalid parameter.');
+      ErrorThrower.invalidParameter();
     }
 
     const otherShape = connection.getDestShape();
@@ -287,6 +313,11 @@ class Shape extends Component {
 
       if (result) {
         this._connections.add(connection);
+        this.getCanvas().dispatchEvent(EVENT.SHAPE_CONNECT, this, {
+          otherShape,
+          connection,
+          mode: PORT_MODE.DEST,
+        });
       }
     }
 
@@ -299,7 +330,7 @@ class Shape extends Component {
 
   addIncomingConnection(connection) {
     if (!(connection instanceof Connection)) {
-      throw new Error('addOutgoingConnection(): invalid parameter.');
+      ErrorThrower.invalidParameter();
     }
 
     const otherShape = connection.getOrigShape();
@@ -310,6 +341,11 @@ class Shape extends Component {
 
       if (result) {
         this._connections.add(connection);
+        this.getCanvas().dispatchEvent(EVENT.SHAPE_CONNECT, this, {
+          otherShape,
+          connection,
+          mode: PORT_MODE.ORIG,
+        });
       }
     }
 
@@ -337,22 +373,49 @@ class Shape extends Component {
     return connectedShapes;
   }
 
-  _removeFromPorts(connection) {
+  /**
+   *
+   * @param {Connection} connection The connection to remove from Shape's ports or port.
+   * @param {Port.MODE} [mode] The mode for the ports the connection will be removed from. If not specified, all ports
+   * will be considered.
+   * @returns {Boolean} If all connection references were removed. When no supplying `mode` parameter this will always
+   * be true.
+   */
+  _removeFromPorts(connection, mode = null) {
+    let stillExists = false;
+
     this._ports.forEach((port) => {
       if (port.hasConnection(connection)) {
-        port.removeConnection(connection);
+        if ((mode === null || port.mode === mode)) {
+          port.removeConnection(connection);
+        } else {
+          stillExists = true;
+        }
       }
     });
-    return this;
+
+    return !stillExists;
   }
 
-  removeConnection(connection) {
+  removeConnection(connection, mode = null) {
     if (this._connections.has(connection)) {
-      this._removeFromPorts(connection);
-      if (connection.isConnectedWith(this)) {
-        connection.disconnect();
+      const destShape = connection.getDestShape();
+      const otherShape = destShape === this ? connection.getOrigShape() : destShape;
+      const allRemoved = this._removeFromPorts(connection, mode);
+
+      if (allRemoved) {
+        this._connections.delete(connection);
+
+        if (connection.isConnectedWith(this)) {
+          connection.disconnect();
+        }
+
+        this.getCanvas().dispatchEvent(EVENT.SHAPE_DISCONNECT, this, {
+          connection,
+          otherShape,
+          mode,
+        });
       }
-      this._connections.delete(connection);
     }
     return this;
   }
@@ -366,7 +429,7 @@ class Shape extends Component {
   }
 
   assignConnectionToPort(connection, portIndex, mode) {
-    this._removeFromPorts(connection);
+    this._removeFromPorts(connection, mode);
     this._ports[portIndex].addConnection(connection, mode);
 
     return this;
@@ -528,16 +591,25 @@ class Shape extends Component {
     return this;
   }
 
-  _createHTML() {
-    if (this._html) {
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      x: this._x,
+      y: this._y,
+      width: this.getWidth(),
+      height: this.getHeight(),
+    };
+  }
+
+  _createElement() {
+    if (this._el) {
       return this;
     }
 
-    super._createHTML();
+    super._createElement();
 
-    this._html.classList.add('shape');
-    this._html.setAttribute('transform', `translate(${this._x}, ${this._y})`);
-    this._html.insertBefore(this._dom.mainElement, this._dom.title);
+    this._el.classList.add('shape');
+    this._el.setAttribute('transform', `translate(${this._x}, ${this._y})`);
 
     this._connectivityBehavior.attach();
     this._dragBehavior.attach();
@@ -549,3 +621,4 @@ class Shape extends Component {
 }
 
 export default Shape;
+export { EVENT };

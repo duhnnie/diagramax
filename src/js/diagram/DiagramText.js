@@ -1,10 +1,14 @@
-import Element from '../core/Element';
+import BaseElement from '../core/BaseElement';
 
 const DEFAULTS = {
   text: '',
 };
 
-class ComponentText extends Element {
+class DiagramText extends BaseElement {
+  static get type() {
+    return 'diagramText';
+  }
+
   constructor(settings) {
     super(settings);
 
@@ -20,7 +24,7 @@ class ComponentText extends Element {
   }
 
   /**
-   * Sets the text to the ComponentText
+   * Sets the text to the DiagramText
    * @param {String} text The text to set.
    */
   setText(text) {
@@ -32,7 +36,7 @@ class ComponentText extends Element {
       if (this._text) {
         textContainer.textContent = text;
       } else {
-        textContainer.innerHTML = '&nbsp;&nbsp;&nbsp;';
+        textContainer.innerHTML = '';
       }
     }
   }
@@ -48,26 +52,20 @@ class ComponentText extends Element {
   /**
    * @inheritdoc
    */
-  _createHTML() {
-    const wrapper = Element.createSVG('g');
-    const text = Element.createSVG('text');
-    const tspan = Element.createSVG('tspan');
+  _createElement() {
+    const text = BaseElement.createSVG('text');
+    const tspan = BaseElement.createSVG('tspan');
 
-    // TODO: move to CSS file
-    tspan.style.userSelect = 'none';
-    text.setAttribute('text-anchor', 'middle');
-    text.setAttribute('y', '0.5em');
-    wrapper.setAttribute('pointer-events', 'none');
-    wrapper.appendChild(text);
+    text.classList.add('text');
+    tspan.classList.add('text-container');
     text.appendChild(tspan);
 
     this._dom.textContainer = tspan;
     this.setText(this._text);
+    this._el = text;
 
-    this._html = wrapper;
-
-    return this;
+    return super._createElement();
   }
 }
 
-export default ComponentText;
+export default DiagramText;

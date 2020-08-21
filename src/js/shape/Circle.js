@@ -1,4 +1,4 @@
-import Element from '../core/Element';
+import BaseElement from '../core/BaseElement';
 import Shape from './Shape';
 
 const DEFAULTS = Object.freeze({
@@ -6,6 +6,10 @@ const DEFAULTS = Object.freeze({
 });
 
 class Circle extends Shape {
+  static get type() {
+    return 'circle';
+  }
+
   constructor(settings) {
     settings = {
       ...DEFAULTS,
@@ -20,11 +24,11 @@ class Circle extends Shape {
   }
 
   _updateSize(width, height) {
-    const { mainElement } = this._dom;
+    const { circle } = this._dom;
     const diameter = Math.min(width, height);
 
-    if (mainElement) {
-      mainElement.setAttribute('r', diameter / 2);
+    if (circle) {
+      circle.setAttribute('r', diameter / 2);
     }
 
     super._updateSize(diameter, diameter);
@@ -71,18 +75,18 @@ class Circle extends Shape {
     };
   }
 
-  _createHTML() {
-    if (!this._html) {
-      const circle = Element.createSVG('circle');
+  _createElement() {
+    if (!this._el) {
+      const circle = BaseElement.createSVG('circle');
+
+      super._createElement();
 
       circle.setAttribute('cx', 0);
       circle.setAttribute('cy', 0);
 
-      this._dom.mainElement = circle;
-
+      this._dom.circle = circle;
+      this._getMainElement().append(circle);
       this.setRadius(this._radius);
-
-      super._createHTML();
     }
 
     return this;

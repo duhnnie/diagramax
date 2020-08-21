@@ -4,9 +4,9 @@ const DEFAULTS = Object.freeze({
   disabled: false,
 });
 
-const canExecuteBehavior = function() {
+function canExecuteBehavior() {
   return !this._disabled && this._target;
-};
+}
 
 class Behavior {
   constructor(target, settings) {
@@ -57,10 +57,16 @@ class Behavior {
     return this._disabled;
   }
 
+  // TODO: this method is a workaround. Since most of behaviors functionality is based on its target's HTML this method
+  // should be called from the target when its HTML is created.  If in the future we find a way to detect that an
+  // object has created its HTML this method could be removed.
   attach() {
     this.enable();
   }
 
+  /**
+   * Remove the behavior permanently from its target.
+   */
   detach() {
     this.disable();
     this._target = null;

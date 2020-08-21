@@ -10,9 +10,7 @@ class ConnectivityAreaBehavior extends Behavior {
 
     this._dom = {};
     this._connection = null;
-    this._canvasOffset = null;
     this._shape = null;
-    this._updateCanvasOffset = this._updateCanvasOffset.bind(this);
     this.start = this._bind(this.start);
     this.complete = this._bind(this.complete);
     this.enterShape = this._bind(this.enterShape);
@@ -37,6 +35,7 @@ class ConnectivityAreaBehavior extends Behavior {
         canvas: this._target,
       });
 
+      this._target._addConnection(connection);
       this._connection = connection;
       this._shape = shape;
       this._direction = direction;
@@ -83,18 +82,10 @@ class ConnectivityAreaBehavior extends Behavior {
 
   getCurrentProcess() {
     if (this._connection) {
-      // TODO: Fix several access to private members in next line.
-      const origShape = this._connection._dragBehavior._origShape;
-      const destShape = this._connection._dragBehavior._destShape;
-
-      return [origShape || destShape, this._connection, origShape ? PORT_MODE.DEST : PORT_MODE.ORIG];
+      return [this._shape, this._connection, this._direction];
     }
 
     return null;
-  }
-
-  _updateCanvasOffset() {
-    this._canvasOffset = this._target.getHTML().getBoundingClientRect();
   }
 
   // TODO: maybe this should be replaced by the call canvas' startConnection() and completeConnection() or think to
@@ -106,21 +97,15 @@ class ConnectivityAreaBehavior extends Behavior {
   attach() {
     const { _target } = this;
     // This method should be called after the Canvas' HTML has been created and set to
-    // its _html property.
+    // its _el property.
     // TODO: make sure to call this method only once
-    _target.getHTML().addEventListener('click', this.end, false);
-    this._updateCanvasOffset();
-
-    // TODO: Canvas should provide a way to return a position relative to it and this method should be
-    // removed from this class.
-    window.addEventListener('scroll', this._updateCanvasOffset, false);
+    _target.getElement().addEventListener('click', this.end, false);
   }
 
   detach() {
     const { _target } = this;
 
-    _target.getHTML().removeEventListener('click', this.end, false);
-    window.removeEventListener('scroll', this._updateCanvasOffset, false);
+    _target.getElement().removeEventListener('click', this.end, false);
 
     super.detach();
   }

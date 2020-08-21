@@ -1,22 +1,49 @@
-import Element from '../core/Element';
-import EventBus, { stopPropagation } from './EventBus';
-import FluidDraggingAreaBehavior from '../behavior/FluidDraggingAreaBehavior';
-import ConnectivityAreaBehavior from '../behavior/ConnectivityAreaBehavior';
+import BaseElement from '../core/BaseElement';
+import EventBus, { stopPropagation } from '../core/EventBus';
+import ConnectivityAreaBehaviorFactory, {
+  PRODUCTS as CONNECTIVITY_AREA_PRODUCTS,
+} from '../behavior/ConnectivityAreaBehaviorFactory';
+import DraggingAreaBehaviorFactory, {
+  PRODUCTS as DRAGGING_AREA_PRODUCTS,
+} from '../behavior/DraggingAreaBehaviorFactory';
 import Shape from '../shape/Shape';
 import Connection from '../connection/Connection';
 import { MODE as PORT_MODE } from '../connection/Port';
-import SelectionAreaBehavior from '../behavior/SelectionAreaBehavior';
-import KeyboardControlBehavior from '../behavior/KeyboardControlBehavior';
-import CommandFactory, { PRODUCTS as COMMANDS } from '../command/CommandFactory';
+import SelectionAreaBehaviorFactory, {
+  PRODUCTS as SELECTION_AREA_PRODUCTS,
+} from '../behavior/SelectionAreaBehaviorFactory';
+import KeyboardControlBehaviorFactory, {
+  PRODUCTS as KEYBOARD_CONTROL_PRODUCTS,
+} from '../behavior/KeyboardControlBehaviorFactory';
+import CommandFactory from '../command/CommandFactory';
 import CommandManager from '../command/CommandManager';
-import { EVENT as COMPONENT_EVENT } from '../component/Component';
+import { EVENT as ELEMENT_EVENT } from './DiagramElement';
+import { noop } from '../utils/Utils';
+import ContextMenuBehaviorFactory, { PRODUCTS as CONTEXT_MENU_PRODUCTS } from '../behavior/ContextMenuBehaviorFactory';
+import DiagramElementFactory, { PRODUCTS as ELEMENTS } from './DiagramElementFactory';
+import ErrorThrower from '../utils/ErrorThrower';
 
 const DEFAULTS = Object.freeze({
+  width: 800,
+  height: 600,
+  shapes: [],
+  connections: [],
   stackSize: 10,
-  onChange: () => {},
+  onChange: noop,
+  onContextMenu: noop,
+  onElementContextMenu: noop,
+  selectionAreaBehavior: SELECTION_AREA_PRODUCTS.DEFAULT,
+  contextMenuBehavior: CONTEXT_MENU_PRODUCTS.DEFAULT,
+  draggingAreaBehavior: DRAGGING_AREA_PRODUCTS.DEFAULT,
+  connectivityAreaBehavior: CONNECTIVITY_AREA_PRODUCTS.DEFAULT,
+  keyboardControlBehavior: KEYBOARD_CONTROL_PRODUCTS.DEFAULT,
 });
 
-class Canvas extends Element {
+class Canvas extends BaseElement {
+  static get type() {
+    return 'canvas';
+  }
+
   constructor(settings) {
     super(settings);
     settings = { ...DEFAULTS, ...settings };
@@ -28,34 +55,29 @@ class Canvas extends Element {
     this._eventBus = new EventBus();
     this._selectedItems = new Set();
     this._onChange = settings.onChange;
-    this._selectionBehavior = new SelectionAreaBehavior(this);
-    this._draggingAreaBehavior = new FluidDraggingAreaBehavior(this);
-    this._connectivityAreaBehavior = new ConnectivityAreaBehavior(this);
-    this._keyboardBehavior = new KeyboardControlBehavior(this);
+    this._onContextMenu = settings.onContextMenu;
+    this._onElementContextMenu = settings.onElementContextMenu;
+    this._selectionBehavior = SelectionAreaBehaviorFactory.create(settings.selectionAreaBehavior, this);
+    this._contextMenuBehavior = ContextMenuBehaviorFactory.create(settings.contextMenuBehavior, this);
+    this._draggingAreaBehavior = DraggingAreaBehaviorFactory.create(settings.draggingAreaBehavior, this);
+    this._connectivityAreaBehavior = ConnectivityAreaBehaviorFactory.create(settings.connectivityAreaBehavior, this);
+    this._keyboardBehavior = KeyboardControlBehaviorFactory.create(settings.keyboardControlBehavior, this);
     this._commandManager = new CommandManager({ size: settings.stackSize });
-
-    settings = {
-      width: 800,
-      height: 600,
-      onReady: null,
-      elements: [],
-      ...settings,
-    };
 
     this.setWidth(settings.width)
       .setHeight(settings.height)
-
-    this.setElements(settings.elements);
+      .setShapes(settings.shapes)
+      .setConnections(settings.connections);
   }
 
   setWidth(width) {
     if (typeof width !== 'number') {
-      throw new Error('setWidth(): invalid parameter.');
+      ErrorThrower.invalidParameter();
     }
     this._width = width;
 
-    if (this._html) {
-      this._html.setAttribute('width', this._width);
+    if (this._el) {
+      this._el.setAttribute('width', this._width);
     }
 
     return this;
@@ -67,12 +89,12 @@ class Canvas extends Element {
 
   setHeight(height) {
     if (typeof height !== 'number') {
-      throw new Error('setHeight(): invalid parameter.');
+      ErrorThrower.invalidParameter();
     }
     this._height = height;
 
-    if (this._html) {
-      this._html.setAttribute('height', this._height);
+    if (this._el) {
+      this._el.setAttribute('height', this._height);
     }
 
     return this;
@@ -86,53 +108,84 @@ class Canvas extends Element {
     const removedElement = customEvent.target;
 
     if (this.hasElement(removedElement)) {
-      this._shapes.delete(removedElement) || this._connections.delete(removedElement);
-      this.removeEventListener(COMPONENT_EVENT.REMOVE, removedElement, this._onElementRemove, this);
+      if (!this._shapes.delete(removedElement)) {
+        this._connections.delete(removedElement);
+      }
+      this.removeListener(ELEMENT_EVENT.REMOVE, removedElement, this._onElementRemove, this);
     }
   }
 
   _drawElement(element) {
-    if (this._html) {
-      this._dom.componentsLayer.appendChild(element.getHTML());
+    if (this._el) {
+      this._dom.componentsLayer.appendChild(element.getElement());
       this._dom.uiLayer.appendChild(element.getUIHTML());
     }
   }
 
-  // TODO: addElement can add Connection instances too, does it make sense?
-  // Connections MAYBE should be created implicitly at creating a connection between two shapes.
-  addElement(element) {
-    // TODO: make support shape as a string too.
-    if (!this.hasElement(element)) {
-      if (element instanceof Shape) {
-        this._shapes.add(element);
-      } else if (element instanceof Connection) {
-        this._connections.add(element);
+  addShape(shape, ...args) {
+    if (!(shape instanceof Shape)) {
+      let type;
+      let settings;
+
+      if (typeof shape === 'string') {
+        type = shape;
+        [settings] = args;
+      } else if (typeof shape === 'object') {
+        type = shape.type;
+        settings = shape;
       } else {
-        throw new Error('addElement(): Invalid parameter.');
+        ErrorThrower.invalidParameter();
       }
 
-      element.setCanvas(this);
-      this._drawElement(element);
-      this.addEventListener(COMPONENT_EVENT.REMOVE, element, this._onElementRemove, this);
+      shape = DiagramElementFactory.create(type, settings);
+    }
+
+    if (shape instanceof Shape && !this._shapes.has(shape)) {
+      this._shapes.add(shape);
+
+      // TODO: Fix this access to protected method.
+      shape._setCanvas(this);
+      this._drawElement(shape);
+      this.addListener(ELEMENT_EVENT.REMOVE, shape, this._onElementRemove, this);
     }
 
     return this;
   }
 
+  // TODO: should be removed? since addElement was splitted in addShape() and connect()?
   hasElement(element) {
     return this._shapes.has(element) || this._connections.has(element);
   }
 
-  clearElements() {
-    this._shapes.forEach((i) => {
-      i.remove();
+  clearShapes() {
+    this._shapes.forEach((shape) => {
+      shape.remove();
     });
     return this;
   }
 
-  setElements(elements) {
-    this.clearElements();
-    elements.forEach((i) => this.addElement(i));
+  setShapes(shapes) {
+    this.clearShapes();
+    shapes.forEach((shape) => this.addShape(shape));
+
+    return this;
+  }
+
+  clearConnections() {
+    this._connections.forEach((connection) => {
+      connection.remove();
+    });
+
+    return this;
+  }
+
+  setConnections(connections) {
+    this.clearConnections();
+    connections.forEach((connection) => {
+      const { orig: origShape, dest: destShape } = connection;
+
+      this.connect(origShape, destShape, connection);
+    });
 
     return this;
   }
@@ -146,11 +199,11 @@ class Canvas extends Element {
       return [...this._shapes].find((i) => i.getID() === shape) || null;
     }
 
-    if (shape instanceof Shape) {
-      return this._shapes.has(shape) ? shape : null;
+    if (!(shape instanceof Shape)) {
+      ErrorThrower.invalidParameter();
     }
 
-    throw new Error('findShape(): Invalid parameter.');
+    return this._shapes.has(shape) ? shape : null;
   }
 
   findConnection(connection) {
@@ -158,20 +211,20 @@ class Canvas extends Element {
       return [...this._connections].find((i) => i.getID() === connection) || null;
     }
 
-    if (connection instanceof Connection) {
-      return this._connections.has(connection) ? connection : null;
+    if (!(connection instanceof Connection)) {
+      ErrorThrower.invalidParameter();
     }
 
-    throw new Error('findConnection(): Invalid parameter.');
+    return this._connections.has(connection) ? connection : null;
   }
 
-  addEventListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
-    this._eventBus.addListener.apply(this._eventBus, arguments);
+  addListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
+    this._eventBus.addListener.call(this._eventBus, eventName, targetOrCallback, callbackOrScope, scope);
     return this;
   }
 
-  removeEventListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
-    this._eventBus.removeListener.apply(this._eventBus, arguments);
+  removeListener(eventName, targetOrCallback, callbackOrScope = null, scope = null) {
+    this._eventBus.removeListener.call(this._eventBus, eventName, targetOrCallback, callbackOrScope, scope);
     return this;
   }
 
@@ -181,22 +234,28 @@ class Canvas extends Element {
     return this;
   }
 
+  _addConnection(connection) {
+    if (!this._connections.has(connection)) {
+      this._connections.add(connection);
+      connection._setCanvas(this);
+
+      this._drawElement(connection);
+      this.addListener(ELEMENT_EVENT.REMOVE, connection, this._onElementRemove, this);
+    }
+  }
+
   connect(origin, destination, connection = null) {
     origin = origin instanceof Shape ? origin : this.findShape(origin);
     destination = destination instanceof Shape ? destination : this.findShape(destination);
 
-    if (connection) {
-      connection.setCanvas(this);
-      connection.connect(origin, destination);
-    } else {
-      connection = new Connection({
-        canvas: this,
-        origShape: origin,
-        destShape: destination,
-      });
+    if (!(connection instanceof Connection)) {
+      connection = DiagramElementFactory.create(ELEMENTS.CONNECTION, connection);
     }
 
-    if (connection.isConnected()) {
+    // TODO: connection's connect() method should be set the canvas.
+    if (connection.connect(origin, destination)) {
+      this._addConnection(connection);
+
       return connection;
     }
 
@@ -208,7 +267,7 @@ class Canvas extends Element {
   }
 
   clientToCanvas(clientPosition) {
-    const html = this._html;
+    const html = this._el;
 
     if (html) {
       const rect = html.getBoundingClientRect();
@@ -307,6 +366,11 @@ class Canvas extends Element {
     return this._selectionBehavior.get();
   }
 
+  onContextMenu(event) {
+    this._selectionBehavior.clear();
+    this._onContextMenu(event, this);
+  }
+
   /**
    * Executes a command, and add if its succesfully executed it is add to the undo/redo stack.
    * @see {@link CommandManager}
@@ -336,15 +400,23 @@ class Canvas extends Element {
     return this._commandManager.getSteps()[1];
   }
 
-  _createHTML() {
-    if (this._html) {
+  toJSON() {
+    return {
+      id: this.getID(),
+      shapes: [...this._shapes].map((shape) => shape.toJSON()),
+      connections: [...this._connections].map((connection) => connection.toJSON()),
+    };
+  }
+
+  _createElement() {
+    if (this._el) {
       return this;
     }
 
-    const svg = Element.createSVG('svg');
-    const root = Element.createSVG('g');
-    const componentsLayer = Element.createSVG('g');
-    const uiLayer = Element.createSVG('g');
+    const svg = BaseElement.createSVG('svg');
+    const root = BaseElement.createSVG('g');
+    const componentsLayer = BaseElement.createSVG('g');
+    const uiLayer = BaseElement.createSVG('g');
 
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
@@ -363,7 +435,7 @@ class Canvas extends Element {
 
     this._dom.uiLayer = uiLayer;
     this._dom.componentsLayer = componentsLayer;
-    this._html = svg;
+    this._el = svg;
 
     this.setWidth(this._width)
       .setHeight(this._height);
@@ -375,11 +447,12 @@ class Canvas extends Element {
     this._connectivityAreaBehavior.attach();
     this._draggingAreaBehavior.attach();
     this._keyboardBehavior.attach();
+    this._contextMenuBehavior.attach();
+    this._shapes.forEach((shape) => this._drawElement(shape));
+    this._connections.forEach((connection) => this._drawElement(connection));
+    this.setID(this._id);
 
-    // TODO: This only draws Shapes, when working on DS-145 connections should be considered too.
-    this._shapes.forEach((element) => this._drawElement(element));
-
-    return this.setID(this._id);
+    return super._createElement();
   }
 }
 

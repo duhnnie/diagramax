@@ -41,25 +41,17 @@ class KeyboardControlBehavior extends Behavior {
         _target._connectivityAreaBehavior.end();
         _target._selectionBehavior.end();
         break;
-      case 'KeyZ':
-        if (event.ctrlKey) {
-          if (event.shiftKey) {
-            _target.redo();
-          } else {
-            _target.undo();
-          }
-        }
       default:
     }
   }
 
   attach() {
-    this._target.getHTML().addEventListener('keydown', this._onKeyDown, false);
+    this._target.getElement().addEventListener('keydown', this._onKeyDown, false);
     super.attach();
   }
 
   detach() {
-    this._target.getHTML().removeEventListener('keydown', this._onKeyDown, false);
+    this._target.getElement().removeEventListener('keydown', this._onKeyDown, false);
     super.detach();
   }
 }

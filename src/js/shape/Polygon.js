@@ -1,35 +1,42 @@
-import Element from '../core/Element';
+import BaseElement from '../core/BaseElement';
 import Shape from './Shape';
+import ErrorThrower from '../utils/ErrorThrower';
 
 // TODO: doc this as abstract
 class Polygon extends Shape {
+  static get type() {
+    return 'polygon';
+  }
+
   static toPointsString(points) {
     return points.map(({ x, y }) => `${x},${y}`).join(' ');
   }
 
   // eslint-disable-next-line class-methods-use-this
   _getPoints() {
-    throw new Error('_getPoints(): This method should be implemented.');
+    ErrorThrower.notImplemented();
   }
 
   _updateSize(width, height) {
-    const { mainElement } = this._dom;
+    const { polygon } = this._dom;
 
     super._updateSize(width, height);
 
-    if (mainElement) {
-      mainElement.setAttribute('points', Polygon.toPointsString(this._getPoints()));
+    if (polygon) {
+      polygon.setAttribute('points', Polygon.toPointsString(this._getPoints()));
     }
 
     return this;
   }
 
-  _createHTML() {
-    if (!this._html) {
-      const polygon = Element.createSVG('polygon');
+  _createElement() {
+    if (!this._el) {
+      const polygon = BaseElement.createSVG('polygon');
 
-      this._dom.mainElement = polygon;
-      super._createHTML();
+      super._createElement();
+
+      this._dom.polygon = polygon;
+      this._getMainElement().append(polygon);
       this.setSize(this._base, this._height);
     }
 

@@ -3,7 +3,7 @@ import uuid from 'uuid/v1';
 /**
  * @class The base class for every component that has a HTML representation.
 */
-class Element {
+class BaseElement {
   /**
    * Create a new HTMLElement
    * @param {String} [tag="div"] The tag name for the new element.
@@ -22,8 +22,20 @@ class Element {
     return document.createElementNS('http://www.w3.org/2000/svg', tagName);
   }
 
+  static get type() {
+    return 'element';
+  }
+
   /**
-   * Create an instance of Element.
+   * Return the type of the object.
+   * @returns {String} The type name.
+   */
+  get type() {
+    return this.constructor.type;
+  }
+
+  /**
+   * Create an instance of BaseElement.
    * @constructor
    * @param {Object} settings An object containing all the settings for the element.
    * @param {String} [settings.id] The id for the HTML element, if not provided one will be generated.
@@ -40,7 +52,7 @@ class Element {
      * @type {HTMLElement}
      * @description The instance's HTML.
      */
-    this._html = null;
+    this._el = null;
 
     settings = {
       id: uuid(),
@@ -53,13 +65,13 @@ class Element {
   /**
    * Set the instance id.
    * @param {string} id The id to set.
-   * @return {Element} this.
+   * @return {BaseElement} this.
    */
   setID(id) {
     this._id = id;
 
-    if (this._html) {
-      this._html.setAttribute('id', id);
+    if (this._el) {
+      this._el.setAttribute('id', id);
     }
 
     return this;
@@ -82,33 +94,35 @@ class Element {
   trigger() { return this; }
 
   /**
-   * @abstract
    * @protected
    * @description Create the HTML for the instance.
-   * @returns {Element} this.
+   * @returns {BaseElement} this.
    */
-  _createHTML() { return this; }
+  _createElement() {
+    this._el.classList.add('diagramax');
+    return this;
+  }
 
   /**
    * Return the instance's HTML.
    * @returns {HTMLElement} The instance's HTMLElement.
    */
-  getHTML() {
-    if (!this._html) {
-      this._createHTML();
+  getElement() {
+    if (!this._el) {
+      this._createElement();
     }
-    return this._html;
+    return this._el;
   }
 
   /**
    * @description Remove the element from DOM.
    */
   remove() {
-    if (this._html) {
-      this._html.remove();
-      this._html = null;
+    if (this._el) {
+      this._el.remove();
+      this._el = null;
     }
   }
 }
 
-export default Element;
+export default BaseElement;

@@ -1,29 +1,62 @@
 {
-  "name": "designer",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "diagramax",
+  "version": "0.1.0",
+  "description": "An extendable javascript library for drawing diagrams.",
+  "keywords": [
+    "diagram",
+    "canvas",
+    "graphics",
+    "drawing",
+    "draw",
+    "svg",
+    "drag",
+    "drag-and-drop",
+    "designer",
+    "bpmn",
+    "ui"
+  ],
+  "homepage": "https://github.com/duhnnie/diagramax#readme",
+  "bugs": "https://github.com/duhnnie/diagramax/issues",
+  "main": "./diagramax.js",
   "scripts": {
     "build": "webpack --mode=production",
-    "build-dev": "webpack --mode=development",
+    "build:dev": "webpack --mode=development",
     "doc": "jsdoc -c jsdoc.json ./src/js/**/*.js",
     "dev": "webpack-dev-server --mode=development",
+    "prepack": "rm -rf dist && npm run build && npm run build:dev && cp dist/* .",
     "lint": "eslint ./src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": {
+    "name": "Daniel Canedo Ramos",
+    "author": "Daniel Canedo Ramos",
+    "url": "http://duhnnie.net"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/duhnnie/diagramax.git"
+  },
+  "license": "MIT",
   "devDependencies": {
     "eslint": "^6.7.2",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.19.1",
+    "file-loader": "^6.0.0",
     "jaguarjs-jsdoc": "^1.1.0",
     "jsdoc": "~3.6.4",
+    "sass": "^1.26.9",
+    "sass-loader": "^8.0.2",
     "webpack": "^4.41.3",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.9.0"
   },
   "dependencies": {
     "uuid": "^3.3.3"
-  }
+  },
+  "files": [
+    "/diagramax.js",
+    "/diagramax.dev.js",
+    "/diagramax.css",
+    "/diagramax.dev.css"
+  ]
 }

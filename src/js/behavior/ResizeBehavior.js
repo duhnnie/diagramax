@@ -1,24 +1,24 @@
-import Element from '../core/Element';
 import DragBehavior from './DragBehavior';
 import Geometry from '../utils/Geometry';
 import { PRODUCTS as COMMANDS } from '../command/CommandFactory';
+import ShapeUI from '../shape/ShapeUI';
 
-export const EVENT = Object.freeze({
+const EVENT = Object.freeze({
   START: 'resizestart',
   RESIZE: 'resize',
   END: 'resizeend',
   SIZE_CHANGE: 'size:change',
 });
 
-export const DIRECTION = {
-  NW: 'nw',
-  N: 'n',
-  NE: 'ne',
-  E: 'e',
-  SE: 'se',
-  S: 's',
-  SW: 'sw',
-  W: 'w',
+const DIRECTION = {
+  NW: 0,
+  N: 1,
+  NE: 2,
+  E: 3,
+  SE: 4,
+  S: 5,
+  SW: 6,
+  W: 7,
 };
 
 const OPPOSITE_DIRECTION = {
@@ -67,25 +67,7 @@ const handlerDefs = [
   },
 ];
 
-const resizeHandlerRadius = 4;
-let resizeHandler;
-
 class ResizeBehavior extends DragBehavior {
-  static createHandler(x, y) {
-    if (!resizeHandler) {
-      resizeHandler = Element.createSVG('circle');
-      resizeHandler.setAttribute('r', resizeHandlerRadius);
-      resizeHandler.setAttribute('fill', '#f44336');
-    }
-
-    const handlerClone = resizeHandler.cloneNode(true);
-
-    handlerClone.setAttribute('cx', x);
-    handlerClone.setAttribute('cy', y);
-
-    return handlerClone;
-  }
-
   // eslint-disable-next-line object-curly-newline
   static isValidSize({ top, right, bottom, left }) {
     const width = right - left;
@@ -107,12 +89,14 @@ class ResizeBehavior extends DragBehavior {
   }
 
   _onGrab(event) {
+    if (event.button !== 0) return;
+
     const { target: handler } = event;
     const { _target } = this;
 
     super._onGrab(event);
 
-    this._direction = handler.dataset.direction;
+    this._direction = Number(handler.dataset.direction);
     _target.getCanvas().setResizingShape(_target);
   }
 
@@ -131,7 +115,7 @@ class ResizeBehavior extends DragBehavior {
     _target._componentUI.setActive();
 
     super.startDrag(position, options);
-    // TODO: When Element inherits from EventTarget, the method
+    // TODO: When BaseElement inherits from EventTarget, the method
     // should trigger the event from itself.
     _target.getCanvas().dispatchEvent(EVENT.START, _target);
   }
@@ -349,7 +333,10 @@ class ResizeBehavior extends DragBehavior {
     }
 
     super.updatePosition(position);
-    _target.getCanvas().dispatchEvent(EVENT.RESIZE, _target, { width, height }, _target.getCurrentPosition());
+    _target.getCanvas().dispatchEvent(EVENT.RESIZE, _target, {
+      currentSize: { width, height },
+      currentPosition: _target.getCurrentPosition(),
+    });
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -365,13 +352,18 @@ class ResizeBehavior extends DragBehavior {
   // TODO: handlers should be created in ShapeUI
   _createHandlers() {
     for (let i = 0; i < 8; i += 1) {
-      const newHandler = ResizeBehavior.createHandler(0, 0);
       const { className, direction } = handlerDefs[i];
+      const newHandler = ShapeUI.createHandler({
+        classNames: `handler-resize-${className}`,
+        dataset: { direction },
+      });
 
-      newHandler.classList.add(`handler-resize-${className}`);
-      newHandler.dataset.direction = direction;
+      // TODO: this should be defined in createHandler() method.
+      newHandler.setAttribute('cx', 0);
+      newHandler.setAttribute('cy', 0);
 
-      // TODO: Fix this access to private member
+      // TODO: Fix this access to private member. It could be solved by just sending a handler description to a public
+      //  method, and that handler will created internally in the ShapeUI (DS-179).
       this._target._addControl(newHandler, {
         mousedown: this._onGrab,
         mouseup: this.endDrag,
@@ -387,9 +379,12 @@ class ResizeBehavior extends DragBehavior {
     const canvas = _target.getCanvas();
 
     this._createHandlers();
-    canvas.addEventListener(EVENT.RESIZE, _target, this._onTargetResize);
-    canvas.addEventListener(EVENT.SIZE_CHANGE, _target, this._onTargetResize);
+    canvas.addListener(EVENT.RESIZE, _target, this._onTargetResize);
+    canvas.addListener(EVENT.SIZE_CHANGE, _target, this._onTargetResize);
   }
+
+  // TODO: is it necesssary to implement the detach() method?
 }
 
 export default ResizeBehavior;
+export { EVENT, DIRECTION };

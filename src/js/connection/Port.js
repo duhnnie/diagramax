@@ -1,29 +1,30 @@
 import BPMNShape from '../shape/Shape';
 import Connection from './Connection';
+import ErrorThrower from '../utils/ErrorThrower';
 
 const DEFAULTS = {
   connections: [],
   shape: null,
 };
 
-export const ORIENTATION = Object.freeze({
+const ORIENTATION = Object.freeze({
   X: 'x',
   Y: 'y',
 });
 
 // TOOD: this could be renamed to WAY and POSITION could be DIRECTION
-export const DIRECTION = Object.freeze({
+const DIRECTION = Object.freeze({
   NEGATIVE: -1,
   POSITIVE: 1,
 });
 
 // TODO: It is not the same as Connection.POINT?
-export const MODE = Object.freeze({
+const MODE = Object.freeze({
   ORIG: 0,
   DEST: 1,
 });
 
-export const POSITION = Object.freeze({
+const POSITION = Object.freeze({
   NORTH: 0,
   EAST: 1,
   SOUTH: 2,
@@ -48,7 +49,7 @@ export const POSITION = Object.freeze({
   },
 });
 
-export function getPositionProps(position) {
+function getPositionProps(position) {
   return POSITION.props[position];
 }
 
@@ -108,7 +109,7 @@ class Port {
 
   _setShape(shape) {
     if (!(shape instanceof BPMNShape)) {
-      throw new Error('setShape(): invalid parameter.');
+      ErrorThrower.invalidParameter();
     }
 
     this._shape = shape;
@@ -126,16 +127,16 @@ class Port {
 
   addConnection(connection, mode) {
     if (!(connection instanceof Connection)) {
-      throw new Error('addConnection(): Invalid parameter.');
+      ErrorThrower.invalidParameter();
     } else if (!this._shape.isUsingConnection(connection)) {
-      throw new Error('addConnection(): the supplied connection doesn\'t belong to this shape.');
+      ErrorThrower.custom('The supplied connection doesn\'t belong to this shape.');
     } else if ((mode === MODE.DEST && connection.getDestShape() !== this._shape)
      || (mode === MODE.ORIG && connection.getOrigShape() !== this._shape)) {
-      throw new Error('addConnection(): mode doesn\'t match with connection direction.');
+      ErrorThrower.custom('Mode doesn\'t match with connection direction.');
     }
 
     if (mode !== this._mode && this._mode !== null) {
-      throw new Error('addConnection(): Invalid connection direction.');
+      ErrorThrower.custom('Invalid connection direction.');
     }
 
     this._mode = mode;
@@ -182,3 +183,6 @@ class Port {
 }
 
 export default Port;
+export {
+  ORIENTATION, DIRECTION, MODE, POSITION, getPositionProps,
+};

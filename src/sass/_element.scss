@@ -1,0 +1,19 @@
+.diagramax.element {
+  .main-element:hover,
+  .main-element:focus,
+  .main-element.selected {
+    outline: dotted 1px red;
+    /* TODO: Fix hardcoded value */
+    outline-offset: 0;
+  }
+
+  .text {
+    transform: translate(0, 0.4em);
+    text-anchor: middle;
+    pointer-events: none;
+
+    .text-container {
+      user-select: none;
+    }
+  }
+}
