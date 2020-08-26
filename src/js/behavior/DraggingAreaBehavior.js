@@ -83,10 +83,10 @@ class DraggingAreaBehavior extends Behavior {
   // TODO: this is the method in which snapping could be applied.
   // eslint-disable-next-line class-methods-use-this
   evaluate(diffX, diffY) {
-    return {
-      x: diffX,
-      y: diffY,
-    };
+      return {
+        x: diffX,
+        y: diffY,
+      };
   }
 }
 

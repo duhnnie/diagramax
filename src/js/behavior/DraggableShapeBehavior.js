@@ -17,8 +17,6 @@ class DraggableShapeBehavior extends DragBehavior {
       x: 0,
       y: 0,
     };
-    this._lastPosition = null;
-    this._lastDragPosition = null;
     this.updatePosition = this._bind(this.updatePosition);
   }
 
@@ -26,8 +24,14 @@ class DraggableShapeBehavior extends DragBehavior {
     if (event.button !== 0) return;
 
     const canvas = this._target.getCanvas();
+    const { clientX: x, clientY: y } = event;
+    const targetPosition = this._target.getPosition();
+    const mousePosition = canvas.clientToCanvas({ x, y });
 
     super._onGrab(event);
+
+    this._diff.x = mousePosition.x - targetPosition.x;
+    this._diff.y = mousePosition.y - targetPosition.y;
     // TODO: can this be generalized in DragBehavior?
     canvas.setDraggingShape(this._target);
   }
@@ -50,18 +54,17 @@ class DraggableShapeBehavior extends DragBehavior {
       // TODO: Can this be generalized in DragBehavior?
       canvas.setDraggingShape(null);
       if (_dragging) {
-        const diff = Geometry.getDiff(_target.getPosition(), this._lastDragPosition);
+        const currentPosition = _target.getCurrentPosition();
+        const diff = Geometry.getDiff(_target.getPosition(), currentPosition);
 
         if (diff.x !== 0 || diff.y !== 0) {
-          canvas.executeCommand(COMMANDS.SHAPE_POSITION, _target, this._lastDragPosition);
+          canvas.executeCommand(COMMANDS.SHAPE_POSITION, _target, currentPosition);
         } else {
-          _target.setPosition(this._lastDragPosition);
+          _target.setPosition(currentPosition);
         }
 
         canvas.dispatchEvent(SHAPE_EVENT.DRAG_END, _target);
       }
-      this._lastPosition = null;
-      this._lastDragPosition = null;
     }
   }
 
@@ -74,34 +77,18 @@ class DraggableShapeBehavior extends DragBehavior {
   }
 
   updatePosition({ x, y }) {
-    if (!this._lastPosition) {
-      this._lastPosition = this._target.getPosition();
-    }
+    const newPosition = {
+      x: x - this._diff.x,
+      y: y - this._diff.y,
+    };
 
-    this._diff.x += x - this._lastPosition.x;
-    this._diff.y += y - this._lastPosition.y;
+    const target = this._target;
+    const canvas = target.getCanvas();
 
-    const diff = this._evaluate(this._diff.x, this._diff.y);
+    target._updatePosition(newPosition.x, newPosition.y);
 
-    if (diff) {
-      const target = this._target;
-      const canvas = target.getCanvas();
-      const { x: posX, y: posY } = this._lastDragPosition || target.getPosition();
-      const dragPosition = {
-        x: posX + this._diff.x,
-        y: posY + this._diff.y,
-      };
-
-      this._lastPosition = { x, y };
-      this._diff.x = 0;
-      this._diff.y = 0;
-
-      target._updatePosition(dragPosition.x, dragPosition.y);
-      this._lastDragPosition = dragPosition;
-
-      // TODO: this event should return at least current drag position.
-      canvas.dispatchEvent(SHAPE_EVENT.DRAG, this._target, dragPosition);
-    }
+    // TODO: this event should return at least current drag position.
+    canvas.dispatchEvent(SHAPE_EVENT.DRAG, this._target, newPosition);
 
     super.updatePosition({ x, y });
   }

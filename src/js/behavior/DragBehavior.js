@@ -27,12 +27,7 @@ class DragBehavior extends Behavior {
     // Find a way to not repeat this in all of them.
     if (event.button !== 0) return;
 
-    const { clientX: x, clientY: y } = event;
-
     this._grabbed = true;
-
-    // TODO: Do we use _lastPosition?
-    this._lastPosition = this._target.getCanvas().clientToCanvas({ x, y });
     this._getDraggableElement().forEach((element) => element.classList.add(GRABBING_CN));
   }
 

@@ -24,6 +24,7 @@ import DiagramElementFactory, { PRODUCTS as ELEMENTS } from './DiagramElementFac
 import ErrorThrower from '../utils/ErrorThrower';
 
 const DEFAULTS = Object.freeze({
+  grid: false,
   width: 800,
   height: 600,
   shapes: [],
@@ -47,6 +48,7 @@ class Canvas extends BaseElement {
   constructor(settings) {
     super(settings);
     settings = { ...DEFAULTS, ...settings };
+    this._grid = settings.grid;
     this._width = null;
     this._height = null;
     this._shapes = new Set();
