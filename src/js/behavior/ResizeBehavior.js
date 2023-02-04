@@ -171,7 +171,7 @@ class ResizeBehavior extends DragBehavior {
     });
   }
 
-  _getNewBounds({ x, y }, direction) {
+  _getResizingBounds({ x, y }, direction) {
     const bounds = { ...this._originalBound };
 
     switch (direction) {
@@ -205,7 +205,7 @@ class ResizeBehavior extends DragBehavior {
     return bounds;
   }
 
-  _getModifiedBounds(bounds, modifiers, direction) {
+  _getNewBounds(bounds, modifiers, direction) {
     const newBounds = { ...bounds };
 
     if (modifiers.shiftKey) {
@@ -300,28 +300,14 @@ class ResizeBehavior extends DragBehavior {
 
     const { _target } = this;
     const direction = this._direction;
-    const bounds = this._getNewBounds(position, direction);
-    const modifiedBounds = this._getModifiedBounds(bounds, modifiers, direction);
+    const resizingBounds = this._getResizingBounds(position, direction);
+    const newBounds = this._getNewBounds(resizingBounds, modifiers, direction);
 
-    if (!ResizeBehavior.isValidSize(modifiedBounds)) return;
+    if (!ResizeBehavior.isValidSize(newBounds)) return;
 
-    const { width, height } = Geometry.getBoundSizeAndPos(modifiedBounds);
+    const { width, height } = Geometry.getBoundSizeAndPos(newBounds);
 
-    // NOTE: This different way to apply resizing is necessary to avoid erratic resizing for
-    // shapes that have a fixed ratio of 1:1 like Circle.
-    switch (direction) {
-      case DIRECTION.W:
-      case DIRECTION.E:
-        _target._updateWidth(width);
-        break;
-      case DIRECTION.N:
-      case DIRECTION.S:
-        _target._updateHeight(height);
-        break;
-      default:
-        _target._updateSize(width, height);
-    }
-
+    _target._updateSize(width, height);
     this._centered = this._isCentered(modifiers);
 
     if (this._centered) {
@@ -329,7 +315,7 @@ class ResizeBehavior extends DragBehavior {
 
       _target.setPosition(x, y);
     } else {
-      _target.align(modifiedBounds, OPPOSITE_DIRECTION[direction]);
+      _target.align(newBounds, OPPOSITE_DIRECTION[direction]);
     }
 
     super.updatePosition(position);
@@ -351,8 +337,7 @@ class ResizeBehavior extends DragBehavior {
 
   // TODO: handlers should be created in ShapeUI
   _createHandlers() {
-    for (let i = 0; i < 8; i += 1) {
-      const { className, direction } = handlerDefs[i];
+    handlerDefs.forEach(({ className, direction }, index) => {
       const newHandler = ShapeUI.createHandler({
         classNames: `handler-resize-${className}`,
         dataset: { direction },
@@ -369,8 +354,9 @@ class ResizeBehavior extends DragBehavior {
         mouseup: this.endDrag,
       });
 
-      this._handlers[i] = newHandler;
-    }
+      this._handlers[index] = newHandler;
+    });
+
     this._updateHandlers();
   }
 
