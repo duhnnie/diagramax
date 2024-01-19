@@ -1,6 +1,6 @@
 {
   "name": "diagramax",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "An extendable javascript library for drawing diagrams.",
   "keywords": [
     "diagram",
