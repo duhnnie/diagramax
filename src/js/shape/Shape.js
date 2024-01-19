@@ -374,12 +374,12 @@ class Shape extends DiagraElement {
   }
 
   /**
-   *
+   * Removes a specific Connection from all Shape's ports it is connected to.
    * @param {Connection} connection The connection to remove from Shape's ports or port.
    * @param {Port.MODE} [mode] The mode for the ports the connection will be removed from. If not specified, all ports
    * will be considered.
-   * @returns {Boolean} If all connection references were removed. When no supplying `mode` parameter this will always
-   * be true.
+   * @returns {Boolean} Returns true if all connection references (including the ones in either destination or origin 
+   * mode) were removed. When no supplying `mode` parameter this will always be true.
    */
   _removeFromPorts(connection, mode = null) {
     let stillExists = false;

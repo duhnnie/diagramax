@@ -597,8 +597,9 @@ class Connection extends DiagramElement {
           origShape,
           destShape,
         });
-        super.remove();
       }
+      
+      super.remove();
     }
 
     return this;
